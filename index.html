@@ -3355,24 +3355,16 @@ function showToast(msg) {
 
 function exportFullHTML() {
   const btn = document.getElementById('btn-export-full');
-  if (btn) btn.textContent = '⏳ 處理中...';
-  showToast('⏳ 準備匯出...');
+  if (btn) { btn.textContent = '⏳ 處理中...'; btn.disabled = true; }
+  showToast('⏳ 合併圖片與資料中...');
 
-  const getHTML = () => {
-    if (location.protocol === 'file:') {
-      return Promise.resolve('<!DOCTYPE html>\n' + document.documentElement.outerHTML);
-    }
-    return fetch(location.href).then(r => r.text()).catch(() =>
-      '<!DOCTYPE html>\n' + document.documentElement.outerHTML
-    );
-  };
-
-  getHTML().then(html => {
+  // 用 setTimeout 讓 toast 先顯示再開始處理
+  setTimeout(() => {
     try {
-      // 把所有修改（文字 + 圖片）都燒進 PRODUCTS
+      // 1. 把所有修改（圖片 + 文字）燒進 PRODUCTS
       const updatedProducts = PRODUCTS.map(p => {
         const c = Object.assign({}, p);
-        // 圖片：從 localStorage 讀取並燒入 _imgs
+        // 圖片燒入 _imgs
         const imgs = getProductImages(p.id);
         if (imgs.length) c._imgs = imgs;
         else delete c._imgs;
@@ -3393,31 +3385,72 @@ function exportFullHTML() {
         return c;
       });
 
-      // Sentinel 替換
+      // 2. 從 <script> 標籤裡找到原始的 PRODUCTS 字串，直接替換
+      //    用 script 內容定位比 outerHTML 更可靠
+      const scripts = document.querySelectorAll('script');
+      let targetScript = null;
+      for (const s of scripts) {
+        if (s.textContent.includes('// ===== DATA =====') &&
+            s.textContent.includes('// ===== STATE =====')) {
+          targetScript = s;
+          break;
+        }
+      }
+      if (!targetScript) { showToast('❌ 找不到資料區塊'); return; }
+
       const S1 = '// ===== DATA =====\n';
       const S2 = '\n// ===== STATE =====';
-      const i1 = html.indexOf(S1);
-      const i2 = html.indexOf(S2);
-      if (i1 === -1 || i2 === -1) { showToast('❌ 找不到資料標記'); return; }
-      html = html.slice(0, i1 + S1.length)
-           + 'const PRODUCTS = ' + JSON.stringify(updatedProducts) + ';'
-           + html.slice(i2);
+      const origCode = targetScript.textContent;
+      const i1 = origCode.indexOf(S1);
+      const i2 = origCode.indexOf(S2);
+      if (i1 === -1 || i2 === -1) { showToast('❌ 找不到 sentinel 標記'); return; }
 
-      // 下載
-      const blob = new Blob([html], {type:'text/html;charset=utf-8'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'bardshop-product-db-' + new Date().toISOString().slice(0,10) + '.html';
-      a.click();
-      URL.revokeObjectURL(a.href);
-      if (btn) btn.textContent = '🚀 匯出完整版';
-      showToast('✅ 下載完成！上傳 GitHub 即可同步');
+      const newCode = origCode.slice(0, i1 + S1.length)
+                    + 'const PRODUCTS = ' + JSON.stringify(updatedProducts) + ';'
+                    + origCode.slice(i2);
+
+      // 3. 建立新的 HTML：複製 outerHTML 並替換那段 script 的內容
+      const SC = '<scr' + 'ipt>', EC = '</scr' + 'ipt>';
+      const origScriptBlock = SC + origCode + EC;
+      const newScriptBlock  = SC + newCode  + EC;
+
+      const fullHTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+      // 用第一次出現的位置替換（原始 script 是唯一的）
+      const idx = fullHTML.indexOf(origScriptBlock.slice(0, 80));
+      if (idx === -1) {
+        // fallback：直接用 sentinel 切割替換整個 HTML
+        const i1h = fullHTML.indexOf(S1);
+        const i2h = fullHTML.indexOf(S2);
+        if (i1h === -1) { showToast('❌ 無法定位資料區塊'); return; }
+        const finalHTML = fullHTML.slice(0, i1h + S1.length)
+                        + 'const PRODUCTS = ' + JSON.stringify(updatedProducts) + ';'
+                        + fullHTML.slice(i2h);
+        _downloadHTML(finalHTML);
+      } else {
+        // 精準替換 script 內容
+        const finalHTML = fullHTML.replace(SC + origCode + EC, SC + newCode + EC);
+        _downloadHTML(finalHTML);
+      }
     } catch(e) {
-      console.error(e);
-      if (btn) btn.textContent = '🚀 匯出完整版';
+      console.error('[export]', e);
       showToast('❌ 匯出失敗：' + e.message);
+    } finally {
+      if (btn) { btn.textContent = '🚀 匯出完整版'; btn.disabled = false; }
     }
-  });
+  }, 100);
+}
+
+function _downloadHTML(html) {
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bardshop-product-db-' + new Date().toISOString().slice(0,10) + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  showToast('✅ 下載完成！改名 index.html 上傳 GitHub');
 }
 
 function exportImages() {
