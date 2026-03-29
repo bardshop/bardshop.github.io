@@ -3439,6 +3439,20 @@ function exportFullHTML() {
       // 插在 </head> 前面
       fullHTML = fullHTML.replace('</head>', annScript + '\n</head>');
 
+      // 匯出前確保：edit-mode-bar 不帶 visible（避免下次開啟預設進入編輯模式）
+      fullHTML = fullHTML.replace(
+        /(<div class="edit-mode-bar)[^"]*(")/g,
+        '$1$2'
+      );
+      // 重設 edit-mode-toggle 按鈕文字與樣式
+      fullHTML = fullHTML.replace(
+        /(<button id="edit-mode-toggle"[^>]*style=")[^"]*(")/,
+        '$1background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap;$2'
+      );
+      fullHTML = fullHTML.replace(
+        /(<button id="edit-mode-toggle"[^>]*>)[^<]*/,
+        '$1✏️ 編輯模式'
+      );
       _downloadHTML(fullHTML);
     } catch(e) {
       console.error('[export]', e);
@@ -3784,6 +3798,29 @@ function setTheme(name, dotEl) {
 // ===== INIT =====
 window._activeCat = '壓克力商品';
 renderProducts();
+
+// ── 強制確保頁面載入時永遠從「鎖定」狀態開始 ──
+// （避免匯出時的編輯狀態被烙進 HTML）
+(function() {
+  editUnlocked = false;
+  const bar = document.getElementById('edit-mode-bar');
+  if (bar) bar.classList.remove('visible');
+  const btn = document.getElementById('edit-mode-toggle');
+  if (btn) {
+    btn.textContent = '✏️ 編輯模式';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    btn.style.background = '';
+  }
+  // 隱藏所有只在編輯模式才顯示的按鈕
+  ['btn-export-full', 'btn-export-img', 'btn-import-img'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && id !== 'btn-export-full') el.style.display = 'none';
+  });
+  // btn-export-full 要保持 disabled + 重設文字
+  const exp = document.getElementById('btn-export-full');
+  if (exp) { exp.style.display = 'none'; exp.disabled = false; exp.textContent = '🚀 匯出完整版'; }
+})();
 </script>
 
 
