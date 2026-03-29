@@ -744,6 +744,84 @@
     }
     .list-actions { display: none; }
   }
+
+  /* ===== SIZE CHIP GRID ===== */
+  .size-chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .size-chip {
+    border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 7px 14px;
+    font-size: 12px; cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface2); color: var(--text-muted);
+    white-space: nowrap; user-select: none;
+    font-family: 'Noto Sans TC', sans-serif;
+    letter-spacing: 0;
+  }
+  .size-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+  .size-chip.active {
+    border-color: var(--accent); background: var(--accent-bg);
+    color: var(--accent); font-weight: 700;
+  }
+  /* Part number display */
+  .pn-card {
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; transition: border-color 0.2s;
+  }
+  .pn-card.has-value { border-color: var(--accent); background: var(--accent-bg); }
+  .pn-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; text-align: left; }
+  .pn-value {
+    font-size: 16px; font-weight: 700; color: var(--accent);
+    letter-spacing: 1px; min-height: 22px; text-align: left;
+    font-family: 'Bebas Neue', monospace;
+  }
+  .pn-hint { font-size: 11px; color: var(--text-dim); font-style: italic; }
+  /* Spec field cards */
+  .sfc { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .sfc-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; text-align: left; }
+  .sfc-value { font-size: 13px; font-weight: 500; color: var(--text); text-align: left; line-height: 1.6; }
+  .sfc-value.green { color: var(--green); }
+  /* Size opt edit rows */
+  .size-opt-row {
+    display: flex; gap: 8px; align-items: center;
+    padding: 8px 10px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px;
+    transition: border-color 0.15s;
+  }
+  .size-opt-row:hover { border-color: var(--accent); }
+  .size-opt-input {
+    padding: 6px 10px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-size: 12px; outline: none;
+    font-family: 'Noto Sans TC', sans-serif; transition: border-color 0.2s;
+  }
+  .size-opt-input:focus { border-color: var(--accent); }
+  .size-opt-input.mono { font-family: 'Bebas Neue', monospace; font-size: 14px; letter-spacing: 1px; }
+  /* Section title customizable */
+  .detail-card-title {
+    margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 6px;
+  }
+  .dct-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .dct-bar { width: 3px; height: 14px; background: var(--accent); border-radius: 2px; flex-shrink: 0; }
+  /* Override old ::before pseudo-element that conflicts with new dct-bar */
+  .detail-card-title::before { display: none !important; }
+  .dct-label { text-align: left; font-weight: 600; }
+  .dct-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  /* Title style panel */
+  .ts-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 14px;
+    font-size: 12px;
+  }
+  .ts-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .ts-input {
+    padding: 5px 8px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-size: 12px; outline: none;
+  }
+  .ts-input:focus { border-color: var(--accent); }
+
 </style>
 
 
@@ -2257,6 +2335,28 @@ function getEffectiveSpec(p) {
     leadtime: p.leadtime || ''
   };
 }
+// ===== SIZE OPTIONS STORAGE =====
+const SIZE_OPTS_PREFIX = 'bardshop_sizeopts_';
+function getCustomSizeOpts(id) {
+  try { const r = localStorage.getItem(SIZE_OPTS_PREFIX + id); return r ? JSON.parse(r) : null; } catch(e) { return null; }
+}
+function saveSizeOpts(id, arr) {
+  try { localStorage.setItem(SIZE_OPTS_PREFIX + id, JSON.stringify(arr)); } catch(e) {} }
+function getEffectiveSizeOpts(p) {
+  const c = getCustomSizeOpts(p.id);
+  if (c) return c;
+  if (p._sizeOpts && p._sizeOpts.length) return p._sizeOpts;
+  // Auto-parse size string into chips if multiple options
+  if (p.size) {
+    const parts = p.size.split(/[；;]/).map(s => s.trim()).filter(Boolean);
+    if (parts.length > 1) return parts.map(label => ({label, partNumber: ''}));
+    // Also check slash-separated
+    const slashParts = p.size.split(' / ').map(s => s.trim()).filter(Boolean);
+    if (slashParts.length > 1) return slashParts.map(label => ({label, partNumber: ''}));
+  }
+  return [];
+}
+
 function getEffectiveNotes(p) {
   const c = getCustomNotes(p.id);
   if (c !== null) return c;
@@ -2268,28 +2368,77 @@ function renderSpecView(p) {
   const card = document.getElementById('spec-edit-card');
   if (!card) return;
   const s = getEffectiveSpec(p);
-  const hasCustom = !!getCustomSpec(p.id);
+  const sizeOpts = getEffectiveSizeOpts(p);
+  const hasCustom = !!getCustomSpec(p.id) || !!getCustomSizeOpts(p.id);
+  const ts = getTitleStyle();
   const printLines = s.print ? s.print.split('\n').filter(Boolean) : [];
 
-  if (!s.moq && !s.material && !s.size && !s.leadtime && !s.print) { card.innerHTML = ''; return; }
+  const sym = ts.symbol || '';
+  const titleFz = ts.fontSize ? ts.fontSize + 'px' : '10px';
+  const titleColor = ts.color || 'var(--text-dim)';
 
-  let html = `<div class="detail-card-title" style="display:flex;align-items:center;justify-content:space-between;">
-    <span>商品規格</span>
-    <div style="display:flex;align-items:center;gap:10px;">
-      ${hasCustom ? '<span style="font-size:10px;color:var(--accent);">已自訂</span>' : ''}
-      ${editUnlocked ? '<button onclick="renderSpecEdit(activeProduct)" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;">✏️ 編輯</button>' : ''}
+  let html = `<div class="detail-card-title">
+    <div class="dct-left">
+      <div class="dct-bar"></div>
+      ${sym ? `<span style="font-size:16px;line-height:1;">${sym}</span>` : ''}
+      <span class="dct-label" style="font-size:${titleFz};color:${titleColor};letter-spacing:2px;text-transform:uppercase;">商品規格</span>
     </div>
-  </div><div class="spec-grid">`;
-  if (s.moq)      html += `<div class="spec-item"><div class="spec-item-label">起訂量（MOQ）</div><div class="spec-item-value green">${escHtml(s.moq)}</div></div>`;
-  html += `<div class="spec-item"><div class="spec-item-label">報價</div><div class="spec-item-value" style="color:var(--accent);">請洽業務</div></div>`;
-  if (s.size)     html += `<div class="spec-item full"><div class="spec-item-label">尺寸規格</div><div class="spec-item-value">${escHtml(s.size)}</div></div>`;
-  if (s.material) html += `<div class="spec-item"><div class="spec-item-label">材質</div><div class="spec-item-value">${escHtml(s.material)}</div></div>`;
-  if (printLines.length) {
-    html += `<div class="spec-item"><div class="spec-item-label">印刷工藝</div><div class="spec-item-value">${escHtml(printLines[0])}</div></div>`;
-    printLines.slice(1).forEach(t => {
-      html += `<div class="spec-item full"><div class="spec-item-label">加購選項</div><div class="spec-item-value">${escHtml(t)}</div></div>`;
-    });
+    <div class="dct-right">
+      ${hasCustom ? '<span style="font-size:10px;color:var(--accent);">已自訂</span>' : ''}
+      ${editUnlocked ? `<button onclick="openTitleStylePanel()" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;">⚙ 標題樣式</button>` : ''}
+      ${editUnlocked ? `<button onclick="renderSpecEdit(activeProduct)" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;">✏️ 編輯</button>` : ''}
+    </div>
+  </div>
+  <div id="title-style-panel" style="display:none;"></div>
+  <div style="display:flex;flex-direction:column;gap:12px;">`;
+
+  // MOQ
+  if (s.moq) {
+    html += `<div class="sfc" style="background:rgba(61,138,90,0.07);border-color:rgba(61,138,90,0.3);">
+      <div class="sfc-label">起訂量（MOQ）</div>
+      <div class="sfc-value green">${escHtml(s.moq)}</div>
+    </div>`;
   }
+
+  // Size options as chips
+  if (sizeOpts.length > 0) {
+    html += `<div class="sfc">
+      <div class="sfc-label">尺寸規格</div>
+      <div class="size-chip-grid" id="size-chip-grid" style="margin-top:6px;">
+        ${sizeOpts.map((opt, i) => `<div class="size-chip" data-idx="${i}" data-pn="${escHtml(opt.partNumber||'')}" onclick="selectSizeChip(${i})">${escHtml(opt.label)}</div>`).join('')}
+      </div>
+    </div>
+    <div class="pn-card" id="pn-card">
+      <div class="pn-label">料號</div>
+      <div id="pn-value" class="pn-hint">← 點選上方規格後顯示料號</div>
+    </div>`;
+  } else if (s.size) {
+    html += `<div class="sfc">
+      <div class="sfc-label">尺寸規格</div>
+      <div class="sfc-value">${escHtml(s.size)}</div>
+    </div>
+    <div class="pn-card">
+      <div class="pn-label">料號</div>
+      <div class="pn-hint">請洽業務</div>
+    </div>`;
+  } else {
+    html += `<div class="pn-card">
+      <div class="pn-label">料號</div>
+      <div class="pn-hint">請洽業務</div>
+    </div>`;
+  }
+
+  // Material + Print
+  const hasMat = !!s.material;
+  const hasPrint = printLines.length > 0;
+  if (hasMat || hasPrint) {
+    const cols = hasMat && hasPrint ? '1fr 1fr' : '1fr';
+    html += `<div style="display:grid;grid-template-columns:${cols};gap:10px;">`;
+    if (hasMat) html += `<div class="sfc"><div class="sfc-label">材質</div><div class="sfc-value">${escHtml(s.material)}</div></div>`;
+    if (hasPrint) html += `<div class="sfc"><div class="sfc-label">印刷工藝</div><div class="sfc-value">${printLines.map(t=>escHtml(t)).join('<br>')}</div></div>`;
+    html += `</div>`;
+  }
+
   html += `</div>`;
   card.innerHTML = html;
 }
@@ -2299,11 +2448,12 @@ function renderSpecEdit(p) {
   const card = document.getElementById('spec-edit-card');
   if (!card) return;
   const s = getEffectiveSpec(p);
+  const sizeOpts = getEffectiveSizeOpts(p);
 
   const field = (label, key, placeholder, hint, minRows) => `
     <div class="spec-edit-row">
-      <div class="spec-edit-label">${label}</div>
-      ${hint ? `<div class="spec-edit-hint">${hint}</div>` : ''}
+      <div class="spec-edit-label" style="text-align:left;">${label}</div>
+      ${hint ? `<div class="spec-edit-hint" style="text-align:left;">${hint}</div>` : ''}
       <textarea class="qa-edit-input" id="se-${key}"
         oninput="autoResize(this)"
         style="width:100%;min-height:${minRows * 42}px;resize:none;box-sizing:border-box;"
@@ -2311,39 +2461,244 @@ function renderSpecEdit(p) {
     </div>`;
 
   card.innerHTML = `
-    <div class="detail-card-title" style="display:flex;align-items:center;justify-content:space-between;">
-      <span>商品規格</span>
+    <div class="detail-card-title">
+      <div class="dct-left"><div class="dct-bar"></div><span class="dct-label" style="font-size:10px;letter-spacing:2px;text-transform:uppercase;">商品規格</span></div>
       <span style="font-size:11px;color:var(--accent);font-weight:400;">✏️ 編輯模式</span>
     </div>
     <div class="spec-edit-grid">
-      ${field('起訂量（MOQ）', 'moq',
-        '例：100件起，可不同圖（超過5款圖則酌收費用）',
-        '', 1)}
-      ${field('尺寸規格', 'size',
-        '例：多種尺寸可選；3x3cm / 5x5cm / 7x7cm',
-        '說明尺寸選項，或標注有哪些變體', 2)}
-      ${field('材質', 'material',
-        '例：透明壓克力 厚度3mm',
-        '', 1)}
+      ${field('起訂量（MOQ）', 'moq', '例：100件起，可不同圖（超過5款圖則酌收費用）', '', 1)}
+      <div class="spec-edit-row">
+        <div class="spec-edit-label" style="text-align:left;">尺寸規格選項 ＆ 料號</div>
+        <div class="spec-edit-hint" style="text-align:left;">💡 每筆一個尺寸，設定對應料號。點選後在詳情頁顯示料號<br>
+          <span style="opacity:.6;">標籤欄（左）：顯示在規格 chip 上的文字　|　料號欄（右）：點選後顯示的料號</span>
+        </div>
+        <div id="size-opts-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;">
+          ${sizeOpts.map((opt, i) => renderSizeOptRow(opt, i)).join('')}
+        </div>
+        <button onclick="sizeOptAdd()" class="qa-add-btn">＋ 新增尺寸 / 料號</button>
+      </div>
+      ${field('材質', 'material', '例：透明壓克力 厚度3mm', '', 1)}
       ${field('印刷工藝 & 加購選項', 'print',
         '第一行：主印刷工藝\n第二行起：每行一個加購選項',
-        '💡 每行一項，第一行會顯示為「印刷工藝」，第二行起顯示為「加購選項」', 3)}
+        '💡 每行一項，第一行為「印刷工藝」，第二行起為「加購選項」', 3)}
     </div>
     <button class="qa-save-btn" style="margin-top:12px;" onclick="specSave()">💾 儲存規格</button>`;
 
   card.querySelectorAll('.qa-edit-input').forEach(autoResize);
 }
 
+function renderSizeOptRow(opt, i) {
+  return `<div class="size-opt-row" data-idx="${i}">
+    <input type="text" class="size-opt-input" id="sizeopt-label-${i}"
+      value="${escHtml(opt.label||'')}" placeholder="尺寸標籤，例：7x7cm (底座4x4cm)" style="flex:2;">
+    <input type="text" class="size-opt-input mono" id="sizeopt-pn-${i}"
+      value="${escHtml(opt.partNumber||'')}" placeholder="料號" style="flex:1;">
+    <button onclick="sizeOptDelete(${i})" style="background:none;border:none;color:var(--text-dim);font-size:16px;cursor:pointer;padding:0 4px;flex-shrink:0;line-height:1;transition:color .15s;" onmouseover="this.style.color='#ff6b35'" onmouseout="this.style.color=''">✕</button>
+  </div>`;
+}
+
+function getCurrentSizeOpts() {
+  const list = document.getElementById('size-opts-list');
+  if (!list) return [];
+  const rows = Array.from(list.querySelectorAll('.size-opt-row'));
+  return rows.map((row, i) => ({
+    label: (document.getElementById('sizeopt-label-'+i)||{}).value?.trim()||'',
+    partNumber: (document.getElementById('sizeopt-pn-'+i)||{}).value?.trim()||''
+  })).filter(o => o.label);
+}
+
+function sizeOptAdd() {
+  const current = getCurrentSizeOpts();
+  current.push({label:'', partNumber:''});
+  const list = document.getElementById('size-opts-list');
+  if (list) {
+    list.innerHTML = current.map((opt, i) => renderSizeOptRow(opt, i)).join('');
+    setTimeout(() => { const inp = document.getElementById('sizeopt-label-'+(current.length-1)); if(inp) inp.focus(); }, 50);
+  }
+}
+
+function sizeOptDelete(idx) {
+  const current = getCurrentSizeOpts();
+  current.splice(idx, 1);
+  const list = document.getElementById('size-opts-list');
+  if (list) list.innerHTML = current.map((opt, i) => renderSizeOptRow(opt, i)).join('');
+}
+
+function selectSizeChip(idx) {
+  document.querySelectorAll('#size-chip-grid .size-chip').forEach((el,i) => el.classList.toggle('active', i===idx));
+  const chip = document.querySelector('#size-chip-grid .size-chip[data-idx="'+idx+'"]');
+  const pn = chip ? chip.getAttribute('data-pn') : '';
+  const val = document.getElementById('pn-value');
+  const card = document.getElementById('pn-card');
+  if (val) {
+    if (pn) {
+      val.className = 'pn-value';
+      val.textContent = pn;
+      if (card) card.className = 'pn-card has-value';
+    } else {
+      val.className = 'pn-hint';
+      val.textContent = '（此規格尚未設定料號）';
+      if (card) card.className = 'pn-card';
+    }
+  }
+}
+
+// ===== TITLE STYLE =====
+const TITLE_STYLE_KEY = 'bardshop_title_style';
+function getTitleStyle() {
+  try { const r = localStorage.getItem(TITLE_STYLE_KEY); return r ? JSON.parse(r) : {}; } catch(e) { return {}; }
+}
+function saveTitleStyle(obj) { try { localStorage.setItem(TITLE_STYLE_KEY, JSON.stringify(obj)); } catch(e) {} }
+
+function openTitleStylePanel() {
+  const panel = document.getElementById('title-style-panel');
+  if (!panel) return;
+  if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+  const ts = getTitleStyle();
+  const SYMBOL_PRESETS = ['','◆','▌','▶','✦','✿','★','●','◉','⬛','🔷','📦','⚡','🔖','📌','✔'];
+  const COLOR_PRESETS = [
+    {label:'預設灰', val:''},
+    {label:'橘紅', val:'#c9521e'},
+    {label:'金橘', val:'#e07a45'},
+    {label:'深灰', val:'#504840'},
+    {label:'中灰', val:'#8a7e72'},
+    {label:'淺灰', val:'#c0b8ae'},
+    {label:'暗綠', val:'#3d8a5a'},
+    {label:'藍色', val:'#3d6abf'},
+    {label:'紫色', val:'#7c5cbf'},
+    {label:'黑色', val:'#1a1612'},
+    {label:'白色', val:'#f0ebe3'},
+  ];
+  const SIZE_PRESETS = [
+    {label:'小 (8px)', val:8},
+    {label:'預設 (10px)', val:10},
+    {label:'中 (12px)', val:12},
+    {label:'大 (14px)', val:14},
+    {label:'特大 (16px)', val:16},
+  ];
+
+  panel.style.display = 'block';
+  const curSym = ts.symbol || '';
+  const curCol = ts.color || '';
+  const curFz = ts.fontSize || 10;
+
+  panel.innerHTML = `<div class="ts-panel">
+    <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px;text-align:left;">⚙ 標題樣式設定</div>
+
+    <!-- Symbol -->
+    <div style="margin-bottom:12px;">
+      <div style="font-size:10px;color:var(--text-dim);margin-bottom:6px;text-align:left;letter-spacing:1px;text-transform:uppercase;">符號 / 圖示</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;">
+        ${SYMBOL_PRESETS.map(s => `<button onclick="tsPickSymbol('${s}')" id="tssym-${s||'none'}"
+          style="min-width:32px;height:32px;border:1.5px solid ${s===curSym?'var(--accent)':'var(--border)'};border-radius:6px;
+          background:${s===curSym?'var(--accent-bg)':'var(--surface)'};cursor:pointer;font-size:16px;
+          color:${s===curSym?'var(--accent)':'var(--text)'};transition:all .15s;padding:0 6px;">
+          ${s||'<span style="font-size:10px;color:var(--text-dim)">無</span>'}
+        </button>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:var(--text-dim);">自訂：</span>
+        <input class="ts-input" id="ts-symbol" value="${curSym}" placeholder="輸入任意文字/emoji" style="width:120px;" oninput="tsSyncSymbol(this.value)">
+      </div>
+    </div>
+
+    <!-- Font Size -->
+    <div style="margin-bottom:12px;">
+      <div style="font-size:10px;color:var(--text-dim);margin-bottom:6px;text-align:left;letter-spacing:1px;text-transform:uppercase;">字體大小</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;">
+        ${SIZE_PRESETS.map(s => `<button onclick="tsPickSize(${s.val})"
+          style="padding:5px 10px;border:1.5px solid ${s.val===curFz?'var(--accent)':'var(--border)'};border-radius:6px;
+          background:${s.val===curFz?'var(--accent-bg)':'var(--surface)'};cursor:pointer;font-size:11px;
+          color:${s.val===curFz?'var(--accent)':'var(--text)'};transition:all .15s;">
+          ${s.label}
+        </button>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:var(--text-dim);">自訂：</span>
+        <input class="ts-input" id="ts-fontsize" type="number" value="${curFz}" min="8" max="20" style="width:60px;">
+        <span style="font-size:10px;color:var(--text-dim);">px</span>
+      </div>
+    </div>
+
+    <!-- Color -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:10px;color:var(--text-dim);margin-bottom:6px;text-align:left;letter-spacing:1px;text-transform:uppercase;">顏色</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;">
+        ${COLOR_PRESETS.map(c => `<button onclick="tsPickColor('${c.val}')" title="${c.label}"
+          style="width:28px;height:28px;border:2px solid ${c.val===curCol?'var(--accent)':'var(--border)'};border-radius:50%;
+          background:${c.val||'var(--text-dim)'};cursor:pointer;transition:all .15s;flex-shrink:0;
+          box-shadow:${c.val===curCol?'0 0 0 2px var(--accent)':'none'};">
+        </button>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:var(--text-dim);">自訂：</span>
+        <input class="ts-input" id="ts-color" value="${curCol}" placeholder="預設 / #hex / rgb()" style="width:140px;" oninput="tsSyncColor(this.value)">
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:8px;">
+      <button onclick="saveTitleStyleFromPanel()" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer;">套用</button>
+      <button onclick="document.getElementById('title-style-panel').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;">關閉</button>
+      <button onclick="resetTitleStyle()" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;margin-left:auto;">↺ 還原預設</button>
+    </div>
+  </div>`;
+}
+
+function tsPickSymbol(s) {
+  document.getElementById('ts-symbol').value = s;
+  document.querySelectorAll('[id^="tssym-"]').forEach(b => {
+    const isCur = b.id === 'tssym-' + (s||'none');
+    b.style.borderColor = isCur ? 'var(--accent)' : 'var(--border)';
+    b.style.background = isCur ? 'var(--accent-bg)' : 'var(--surface)';
+    b.style.color = isCur ? 'var(--accent)' : 'var(--text)';
+  });
+}
+function tsSyncSymbol(val) {
+  // Deselect all preset buttons when typing custom
+  document.querySelectorAll('[id^="tssym-"]').forEach(b => {
+    b.style.borderColor = 'var(--border)';
+    b.style.background = 'var(--surface)';
+    b.style.color = 'var(--text)';
+  });
+}
+function tsPickSize(sz) {
+  document.getElementById('ts-fontsize').value = sz;
+}
+function tsPickColor(c) {
+  document.getElementById('ts-color').value = c;
+}
+function tsSyncColor(val) {}
+function resetTitleStyle() {
+  saveTitleStyle({symbol:'', fontSize:10, color:''});
+  document.getElementById('title-style-panel').style.display = 'none';
+  if (activeProduct) renderSpecView(activeProduct);
+  showToast('↺ 已還原預設標題樣式');
+}
+
+function saveTitleStyleFromPanel() {
+  const sym = (document.getElementById('ts-symbol')||{}).value||'';
+  const fz  = (document.getElementById('ts-fontsize')||{}).value||'10';
+  const col = (document.getElementById('ts-color')||{}).value||'';
+  saveTitleStyle({symbol:sym.trim(), fontSize:parseInt(fz)||10, color:col.trim()});
+  document.getElementById('title-style-panel').style.display = 'none';
+  if (activeProduct) renderSpecView(activeProduct);
+  showToast('✅ 標題樣式已儲存');
+}
+
+
 function specSave() {
   if (!activeProduct) return;
   const obj = {
     moq:      (document.getElementById('se-moq')     ||{}).value || '',
-    size:     (document.getElementById('se-size')    ||{}).value || '',
+    size:     '',
     material: (document.getElementById('se-material')||{}).value || '',
     print:    (document.getElementById('se-print')   ||{}).value || '',
     leadtime: ''
   };
+  const sizeOpts = getCurrentSizeOpts();
   saveCustomSpec(activeProduct.id, obj);
+  saveSizeOpts(activeProduct.id, sizeOpts);
   showToast('✅ 規格已儲存！');
   renderSpecView(activeProduct);
 }
@@ -2355,10 +2710,18 @@ function renderNotesView(p) {
   const notes = getEffectiveNotes(p);
   const hasCustom = getCustomNotes(p.id) !== null;
   if (!notes) { card.innerHTML = ''; return; }
+  const tsN = getTitleStyle();
+  const symN = tsN.symbol || '';
+  const titleFzN = tsN.fontSize ? tsN.fontSize + 'px' : '10px';
+  const titleColorN = tsN.color || 'var(--text-dim)';
   card.innerHTML = `
-    <div class="detail-card-title" style="display:flex;align-items:center;justify-content:space-between;">
-      <span>備註 / 注意事項</span>
-      <div style="display:flex;align-items:center;gap:10px;">
+    <div class="detail-card-title">
+      <div class="dct-left">
+        <div class="dct-bar"></div>
+        ${symN ? `<span style="font-size:16px;line-height:1;">${symN}</span>` : ''}
+        <span class="dct-label" style="font-size:${titleFzN};color:${titleColorN};letter-spacing:2px;text-transform:uppercase;">備註 / 注意事項</span>
+      </div>
+      <div class="dct-right">
         ${hasCustom ? '<span style="font-size:10px;color:var(--accent);">已自訂</span>' : ''}
         ${editUnlocked ? '<button onclick="renderNotesEdit(activeProduct)" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;">✏️ 編輯</button>' : ''}
       </div>
@@ -2374,8 +2737,8 @@ function renderNotesEdit(p) {
   if (!card) return;
   const notes = getEffectiveNotes(p);
   card.innerHTML = `
-    <div class="detail-card-title" style="display:flex;align-items:center;justify-content:space-between;">
-      <span>備註 / 注意事項</span>
+    <div class="detail-card-title">
+      <div class="dct-left"><div class="dct-bar"></div><span class="dct-label" style="font-size:10px;letter-spacing:2px;text-transform:uppercase;">備註 / 注意事項</span></div>
       <span style="font-size:11px;color:var(--accent);font-weight:400;">✏️ 編輯模式</span>
     </div>
     <div class="spec-edit-hint" style="margin-bottom:10px;">
@@ -2447,8 +2810,8 @@ function renderQAEdit(p) {
   const card = document.getElementById('qa-edit-card');
   if (!card) return;
 
-  let html = `<div class="detail-card-title" style="display:flex;align-items:center;justify-content:space-between;">
-    <span>業務詢問必問清單</span>
+  let html = `<div class="detail-card-title">
+    <div class="dct-left"><div class="dct-bar"></div><span class="dct-label" style="font-size:10px;letter-spacing:2px;text-transform:uppercase;">業務詢問必問清單</span></div>
     <span style="font-size:11px;color:var(--accent);font-weight:400;">✏️ 編輯模式</span>
   </div>
   <div class="qa-list" id="qa-edit-list">`;
@@ -2482,9 +2845,17 @@ function renderQAView(p) {
   const card = document.getElementById('qa-edit-card');
   if (!card) return;
   const hasCustom = !!getCustomQA(p.id);
-  card.innerHTML = `<div class="detail-card-title" style="display:flex;align-items:center;justify-content:space-between;">
-    <span>業務詢問必問清單</span>
-    <div style="display:flex;align-items:center;gap:10px;">
+  const tsQ = getTitleStyle();
+  const symQ = tsQ.symbol || '';
+  const titleFzQ = tsQ.fontSize ? tsQ.fontSize + 'px' : '10px';
+  const titleColorQ = tsQ.color || 'var(--text-dim)';
+  card.innerHTML = `<div class="detail-card-title">
+    <div class="dct-left">
+      <div class="dct-bar"></div>
+      ${symQ ? `<span style="font-size:16px;line-height:1;">${symQ}</span>` : ''}
+      <span class="dct-label" style="font-size:${titleFzQ};color:${titleColorQ};letter-spacing:2px;text-transform:uppercase;">業務詢問必問清單</span>
+    </div>
+    <div class="dct-right">
       ${hasCustom ? '<span style="font-size:10px;color:var(--accent);">已自訂</span>' : ''}
       <button onclick="clearQAChecks()" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;">↺ 清除勾選</button>
       ${editUnlocked ? '<button onclick="renderQAEdit(activeProduct)" style="background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;">✏️ 編輯</button>' : ''}
@@ -2998,6 +3369,9 @@ function exportFullHTML() {
         // QA
         const qa = getCustomQA(p.id);
         if (qa) c.qa = qa;
+        // Size options
+        const sOpts = getCustomSizeOpts(p.id);
+        if (sOpts && sOpts.length) c._sizeOpts = sOpts;
         return c;
       });
 
