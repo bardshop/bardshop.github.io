@@ -2993,8 +2993,12 @@ function exportFullHTML() {
         return c;
       });
 
-      // 2. 從 <script> 標籤裡找到原始的 PRODUCTS 字串，直接替換
-      //    用 script 內容定位比 outerHTML 更可靠
+      // 2. 收集公告資料
+      const annTitle   = localStorage.getItem('bs-ann-title')   || '';
+      const annContent = localStorage.getItem('bs-ann-content') || '';
+      const annAutopop = localStorage.getItem('bs-ann-autopop') || '0';
+
+      // 3. 從 <script> 標籤裡找到原始的 PRODUCTS 字串，直接替換
       const scripts = document.querySelectorAll('script');
       let targetScript = null;
       for (const s of scripts) {
@@ -3017,29 +3021,39 @@ function exportFullHTML() {
                     + 'const PRODUCTS = ' + JSON.stringify(updatedProducts) + ';'
                     + origCode.slice(i2);
 
-      // 3. 建立新的 HTML：複製 outerHTML 並替換那段 script 的內容
+      // 4. 建立新的 HTML：複製 outerHTML 並替換 script 內容
       const SC = '<scr' + 'ipt>', EC = '</scr' + 'ipt>';
       const origScriptBlock = SC + origCode + EC;
       const newScriptBlock  = SC + newCode  + EC;
 
-      const fullHTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      let fullHTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 
-      // 用第一次出現的位置替換（原始 script 是唯一的）
+      // 替換 PRODUCTS 資料
       const idx = fullHTML.indexOf(origScriptBlock.slice(0, 80));
       if (idx === -1) {
-        // fallback：直接用 sentinel 切割替換整個 HTML
         const i1h = fullHTML.indexOf(S1);
         const i2h = fullHTML.indexOf(S2);
         if (i1h === -1) { showToast('❌ 無法定位資料區塊'); return; }
-        const finalHTML = fullHTML.slice(0, i1h + S1.length)
-                        + 'const PRODUCTS = ' + JSON.stringify(updatedProducts) + ';'
-                        + fullHTML.slice(i2h);
-        _downloadHTML(finalHTML);
+        fullHTML = fullHTML.slice(0, i1h + S1.length)
+                 + 'const PRODUCTS = ' + JSON.stringify(updatedProducts) + ';'
+                 + fullHTML.slice(i2h);
       } else {
-        // 精準替換 script 內容
-        const finalHTML = fullHTML.replace(SC + origCode + EC, SC + newCode + EC);
-        _downloadHTML(finalHTML);
+        fullHTML = fullHTML.replace(SC + origCode + EC, SC + newCode + EC);
       }
+
+      // 5. 把公告資料燒進 <head>，讓每個開啟頁面的人都能看到
+      const annScript = `<script>
+(function(){
+  var t=${JSON.stringify(annTitle)},c=${JSON.stringify(annContent)},a=${JSON.stringify(annAutopop)};
+  if(t){localStorage.setItem('bs-ann-title',t);}else{localStorage.removeItem('bs-ann-title');}
+  if(c){localStorage.setItem('bs-ann-content',c);}else{localStorage.removeItem('bs-ann-content');}
+  localStorage.setItem('bs-ann-autopop',a);
+})();
+</scr` + `ipt>`;
+      // 插在 </head> 前面
+      fullHTML = fullHTML.replace('</head>', annScript + '\n</head>');
+
+      _downloadHTML(fullHTML);
     } catch(e) {
       console.error('[export]', e);
       showToast('❌ 匯出失敗：' + e.message);
