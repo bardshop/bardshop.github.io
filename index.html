@@ -82,17 +82,23 @@
   header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0 32px;
+    padding: 0 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 60px;
+    min-height: 60px;
     position: sticky;
     top: 0;
     z-index: 100;
     box-shadow: 0 1px 8px var(--shadow);
     transition: background 0.25s, border-color 0.25s;
+    overflow: hidden;
+    gap: 8px;
+    flex-shrink: 0;
   }
+  .header-right { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  .btn-edit-only { /* 編輯模式才顯示的按鈕 */ }
   .logo {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 22px;
@@ -100,7 +106,7 @@
     color: var(--accent);
   }
   .logo span { color: var(--text-muted); font-size: 13px; font-family: 'Noto Sans TC', sans-serif; font-weight: 300; letter-spacing: 1px; margin-left: 8px; vertical-align: middle; }
-  .header-right { display: flex; gap: 10px; align-items: center; }
+
 
   /* Theme switcher */
   .theme-switcher {
@@ -646,19 +652,31 @@
     display: none;
   }
 
+  /* ── Z Fold 展開 / 平板 (601~960px) ── */
+  @media (min-width: 601px) and (max-width: 960px) {
+    header { padding: 0 14px; gap: 6px; }
+    .logo { font-size: 18px; }
+    .logo span { font-size: 11px; margin-left: 5px; }
+    .stat-pill { font-size: 10px; padding: 3px 7px; }
+    /* 在 Z Fold 隱藏匯出/匯入（留給編輯模式動態顯示） */
+    #btn-export-img, #btn-import-img { display: none !important; }
+  }
+
   @media (max-width: 600px) {
     /* 隱藏側邊欄 */
     .layout { grid-template-columns: 1fr; }
     .sidebar { display: none; }
-    .main { padding: 12px 14px; }
+    .main { padding: 12px 12px; }
     .detail-layout { grid-template-columns: 1fr; }
     .detail-img { aspect-ratio: 16/9; }
     .spec-grid { grid-template-columns: 1fr; }
 
-    /* header 手機版：精簡 */
-    header { padding: 0 16px; }
+    /* header 手機版：只留 Logo + 主題 + 編輯模式 */
+    header { padding: 0 12px; height: 52px; gap: 6px; }
+    .logo { font-size: 18px; }
     .logo span { display: none; }
     .stat-pill { display: none; }
+    #btn-export-img, #btn-import-img, #btn-export-full { display: none !important; }
 
     /* 顯示手機分類橫列 */
     .mobile-catbar {
@@ -735,8 +753,8 @@
     <div class="stat-pill">全站商品 <strong id="total-count">163</strong> 件</div>
     <div class="stat-pill">已建規格 <strong id="spec-count">163</strong> 件</div>
     <button id="edit-mode-toggle" onclick="openLockModal()" title="進入編輯模式" style="background: var(--surface2); border-color: rgba(232, 197, 71, 0.4); border-top-style: ; border-top-width: ; border-right-style: ; border-right-width: ; border-bottom-style: ; border-bottom-width: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; color: rgb(232, 197, 71); border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap;">🔓 已解鎖</button>
-    <button onclick="exportImages()" title="匯出所有已儲存的圖片網址" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;">⬇ 匯出圖片</button>
-    <button onclick="importImages()" title="從匯出的 JSON 檔匯入圖片" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;">⬆ 匯入圖片</button>
+    <button id="btn-export-img" onclick="exportImages()" title="匯出所有已儲存的圖片網址" style="display:none;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;">⬇ 匯出</button>
+    <button id="btn-import-img" onclick="importImages()" title="從匯出的 JSON 檔匯入圖片" style="display:none;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;">⬆ 匯入</button>
     <button id="btn-export-full" onclick="exportFullHTML()" title="把所有編輯內容燒進 HTML，下載後上傳 Netlify" style="display: inline-block; background: var(--accent); color: rgb(0, 0, 0); border: none; border-radius: 7px; padding: 5px 12px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 700;" disabled="">⏳ 處理中...</button>
   </div>
 </header>
@@ -2170,8 +2188,14 @@ function checkPin() {
     document.getElementById('edit-mode-toggle').textContent = '🔓 已解鎖';
     document.getElementById('edit-mode-toggle').style.color = '#e8c547';
     document.getElementById('edit-mode-toggle').style.borderColor = 'rgba(232,197,71,.4)';
+    // 匯出完整版：寬螢幕才顯示
     const btnExport = document.getElementById('btn-export-full');
-    if (btnExport) btnExport.style.display = 'inline-block';
+    if (btnExport && window.innerWidth > 600) btnExport.style.display = 'inline-block';
+    // 匯出/匯入圖片：中寬以上才顯示
+    const be = document.getElementById('btn-export-img');
+    const bi = document.getElementById('btn-import-img');
+    if (be && window.innerWidth > 780) be.style.display = 'inline-block';
+    if (bi && window.innerWidth > 780) bi.style.display = 'inline-block';
     showToast('✅ 編輯模式已開啟');
     if (activeProduct) openPanel(activeProduct.id);
   } else {
@@ -2189,6 +2213,10 @@ function lockEditMode() {
   document.getElementById('edit-mode-toggle').style.borderColor = '';
   const btnExport = document.getElementById('btn-export-full');
   if (btnExport) btnExport.style.display = 'none';
+  const be = document.getElementById('btn-export-img');
+  const bi = document.getElementById('btn-import-img');
+  if (be) be.style.display = 'none';
+  if (bi) bi.style.display = 'none';
   if (activeProduct) openPanel(activeProduct.id);
   showToast('🔒 已鎖定');
 }
@@ -3161,16 +3189,33 @@ function setGridCols(n) {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
+  // 重置匯出按鈕狀態
   const btnExport = document.getElementById('btn-export-full');
-  if (btnExport) { btnExport.disabled = false; btnExport.textContent = '🚀 匯出完整版'; }
+  if (btnExport) {
+    btnExport.disabled = false;
+    btnExport.textContent = '🚀 匯出完整版';
+    if (window.innerWidth <= 600) btnExport.style.display = 'none';
+  }
+  // 匯出/匯入圖片：預設隱藏（只有解鎖後才顯示）
+  ['btn-export-img','btn-import-img'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // 初始化欄數
   const sel = document.getElementById('grid-cols-select');
   const w = window.innerWidth;
   const defaultCols = w < 600 ? '2' : w < 960 ? '3' : '4';
   if (sel) { sel.value = defaultCols; setGridCols(defaultCols); }
+
   // 公告初始化
   const annText = localStorage.getItem('bs-ann-title') || '';
   const bar = document.getElementById('announcement-bar');
-  if (bar && annText) { bar.querySelector('#announcement-text').textContent = annText; bar.style.display = 'flex'; }
+  if (bar && annText) {
+    const span = document.getElementById('announcement-text');
+    if (span) span.textContent = annText;
+    bar.style.display = 'flex';
+  }
   // 強制彈窗
   if (annText && localStorage.getItem('bs-ann-autopop') === '1') {
     setTimeout(() => openAnnModal(false), 400);
