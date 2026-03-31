@@ -827,108 +827,86 @@
   /* btn-export/import hidden by JS on load - no CSS override needed */
 
 
-  /* ===== PASSWORD OVERLAY ===== */
-  #bs-pw-overlay {
-    position: fixed; inset: 0; z-index: 99999;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    transition: opacity 0.3s;
-  }
-  #bs-pw-overlay.hidden { opacity: 0; pointer-events: none; }
-  .pw-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 40px 36px 32px;
-    width: 360px; max-width: 90vw;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.18);
-    display: flex; flex-direction: column; align-items: center; gap: 0;
-    text-align: center;
-  }
-  .pw-logo { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 3px; color: var(--accent); margin-bottom: 6px; }
-  .pw-sub  { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 28px; }
-  .pw-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 18px; }
-  .pw-input-row { display: flex; gap: 10px; width: 100%; margin-bottom: 6px; }
-  .pw-input {
-    flex: 1;
-    background: var(--surface2); border: 1.5px solid var(--border);
-    border-radius: 10px; padding: 12px 16px;
-    font-size: 18px; letter-spacing: 4px; text-align: center;
-    color: var(--text); outline: none;
-    transition: border-color 0.2s;
-    font-family: 'Noto Sans TC', sans-serif;
-  }
-  .pw-input:focus { border-color: var(--accent); }
-  .pw-btn {
-    background: var(--accent); color: #000;
-    border: none; border-radius: 10px;
-    padding: 12px 20px; font-size: 15px; font-weight: 700;
-    cursor: pointer; transition: opacity 0.15s;
-    white-space: nowrap;
-  }
-  .pw-btn:hover { opacity: 0.85; }
-  .pw-error { font-size: 12px; color: #ff6b6b; min-height: 18px; margin-top: 4px; }
 
   /* ===== PASSWORD OVERLAY ===== */
   #bs-pw-overlay {
     position: fixed; inset: 0; z-index: 99999;
     background: var(--bg);
     display: flex; align-items: center; justify-content: center;
+    padding: 16px;
     transition: opacity 0.3s;
   }
   #bs-pw-overlay.hidden { opacity: 0; pointer-events: none; }
   .pw-box {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 20px; padding: 40px 36px 32px;
-    width: 360px; max-width: 90vw;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.18);
-    display: flex; flex-direction: column; align-items: center;
-    text-align: center;
+    border-radius: 20px;
+    padding: clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px) clamp(20px, 4vw, 32px);
+    width: 100%; max-width: 340px; box-sizing: border-box;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
   }
-  .pw-logo  { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:3px; color:var(--accent); margin-bottom:6px; }
-  .pw-sub   { font-size:12px; color:var(--text-muted); letter-spacing:1px; margin-bottom:28px; }
-  .pw-title { font-size:16px; font-weight:700; color:var(--text); margin-bottom:18px; }
-  .pw-input-row { display:flex; gap:10px; width:100%; margin-bottom:6px; }
+  .pw-logo  { font-family:'Bebas Neue',sans-serif; font-size:clamp(20px,6vw,30px); letter-spacing:3px; color:var(--accent); margin-bottom:4px; }
+  .pw-sub   { font-size:clamp(10px,2.5vw,12px); color:var(--text-muted); letter-spacing:1px; margin-bottom:clamp(16px,4vw,24px); }
+  .pw-label { font-size:clamp(13px,3.5vw,15px); font-weight:700; color:var(--text); margin-bottom:clamp(10px,3vw,14px); }
   .pw-input {
-    flex:1; background:var(--surface2); border:1.5px solid var(--border);
-    border-radius:10px; padding:12px 16px;
-    font-size:20px; letter-spacing:6px; text-align:center;
-    color:var(--text); outline:none; font-family:'Noto Sans TC',sans-serif;
-    transition:border-color 0.2s;
+    width: 100%; box-sizing: border-box;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: clamp(10px,3vw,13px) 14px;
+    font-size: clamp(18px,5vw,22px); letter-spacing: 8px; text-align: center;
+    color: var(--text); outline: none; font-family: 'Noto Sans TC', sans-serif;
+    transition: border-color 0.2s; -webkit-appearance: none;
+    margin-bottom: clamp(10px,2.5vw,12px);
   }
-  .pw-input:focus { border-color:var(--accent); }
+  .pw-input:focus { border-color: var(--accent); }
   .pw-btn {
-    background:var(--accent); color:#000; border:none;
-    border-radius:10px; padding:12px 20px; font-size:15px; font-weight:700;
-    cursor:pointer; transition:opacity 0.15s; white-space:nowrap;
+    width: 100%; box-sizing: border-box;
+    background: var(--accent); color: #000; border: none; border-radius: 10px;
+    padding: clamp(11px,3vw,14px) 16px; font-size: clamp(14px,3.5vw,16px); font-weight: 700;
+    cursor: pointer; transition: opacity 0.15s; font-family: 'Noto Sans TC', sans-serif;
+    -webkit-tap-highlight-color: transparent;
   }
-  .pw-btn:hover { opacity:0.85; }
-  .pw-error { font-size:12px; color:#ff6b6b; min-height:18px; margin-top:4px; }
+  .pw-btn:hover { opacity: 0.85; }
+  .pw-btn:active { opacity: 0.7; transform: scale(0.98); }
+  .pw-error { font-size: clamp(11px,3vw,12px); color: #ff6b6b; min-height: 18px; margin-top: 8px; width: 100%; }
 
-  /* ===== PASSWORD CHANGE MODAL ===== */
-  .pwchg-modal-bg {
-    position:fixed; inset:0; background:rgba(0,0,0,.65);
-    display:flex; align-items:center; justify-content:center;
-    z-index:9200; opacity:0; pointer-events:none; transition:opacity .2s;
+  /* Z Fold outer / very narrow screens */
+  @media (max-width: 360px) {
+    .pw-box { border-radius: 14px; }
   }
-  .pwchg-modal-bg.open { opacity:1; pointer-events:all; }
-  .pwchg-modal {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:16px; width:400px; max-width:95vw;
-    box-shadow:0 20px 60px rgba(0,0,0,.5); padding:24px 24px 20px;
+  /* Landscape on phone */
+  @media (max-height: 480px) and (orientation: landscape) {
+    #bs-pw-overlay { padding: 8px; }
+    .pw-box { padding: 14px 20px 14px; flex-direction: row; flex-wrap: wrap; justify-content: center; max-width: 480px; gap: 8px; }
+    .pw-logo, .pw-sub, .pw-label { width: 100%; margin-bottom: 4px; }
+    .pw-input { margin-bottom: 0; }
+    .pw-btn { width: auto; padding: 11px 24px; }
   }
-  .pwchg-title { font-size:16px; font-weight:700; color:var(--text); margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; }
-  .pwchg-section { margin-bottom:18px; }
-  .pwchg-label { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
-  .pwchg-input {
-    width:100%; background:var(--surface2); border:1px solid var(--border);
-    border-radius:8px; padding:10px 14px; font-size:15px; letter-spacing:3px;
-    color:var(--text); outline:none; font-family:'Noto Sans TC',sans-serif;
-    box-sizing:border-box; transition:border-color 0.2s;
+
+  /* ===== CHANGE PASSWORD MODAL ===== */
+  .pwchg-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9300; opacity: 0; pointer-events: none; transition: opacity .2s;
+    padding: 16px; box-sizing: border-box;
   }
-  .pwchg-input:focus { border-color:var(--accent); }
-  .pwchg-hint { font-size:11px; color:var(--text-dim); margin-top:5px; line-height:1.5; }
-  .pwchg-err  { font-size:11px; color:#ff6b6b; margin-top:4px; min-height:16px; }
+  .pwchg-bg.open { opacity: 1; pointer-events: all; }
+  .pwchg-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; width: 100%; max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    padding: 20px 20px 16px; box-sizing: border-box; max-height: 90vh; overflow-y: auto;
+  }
+  .pwchg-head { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+  .pwchg-lbl { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .pwchg-inp {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; font-size: 15px; letter-spacing: 2px;
+    color: var(--text); outline: none; box-sizing: border-box;
+    font-family: 'Noto Sans TC', sans-serif; transition: border-color 0.2s;
+  }
+  .pwchg-inp:focus { border-color: var(--accent); }
+  .pwchg-hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+  .pwchg-err  { font-size: 11px; color: #ff6b6b; margin-top: 3px; min-height: 14px; }
 </style>
 
 
@@ -938,44 +916,105 @@
   <div class="pw-box">
     <div class="pw-logo">BardShop</div>
     <div class="pw-sub">內部商品資訊庫</div>
-    <div class="pw-title">請輸入密碼</div>
-    <div class="pw-input-row">
-      <input id="pw-input" type="password" class="pw-input"
-        maxlength="20" autocomplete="off"
-        onkeydown="if(event.key==='Enter')checkPW()">
-      <button class="pw-btn" onclick="checkPW()">進入</button>
-    </div>
+    <div class="pw-label">請輸入密碼</div>
+    <input id="pw-input" type="password" class="pw-input"
+      maxlength="20" autocomplete="off"
+      placeholder="••••"
+      onkeydown="if(event.key==='Enter')window._checkPW()">
+    <button class="pw-btn" onclick="window._checkPW()">進入</button>
     <div id="pw-error" class="pw-error"></div>
   </div>
 </div>
 
-<!-- ===== PASSWORD CHANGE MODAL ===== -->
-<div class="pwchg-modal-bg" id="pwchg-modal-bg">
-  <div class="pwchg-modal">
-    <div class="pwchg-title">
-      🔑 修改密碼
-      <button onclick="closePwChgModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);padding:0 4px;">✕</button>
+<!-- ===== CHANGE PASSWORD MODAL ===== -->
+<div class="pwchg-bg" id="pwchg-bg">
+  <div class="pwchg-box">
+    <div class="pwchg-head">🔑 修改密碼
+      <button onclick="window._closePwChg()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);padding:0 4px;line-height:1;">✕</button>
     </div>
-    <div class="pwchg-section">
-      <div class="pwchg-label">網頁進入密碼（目前：****）</div>
-      <input type="password" class="pwchg-input" id="pwchg-site" maxlength="20"
-        placeholder="輸入新密碼（留空不修改）" autocomplete="off">
+    <div style="margin-bottom:14px;">
+      <div class="pwchg-lbl">網頁進入密碼（留空不修改）</div>
+      <input type="password" class="pwchg-inp" id="pwchg-site" maxlength="20" placeholder="輸入新密碼" autocomplete="off">
       <div class="pwchg-hint">訪客進入網頁時需輸入的密碼</div>
       <div class="pwchg-err" id="pwchg-site-err"></div>
     </div>
-    <div class="pwchg-section">
-      <div class="pwchg-label">編輯模式密碼（目前：****）</div>
-      <input type="password" class="pwchg-input" id="pwchg-edit" maxlength="20"
-        placeholder="輸入新密碼（留空不修改）" autocomplete="off">
+    <div style="margin-bottom:18px;">
+      <div class="pwchg-lbl">編輯模式密碼（留空不修改）</div>
+      <input type="password" class="pwchg-inp" id="pwchg-edit" maxlength="20" placeholder="輸入新密碼" autocomplete="off">
       <div class="pwchg-hint">點「✏️ 編輯模式」解鎖時需輸入的密碼</div>
       <div class="pwchg-err" id="pwchg-edit-err"></div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
-      <button onclick="savePwChg()" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;">💾 儲存（需重新匯出生效）</button>
-      <button onclick="closePwChgModal()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:10px 14px;font-size:13px;cursor:pointer;">關閉</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="window._savePwChg()" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;">💾 儲存（需重新匯出生效）</button>
+      <button onclick="window._closePwChg()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:10px 12px;font-size:13px;cursor:pointer;">關閉</button>
     </div>
   </div>
 </div>
+
+<script>
+/* Password Guard — standalone script, loads before main script */
+(function(){
+  var PW_B64 = 'ODY5MA==';
+  var SK = 'bs-pw-ok';
+
+  window._checkPW = function() {
+    var inp = document.getElementById('pw-input');
+    var err = document.getElementById('pw-error');
+    if (!inp) return;
+    var pw; try { pw = atob(window._PW_B64 || PW_B64); } catch(e){ pw='8690'; }
+    if (inp.value === pw) {
+      sessionStorage.setItem(SK,'1');
+      var ov = document.getElementById('bs-pw-overlay');
+      if (ov){ ov.classList.add('hidden'); setTimeout(function(){ ov.style.display='none'; },300); }
+      if (err) err.textContent='';
+    } else {
+      if (err) err.textContent='❌ 密碼錯誤，請再試一次';
+      inp.value=''; inp.focus();
+    }
+  };
+
+  window._openPwChg = function(){
+    ['pwchg-site','pwchg-edit'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    ['pwchg-site-err','pwchg-edit-err'].forEach(function(id){ var e=document.getElementById(id); if(e) e.textContent=''; });
+    var bg=document.getElementById('pwchg-bg'); if(bg) bg.classList.add('open');
+  };
+
+  window._closePwChg = function(){
+    var bg=document.getElementById('pwchg-bg'); if(bg) bg.classList.remove('open');
+  };
+
+  window._savePwChg = function(){
+    var sv=(document.getElementById('pwchg-site')||{}).value||'';
+    var ev=(document.getElementById('pwchg-edit')||{}).value||'';
+    var se=document.getElementById('pwchg-site-err');
+    var ee=document.getElementById('pwchg-edit-err');
+    var ok=false;
+    if (sv.trim()){
+      if(sv.trim().length<4){ if(se) se.textContent='⚠️ 至少 4 個字元'; return; }
+      window._PW_B64 = btoa(unescape(encodeURIComponent(sv.trim())));
+      if(se) se.textContent=''; ok=true;
+    }
+    if (ev.trim()){
+      if(ev.trim().length<4){ if(ee) ee.textContent='⚠️ 至少 4 個字元'; return; }
+      if(typeof window.EDIT_PIN_B64!=='undefined') window.EDIT_PIN_B64=btoa(unescape(encodeURIComponent(ev.trim())));
+      if(ee) ee.textContent=''; ok=true;
+    }
+    if(!ok){ if(window.showToast) window.showToast('⚠️ 未輸入任何新密碼'); return; }
+    window._closePwChg();
+    if(window.showToast) window.showToast('✅ 密碼已更新！請點「匯出完整版」讓新密碼生效');
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var ov=document.getElementById('bs-pw-overlay');
+    if (!ov) return;
+    if (sessionStorage.getItem(SK)==='1'){
+      ov.classList.add('hidden'); ov.style.display='none';
+    } else {
+      setTimeout(function(){ var i=document.getElementById('pw-input'); if(i) i.focus(); },200);
+    }
+  });
+})();
+</script>
 <header>
   <div>
     <span class="logo" onclick="showAll()" style="cursor:pointer;" title="顯示全部商品">BardShop <span>內部商品資訊庫</span></span>
@@ -2263,7 +2302,7 @@
 <!-- ── 編輯模式底欄 ── -->
 <div class="edit-mode-bar visible" id="edit-mode-bar">
   ✏️ 編輯模式
-  <button class="edit-lock-btn" onclick="openPwChgModal()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);margin-right:6px;">🔑 改密碼</button>
+  <button class="edit-lock-btn" onclick="_openPwChg()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);margin-right:6px;">🔑 改密碼</button>
   <button class="edit-lock-btn" onclick="editAnnouncement()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);margin-right:6px;">📢 公告</button>
   <button class="edit-lock-btn" onclick="lockEditMode()">🔒 鎖定</button>
 </div>
@@ -3604,17 +3643,11 @@ function exportFullHTML() {
       }
 
 
-      // 5a. 燒入最新密碼（網頁密碼 + 編輯模式密碼）
-      // Replace var _PW_B64 = '...' in fullHTML
-      fullHTML = fullHTML.replace(
-        /var _PW_B64 = '[A-Za-z0-9+/=]*';/,
-        "var _PW_B64 = '" + _PW_B64 + "';"
-      );
-      // Replace EDIT_PIN_B64 = '...' in fullHTML
-      fullHTML = fullHTML.replace(
-        /(?:const|var|let) EDIT_PIN_B64 = '[A-Za-z0-9+/=]*';/,
-        "const EDIT_PIN_B64 = '" + EDIT_PIN_B64 + "';"
-      );
+      // 5a. 燒入密碼到匯出 HTML
+      var _ePW = window._PW_B64 || 'ODY5MA==';
+      var _eEP = (typeof EDIT_PIN_B64 !== 'undefined') ? EDIT_PIN_B64 : 'MDYwNQ==';
+      fullHTML = fullHTML.replace(/var PW_B64 = '[A-Za-z0-9+\/=]*';/, "var PW_B64 = '" + _ePW + "';");
+      fullHTML = fullHTML.replace(/(?:var|const|let) EDIT_PIN_B64 = '[A-Za-z0-9+\/=]*';/, "var EDIT_PIN_B64 = '" + _eEP + "';");
 
       // 5. 把公告資料燒進 <head>，讓每個開啟頁面的人都能看到
       const annScript = `<script>
@@ -3976,73 +4009,6 @@ renderProducts();
 
 // ── 強制確保頁面載入時永遠從「鎖定」狀態開始 ──
 // （避免匯出時的編輯狀態被烙進 HTML）
-// ===== PASSWORD GUARD =====
-// Passwords stored as base64 to avoid plaintext in HTML
-// Initial: site=8690 (ODY5MA==), edit=0605 (MDYwNQ== — same as EDIT_PIN_B64)
-var _PW_B64 = 'ODY5MA==';
-var _PW_SESSION_KEY = 'bs-pw-ok';
-
-function checkPW() {
-  var inp = document.getElementById('pw-input');
-  var err = document.getElementById('pw-error');
-  if (!inp) return;
-  if (inp.value === atob(_PW_B64)) {
-    sessionStorage.setItem(_PW_SESSION_KEY, '1');
-    var ov = document.getElementById('bs-pw-overlay');
-    if (ov) { ov.classList.add('hidden'); setTimeout(function(){ ov.style.display='none'; }, 300); }
-    if (err) err.textContent = '';
-  } else {
-    if (err) err.textContent = '❌ 密碼錯誤，請再試一次';
-    inp.value = ''; inp.focus();
-  }
-}
-
-function _initPW() {
-  if (sessionStorage.getItem(_PW_SESSION_KEY) === '1') {
-    var ov = document.getElementById('bs-pw-overlay');
-    if (ov) { ov.classList.add('hidden'); ov.style.display = 'none'; }
-    return;
-  }
-  setTimeout(function(){ var inp = document.getElementById('pw-input'); if(inp) inp.focus(); }, 150);
-}
-
-function openPwChgModal() {
-  document.getElementById('pwchg-site').value = '';
-  document.getElementById('pwchg-edit').value = '';
-  document.getElementById('pwchg-site-err').textContent = '';
-  document.getElementById('pwchg-edit-err').textContent = '';
-  document.getElementById('pwchg-modal-bg').classList.add('open');
-}
-
-function closePwChgModal() {
-  document.getElementById('pwchg-modal-bg').classList.remove('open');
-}
-
-function savePwChg() {
-  var siteVal = document.getElementById('pwchg-site').value.trim();
-  var editVal = document.getElementById('pwchg-edit').value.trim();
-  var siteErr = document.getElementById('pwchg-site-err');
-  var editErr = document.getElementById('pwchg-edit-err');
-  var changed = false;
-
-  if (siteVal) {
-    if (siteVal.length < 4) { siteErr.textContent = '⚠️ 至少 4 個字元'; return; }
-    _PW_B64 = btoa(unescape(encodeURIComponent(siteVal)));
-    siteErr.textContent = '';
-    changed = true;
-  }
-  if (editVal) {
-    if (editVal.length < 4) { editErr.textContent = '⚠️ 至少 4 個字元'; return; }
-    EDIT_PIN_B64 = btoa(unescape(encodeURIComponent(editVal)));
-    editErr.textContent = '';
-    changed = true;
-  }
-  if (!changed) { showToast('⚠️ 未輸入任何新密碼'); return; }
-  closePwChgModal();
-  showToast('✅ 密碼已更新！請點「匯出完整版」讓新密碼生效');
-}
-
-
 (function() {
   editUnlocked = false;
   // Reset edit-mode-bar
@@ -4067,7 +4033,6 @@ function savePwChg() {
   document.readyState === 'loading'
     ? document.addEventListener('DOMContentLoaded', _resetToast)
     : _resetToast();
-  _initPW();
 })();
 </script>
 
