@@ -7,6 +7,182 @@
   localStorage.setItem('bs-ann-autopop',a);
 })();
 </script>
+<script id="back-nav-feature">
+// ===== BardShop 返回鍵導航功能 =====
+(function initBackNav() {
+  if (window._backNavReady) return;
+  function waitForPanel(cb) {
+    if (typeof openPanel !== 'undefined' && typeof closePanel !== 'undefined') { cb(); }
+    else { setTimeout(function() { waitForPanel(cb); }, 100); }
+  }
+  waitForPanel(function() {
+    var _origOpen  = window.openPanel;
+    var _origClose = window.closePanel;
+    var _panelOpen = false;
+    window.openPanel = function(slug) {
+      _origOpen(slug);
+      if (!_panelOpen) {
+        history.pushState({ bardshopPanel: slug }, '', '#product-' + slug);
+        _panelOpen = true;
+      } else {
+        history.replaceState({ bardshopPanel: slug }, '', '#product-' + slug);
+      }
+    };
+    window.closePanel = function() {
+      _origClose();
+      if (_panelOpen) {
+        _panelOpen = false;
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    };
+    window.addEventListener('popstate', function(e) {
+      var dp = document.getElementById('detail-panel');
+      var isOpen = dp && (window.getComputedStyle(dp).display !== 'none' || dp.classList.contains('open') || dp.classList.contains('active'));
+      if (!e.state || !e.state.bardshopPanel) {
+        if (isOpen || _panelOpen) { _panelOpen = false; _origClose(); }
+      } else if (e.state && e.state.bardshopPanel) {
+        if (!isOpen) { _panelOpen = true; _origOpen(e.state.bardshopPanel); }
+      }
+    });
+    var initHash = window.location.hash;
+    if (initHash && initHash.startsWith('#product-')) {
+      var initSlug = initHash.replace('#product-', '');
+      if (typeof PRODUCTS !== 'undefined' && PRODUCTS.some(function(p) { return p.id === initSlug; })) {
+        setTimeout(function() {
+          history.replaceState({ bardshopPanel: initSlug }, '', initHash);
+          _origOpen(initSlug); _panelOpen = true;
+        }, 500);
+      }
+    }
+    window._backNavReady = true;
+  });
+})();
+</script>
+<script id="github-push-feature">
+(function initGitHubPush() {
+  var _OrigBlob = window.Blob;
+  window.Blob = function(parts, opts) {
+    var blob = new _OrigBlob(parts, opts);
+    if (opts && opts.type && opts.type.includes('html')) {
+      var content = Array.isArray(parts) ? parts.join('') : String(parts);
+      window._lastExportHTML = content;
+      if (window._blobCaptureResolve) {
+        window._blobCaptureResolve(content);
+        window._blobCaptureResolve = null;
+      }
+    }
+    return blob;
+  };
+
+  window.captureExportHTML = function() {
+    return new Promise(function(resolve) {
+      window._blobCaptureResolve = resolve;
+      var btn = document.getElementById('btn-export-full');
+      if (btn) { btn.disabled = false; }
+      exportFullHTML();
+    });
+  };
+
+  window.pushToGitHub = async function() {
+    var pushBtn = document.getElementById('github-push-btn');
+    var repo = 'sunrain065/bardshop-db';
+    var path = 'index.html';
+    var pat = localStorage.getItem('bardshop_github_pat');
+    if (!pat) {
+      document.getElementById('github-pat-modal').style.display = 'flex';
+      return;
+    }
+    pushBtn.disabled = true;
+    pushBtn.textContent = '\u23F3 \u751F\u6210 HTML\u2026';
+    try {
+      var html = await window.captureExportHTML();
+      pushBtn.textContent = '\u23F3 \u53D6\u5F97 SHA\u2026';
+      var shaRes = await fetch('https://api.github.com/repos/' + repo + '/contents/' + path, {
+        headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json' }
+      });
+      if (!shaRes.ok) { var e1 = await shaRes.json(); throw new Error('\u53D6\u5F97 SHA \u5931\u6557\uFF1A' + (e1.message || shaRes.status)); }
+      var sha = (await shaRes.json()).sha;
+      pushBtn.textContent = '\u23F3 \u7DE8\u78BC\u4E2D\u2026';
+      var bytes = new TextEncoder().encode(html);
+      var binary = '';
+      var CHUNK = 8192;
+      for (var i = 0; i < bytes.length; i += CHUNK) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+      }
+      var b64content = btoa(binary);
+      pushBtn.textContent = '\u23F3 \u63A8\u9001\u4E2D\u2026';
+      var now = new Date().toLocaleDateString('zh-TW', {year:'numeric',month:'2-digit',day:'2-digit'});
+      var pushRes = await fetch('https://api.github.com/repos/' + repo + '/contents/' + path, {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: '\uD83D\uDD04 \u816A\u52D5uu66F4\u65B0\u5546\u54C1\u8CC7\u6599\u5EAB ' + now + '\uFF08\u5171 ' + PRODUCTS.length + ' \u4EF6\uFF09',
+          content: b64content, sha: sha
+        })
+      });
+      if (pushRes.ok) {
+        pushBtn.textContent = '\u2705 \u5DF2\u63A8\u9001\uFF01';
+        pushBtn.style.background = '#388E3C';
+        setTimeout(function() { pushBtn.textContent = '\uD83D\uDE80 \u63A8\u9001 GitHub'; pushBtn.style.background = '#1976D2'; pushBtn.disabled = false; }, 4000);
+        alert('\u2705 \u6210\u529F\u63A8\u9001\u5230 GitHub\uFF01\n\nGitHub Pages \u7D041-2\u5206\u9418\u5F8C\u81EA\u52D5\u66F4\u65B0\u3002');
+      } else {
+        var e2 = await pushRes.json(); throw new Error(e2.message || 'HTTP ' + pushRes.status);
+      }
+    } catch(err) {
+      pushBtn.textContent = '\u274C \u5931\u6557\uFF0C\u9EDE\u64CA\u91CD\u8A66';
+      pushBtn.style.background = '#D32F2F';
+      pushBtn.disabled = false;
+      setTimeout(function() { pushBtn.textContent = '\uD83D\uDE80 \u63A8\u9001 GitHub'; pushBtn.style.background = '#1976D2'; }, 5000);
+      alert('\u274C \u63A8\u9001\u5931\u6557\uFF1A' + err.message + '\n\n\u8ACB\u78BA\u8A8D Token \u662F\u5426\u6709\u6548\uFF08\u9700\u8981 repo \u6216 contents:write \u6B0A\u9650\uFF09\u3002');
+    }
+  };
+
+  function injectUI() {
+    if (document.getElementById('github-push-btn')) return;
+    var toggleBtn = document.getElementById('edit-mode-toggle');
+    var parent = toggleBtn ? toggleBtn.parentElement : document.querySelector('.header-right');
+    if (!parent) return;
+    var pushBtn = document.createElement('button');
+    pushBtn.id = 'github-push-btn';
+    pushBtn.textContent = '\uD83D\uDE80 \u63A8\u9001 GitHub';
+    pushBtn.title = '\u816A\u52D5uu5C07\u8CC7\u6599\u5EAB\u63A8\u9001\u5230 GitHub Pages \u66F4\u65B0\u7DB2\u7AD9';
+    pushBtn.style.cssText = 'margin-left:8px;padding:6px 14px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:bold;transition:background 0.3s;';
+    pushBtn.onclick = function() { window.pushToGitHub(); };
+    parent.insertBefore(pushBtn, toggleBtn);
+
+    if (!document.getElementById('github-pat-modal')) {
+      var modal = document.createElement('div');
+      modal.id = 'github-pat-modal';
+      modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99998;align-items:center;justify-content:center;';
+      modal.innerHTML = '<div style="background:#fff;border-radius:14px;width:520px;padding:36px;box-shadow:0 8px 40px rgba(0,0,0,0.35);position:relative;">'
+        + '<button onclick="document.getElementById(\'github-pat-modal\').style.display=\'none\'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#999;">\u00D7</button>'
+        + '<h2 style="margin:0 0 6px;font-size:19px;color:#1565C0;">\uD83D\uDD11 \u8A2D\u5B9A GitHub Token</h2>'
+        + '<p style="color:#666;font-size:13px;margin:0 0 20px;line-height:1.6;">Token \u5132\u5B58\u5728\u672C\u5730\u700F\u89BD\u5668\uFF0C\u4E0D\u6703\u4E0A\u50B3\u5230\u4EFB\u4F55\u4F3A\u670D\u5668\u3002</p>'
+        + '<div style="background:#E3F2FD;border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#1565C0;line-height:1.8;">'
+        + '<strong>\uD83D\uDCCB \u53D6\u5F97 Token \u6B65\u9A5F\uFF1A</strong><br>'
+        + '1. \u958B\u555F <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#1976D2;">github.com/settings/tokens/new</a><br>'
+        + '2. Note \u586B\uFF1A<code style="background:#fff;padding:2px 6px;border-radius:4px;">BardShop DB</code><br>'
+        + '3. \u52FE\u9078\u6B0A\u9650\uFF1A<code style="background:#fff;padding:2px 6px;border-radius:4px;">repo</code><br>'
+        + '4. \u9EDE\u300EGenerate token\u300F\u2192 \u8907\u88FD</div>'
+        + '<label style="font-size:13px;font-weight:bold;color:#333;display:block;margin-bottom:6px;">\u8CBC\u4E0A Token\uFF1A</label>'
+        + '<input id="github-pat-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:10px 12px;border:1.5px solid #90CAF9;border-radius:8px;font-size:14px;box-sizing:border-box;font-family:monospace;">'
+        + '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">'
+        + '<button onclick="document.getElementById(\'github-pat-modal\').style.display=\'none\'" style="padding:10px 20px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;cursor:pointer;font-size:14px;">\u53D6\u6D88</button>'
+        + '<button onclick="var t=document.getElementById(\'github-pat-input\').value.trim();if(!t){alert(\'\u8ACB\u5148\u8CBC\u4E0A Token\');return;}localStorage.setItem(\'bardshop_github_pat\',t);document.getElementById(\'github-pat-modal\').style.display=\'none\';document.getElementById(\'github-pat-input\').value=\'\';window.pushToGitHub();" style="padding:10px 24px;background:#1976D2;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:bold;">\u5132\u5B58\u4E26\u7ACB\u5373\u63A8\u9001</button>'
+        + '</div>'
+        + '<p style="margin:14px 0 0;font-size:12px;color:#999;text-align:center;">\u5220\u9664 Token\uFF1A<code>localStorage.removeItem(\'bardshop_github_pat\')</code></p>'
+        + '</div>';
+      document.body.appendChild(modal);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectUI);
+  } else {
+    injectUI();
+  }
+})();
+</script>
 </head><body class="theme-white"><div id="scroll_div" style="width: 100px; height: 100px; overflow: scroll; position: absolute; top: -9999px;"></div><link id="googleidentityservice" type="text/css" media="all" href="https://accounts.google.com/gsi/style" rel="stylesheet"><script>
 (function(){
   var t="測試公告系統",c="<h3><ul><li><b>測試&nbsp;</b><i>公告&nbsp;</i><u><font color=\"#e8c547\">詳細</font>&nbsp;</u><font color=\"#ff6b6b\">內容</font></li></ul><img src=\"https://shoplineimg.com/57b7175f617069114dd11900/695b2da668115390fa7bf5a4/1296x.webp?source_format=gif\"></h3>",a="1";
