@@ -139,16 +139,17 @@
 
   function injectUI() {
     if (document.getElementById('github-push-btn')) return;
-    var toggleBtn = document.getElementById('edit-mode-toggle');
-    var parent = toggleBtn ? toggleBtn.parentElement : document.querySelector('.header-right');
-    if (!parent) return;
+    var editBar = document.getElementById('edit-mode-bar');
+    if (!editBar) return;
+    var lockBtn = editBar.querySelector('.edit-lock-btn:last-of-type');
     var pushBtn = document.createElement('button');
     pushBtn.id = 'github-push-btn';
-    pushBtn.textContent = '\uD83D\uDE80 \u63A8\u9001 GitHub';
-    pushBtn.title = '\u816A\u52D5uu5C07\u8CC7\u6599\u5EAB\u63A8\u9001\u5230 GitHub Pages \u66F4\u65B0\u7DB2\u7AD9';
-    pushBtn.style.cssText = 'margin-left:8px;padding:6px 14px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:bold;transition:background 0.3s;';
+    pushBtn.className = 'edit-mode-action-btn';
+    pushBtn.textContent = '🚀 推送 GitHub';
+    pushBtn.title = '自動將資料庫推送到 GitHub Pages 更新網站';
+    pushBtn.style.cssText = 'background:rgba(25,118,210,0.15);color:#64b5f6;border:1px solid rgba(25,118,210,0.4);transition:background 0.3s;';
     pushBtn.onclick = function() { window.pushToGitHub(); };
-    parent.insertBefore(pushBtn, toggleBtn);
+    editBar.insertBefore(pushBtn, lockBtn);
 
     if (!document.getElementById('github-pat-modal')) {
       var modal = document.createElement('div');
@@ -721,6 +722,15 @@
     border: 1px solid rgba(232,197,71,.4); border-radius: 7px;
     padding: 6px 14px; font-size: 12px; cursor: pointer; font-weight: 700;
   }
+  .edit-mode-action-btn {
+    border-radius: 7px; padding: 6px 14px; font-size: 12px;
+    cursor: pointer; font-weight: 700; white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .edit-mode-bar { flex-wrap: wrap; padding: 8px 12px; gap: 8px; }
+    .edit-mode-action-btn { font-size: 11px; padding: 5px 10px; }
+    .edit-lock-btn { margin-left: 0; font-size: 11px; padding: 5px 10px; }
+  }
 
   .spec-edit-grid {
     display: flex;
@@ -1206,7 +1216,7 @@
     </div>
     <div class="stat-pill">全站商品 <strong id="total-count">163</strong> 件</div>
     <div class="stat-pill">已建規格 <strong id="spec-count">164</strong> 件</div>
-    <button id="add-product-btn" style="margin-left: 8px; padding: 6px 14px; background: rgb(76, 175, 80); color: rgb(255, 255, 255); border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold;">➕ 新增商品</button><button id="edit-mode-toggle" onclick="openLockModal()" title="進入編輯模式" style="border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; color: rgb(232, 197, 71); border-color: rgba(232, 197, 71, 0.4);">✏️ 編輯模式</button>
+    <button id="edit-mode-toggle" onclick="openLockModal()" title="進入編輯模式" style="border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; color: rgb(232, 197, 71); border-color: rgba(232, 197, 71, 0.4);">✏️ 編輯模式</button>
     <button id="btn-export-img" onclick="exportImages()" title="匯出所有已儲存的圖片網址" style="display: inline-block; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap;">⬇ 匯出</button>
     <button id="btn-import-img" onclick="importImages()" title="從匯出的 JSON 檔匯入圖片" style="display: inline-block; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap;">⬆ 匯入</button>
     <button id="btn-export-full" onclick="exportFullHTML()" title="把所有編輯內容燒進 HTML，下載後上傳 Netlify" style="display: inline-block; background: var(--accent); color: rgb(0, 0, 0); border: none; border-radius: 7px; padding: 5px 12px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 700;">Ὠ0 匯出完整版</button>
@@ -2602,6 +2612,7 @@
   ✏️ 編輯模式
   <button class="edit-lock-btn" onclick="_openPwChg()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);margin-right:6px;">🔑 改密碼</button>
   <button class="edit-lock-btn" onclick="editAnnouncement()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);margin-right:6px;">📢 公告</button>
+    <button id="add-product-btn" class="edit-mode-action-btn" onclick="document.getElementById('add-product-modal').style.display='flex'" style="background:rgba(76,175,80,0.15);color:#4caf50;border:1px solid rgba(76,175,80,0.4);">➕ 新增商品</button>
   <button class="edit-lock-btn" onclick="lockEditMode()">🔒 鎖定</button>
 </div>
 
