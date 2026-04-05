@@ -2883,7 +2883,7 @@ function getEffectiveNotes(p) {
 // ── 規格卡 View ──
 function buildAddonHtml(addon) {
   var keys = Object.keys(addon.sizes);
-  var chips = keys.map(function(k,i){ return '<button class="chip addon-chip" onclick="selectAddonChip('+i+')">'  +k+'</button>'; }).join('');
+  var chips = keys.map(function(k,i){ return '<div class="size-chip addon-chip" onclick="selectAddonChip('+i+')">'+k+'</div>'; }).join('');
   return '<div class="sfc"><div class="sfc-label">'+addon.label+'</div><div class="chips">'+chips+'</div></div>'
     +'<div class="price-card" id="addon-price-card" style="display:none;">'
     +'<div class="price-card-header"><span class="price-card-title">💰 加購配件報價（NT￥／件）</span></div>'
