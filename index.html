@@ -3131,7 +3131,7 @@ function selectAddonChip(idx) {
   var key = keys[idx];
   if (!key) return;
   var sizeData = addon.sizes[key];
-  var rows = addon.tiers.map(function(tier,i){ var p=sizeData.prices[i]; return p!=null?'<tr><td>'+tier+'</td><td>'+p+'</td></tr>':''; }).join('');
+  var rows = addon.tiers.map(function(tier,i){ var p=sizeData.prices[i]; return p!=null?'<tr><td>'+tier+' 件</td><td class="price-val">$'+p+'</td></tr>':''; }).join('');
   var card = document.getElementById('addon-price-card');
   if (card) { card.querySelector('#addon-price-tbody').innerHTML = rows; card.style.display=''; }
 }
