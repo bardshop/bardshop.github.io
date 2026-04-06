@@ -4448,12 +4448,12 @@ renderProducts();
   function _saveDeletedIds(s) { localStorage.setItem('_db_deleted', JSON.stringify([...s])); }
   function getHiddenClass(p) { return editUnlocked && _getHiddenIds().has(p.id) ? ' is-hidden' : ''; }
   function getCardEditActions(p) {
-    if (!editUnlocked) return '';
+    if (!editUnlocked) return "";
     const isHid = _getHiddenIds().has(p.id);
-    return '<div class="card-edit-actions" onclick="event.stopPropagation()">'
-      + '<button class="btn-card-action" title="' + (isHid ? '設為顯示' : '隱藏商品') + '" onclick="toggleHideProduct('' + p.id + '')">' + (isHid ? '&#128065;' : '&#128584;') + '</button>'
-      + '<button class="btn-card-action" title="刪除商品" onclick="confirmDeleteProduct('' + p.id + '')">&#128465;</button>'
-      + '</div>';
+    return "<div class=\"card-edit-actions\" onclick=\"event.stopPropagation()\">"
+      + "<button class=\"btn-card-action\" title=\"" + (isHid ? "設為顯示" : "隱藏商品") + "\" onclick=\"toggleHideProduct('" + p.id + "')\">&#128065;</button>"
+      + "<button class=\"btn-card-action\" title=\"刪除商品\" onclick=\"confirmDeleteProduct('" + p.id + "')\">&#128465;</button>"
+      + "</div>";
   }
   function toggleHideProduct(id) {
     const h = _getHiddenIds();
