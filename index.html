@@ -2994,9 +2994,16 @@ function getEffectiveNotes(p) {
 }
 
 // ── 規格卡 View ──
-function buildAddonHtml(addon) {
+function buildAddonHtml(addon, sizeOpts) {
   var keys = Object.keys(addon.sizes);
-  var chips = keys.map(function(k,i){ return '<div class="size-chip addon-chip" onclick="selectAddonChip('+i+')">'+k+'</div>'; }).join('');
+  var addonOpts = (sizeOpts || []).filter(function(o){ return o.label && o.label.indexOf('加購') !== -1; });
+  function normSize(s){ return s.toLowerCase().replace(/×/g,'x').replace(/\s+/g,'').replace('加購配件',''); }
+  var chips = keys.map(function(k,i){
+    var matched = addonOpts.find(function(o){ return normSize(o.label) === normSize(k); });
+    var pn = matched ? (matched.partNumber||'') : '';
+    var displayLabel = '加購配件 ' + k;
+    return '<div class="size-chip addon-chip" data-pn="'+escHtml(pn)+'" onclick="selectAddonChip('+i+')">'+escHtml(displayLabel)+'</div>';
+  }).join('');
   return '<div class="sfc"><div class="sfc-label">'+addon.label+'</div><div class="size-chip-grid">'+chips+'</div></div>'
     +'<div class="price-card" id="addon-price-card" style="display:none;">'
     +'<div class="price-card-header"><span class="price-card-title">💰 加購配件報價（NT￥／件）</span></div>'
@@ -3055,10 +3062,10 @@ function renderSpecView(p) {
     </div>`).join('') : `<div class="sfc">
       <div class="sfc-label">尺寸規格</div>
       <div class="size-chip-grid" id="size-chip-grid" style="margin-top:6px;">
-        ${sizeOpts.map((opt, i) => `<div class="size-chip" data-idx="${i}" data-pn="${escHtml(opt.partNumber||'')}" onclick="selectSizeChip(${i})">${escHtml(opt.label)}</div>`).join('')}
+        ${sizeOpts.filter(opt => opt.label.indexOf('加購') === -1).map((opt, i) => `<div class="size-chip" data-idx="${i}" data-pn="${escHtml(opt.partNumber||'')}" onclick="selectSizeChip(${i})">${escHtml(opt.label)}</div>`).join('')}
       </div>
     </div>`}
-    ${p._pricing ? `<div class="price-card" id="price-card" style="display:none;"><div class="price-card-header"><span class="price-card-title">💰 參考報價（NT￥／件）</span><span class="price-sample" id="price-sample"></span></div><table class="price-table"><thead><tr><th>數量</th><th>單價 (NT￥)</th></tr></thead><tbody id="price-tbody"></tbody></table><div class="price-moq">最低起訂量：25 件</div></div>` : ''}${p._addonPricing ? buildAddonHtml(p._addonPricing) : ''}`;
+    ${p._pricing ? `<div class="price-card" id="price-card" style="display:none;"><div class="price-card-header"><span class="price-card-title">💰 參考報價（NT￥／件）</span><span class="price-sample" id="price-sample"></span></div><table class="price-table"><thead><tr><th>數量</th><th>單價 (NT￥)</th></tr></thead><tbody id="price-tbody"></tbody></table><div class="price-moq">最低起訂量：25 件</div></div>` : ''}${p._addonPricing ? buildAddonHtml(p._addonPricing, sizeOpts) : ''}`;
   } else if (s.size) {
     html += `<div class="sfc">
       <div class="sfc-label">尺寸規格</div>
@@ -3261,13 +3268,28 @@ function selectAddonChip(idx) {
   var chips = document.querySelectorAll('.addon-chip');
   var clickedChip = chips[idx];
   var isAlreadyActive = clickedChip && clickedChip.classList.contains('active');
+  var pnVal = document.getElementById('pn-value');
+  var pnCard = document.getElementById('pn-card');
   if (isAlreadyActive) {
     clickedChip.classList.remove('active');
     var card = document.getElementById('addon-price-card');
     if (card) card.style.display = 'none';
+    if (pnVal) { pnVal.className = 'pn-hint'; pnVal.textContent = '↓ 點選下方規格後顯示料號'; }
+    if (pnCard) pnCard.className = 'pn-card';
     return;
   }
   chips.forEach(function(el,i){ el.classList.toggle('active', i===idx); });
+  // 更新料號卡
+  var pn = clickedChip ? clickedChip.getAttribute('data-pn') : '';
+  if (pnVal && pnCard) {
+    if (pn) {
+      pnVal.className = 'pn-value'; pnVal.textContent = pn;
+      pnCard.className = 'pn-card has-value';
+    } else {
+      pnVal.className = 'pn-hint'; pnVal.textContent = '（此規格尚未設定料號）';
+      pnCard.className = 'pn-card';
+    }
+  }
   var addon = activeProduct && activeProduct._addonPricing;
   if (!addon) return;
   var keys = Object.keys(addon.sizes);
