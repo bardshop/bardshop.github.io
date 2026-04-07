@@ -57,7 +57,8 @@
       var initSlug = initHash.replace('#product-', '');
       if (typeof PRODUCTS !== 'undefined' && PRODUCTS.some(function(p) { return p.id === initSlug; })) {
         setTimeout(function() {
-          history.replaceState({ bardshopPanel: initSlug }, '', initHash);
+          // 開啟商品後清掉 hash，避免重新整理時又自動跳進來
+          history.replaceState({ bardshopPanel: initSlug }, '', window.location.pathname);
           _origOpen(initSlug); _panelOpen = true;
         }, 500);
       }
