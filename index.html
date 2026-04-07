@@ -3057,8 +3057,16 @@ function renderSpecView(p) {
   // Size options as chips
   if (sizeOpts.length > 0) {
     html += `<div class="pn-card" id="pn-card">
-      <div class="pn-label">料號</div>
-      <div id="pn-value" class="pn-hint">↓ 點選下方規格後顯示料號</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 20px;">
+        <div style="flex:1;min-width:130px;">
+          <div class="pn-label" id="pn-stand-label">料號</div>
+          <div id="pn-value" class="pn-hint">↓ 點選下方規格後顯示料號</div>
+        </div>
+        <div id="pn-addon-row" style="display:none;flex:1;min-width:130px;">
+          <div class="pn-label">加購配件 料號</div>
+          <div id="pn-addon-value" class="pn-value"></div>
+        </div>
+      </div>
     </div>
     ${p._specGroups && p._specGroups.length > 0 ? p._specGroups.map((grp, gi) => `<div class="sfc">
       <div class="sfc-label">${escHtml(grp.label)}</div>
@@ -3188,6 +3196,42 @@ function sizeOptDelete(idx) {
   if (list) list.innerHTML = current.map((opt, i) => renderSizeOptRow(opt, i)).join('');
 }
 
+// ── 統一更新料號卡顯示狀態 ──
+function refreshPnCard() {
+  var activeSizeChip = document.querySelector('#size-chip-grid .size-chip.active');
+  var activeAddon = document.querySelector('.addon-chip.active');
+  var pnCard = document.getElementById('pn-card');
+  var pnStandLabel = document.getElementById('pn-stand-label');
+  var pnValue = document.getElementById('pn-value');
+  var pnAddonRow = document.getElementById('pn-addon-row');
+  var pnAddonValue = document.getElementById('pn-addon-value');
+  var standPn = activeSizeChip ? (activeSizeChip.getAttribute('data-pn') || '') : null;
+  var addonPn = activeAddon ? (activeAddon.getAttribute('data-pn') || '') : null;
+  if (!activeSizeChip && !activeAddon) {
+    if (pnCard) pnCard.className = 'pn-card';
+    if (pnStandLabel) pnStandLabel.textContent = '料號';
+    if (pnValue) { pnValue.className = 'pn-hint'; pnValue.textContent = '↓ 點選下方規格後顯示料號'; }
+    if (pnAddonRow) pnAddonRow.style.display = 'none';
+  } else if (activeSizeChip && !activeAddon) {
+    if (pnCard) pnCard.className = standPn ? 'pn-card has-value' : 'pn-card';
+    if (pnStandLabel) pnStandLabel.textContent = '料號';
+    if (pnValue) { pnValue.className = standPn ? 'pn-value' : 'pn-hint'; pnValue.textContent = standPn || '（此規格尚未設定料號）'; }
+    if (pnAddonRow) pnAddonRow.style.display = 'none';
+  } else if (!activeSizeChip && activeAddon) {
+    if (pnCard) pnCard.className = addonPn ? 'pn-card has-value' : 'pn-card';
+    if (pnStandLabel) pnStandLabel.textContent = '料號';
+    if (pnValue) { pnValue.className = addonPn ? 'pn-value' : 'pn-hint'; pnValue.textContent = addonPn || '（此規格尚未設定料號）'; }
+    if (pnAddonRow) pnAddonRow.style.display = 'none';
+  } else {
+    // 立牌 + 加購配件 都有選 → 雙料號顯示
+    if (pnCard) pnCard.className = 'pn-card has-value';
+    if (pnStandLabel) pnStandLabel.textContent = '立牌 料號';
+    if (pnValue) { pnValue.className = standPn ? 'pn-value' : 'pn-hint'; pnValue.textContent = standPn || '（尚未設定）'; }
+    if (pnAddonRow) pnAddonRow.style.display = '';
+    if (pnAddonValue) { pnAddonValue.className = addonPn ? 'pn-value' : 'pn-hint'; pnAddonValue.textContent = addonPn || '（尚未設定）'; }
+  }
+}
+
 // ── 將 chip 標籤正規化成 _pricing.sizes 的鍵格式 ──
 // 例：'7x7cm (底座4x4cm)' → '7×7 cm'
 function normalizeSizeLabel(label) {
@@ -3218,10 +3262,7 @@ function selectSizeChip(idx) {
   const isAlreadyActive = clickedChip && clickedChip.classList.contains('active');
   if (isAlreadyActive) {
     clickedChip.classList.remove('active');
-    const val = document.getElementById('pn-value');
-    const card = document.getElementById('pn-card');
-    if (val) { val.textContent = ''; val.className = ''; }
-    if (card) card.className = 'pn-card';
+    refreshPnCard();
     var priceCard = document.getElementById('price-card');
     if (priceCard) priceCard.style.display = 'none';
     var combinedCard = document.getElementById('combined-price-card');
@@ -3230,20 +3271,7 @@ function selectSizeChip(idx) {
   }
   document.querySelectorAll('#size-chip-grid .size-chip').forEach((el,i) => el.classList.toggle('active', i===idx));
   const chip = document.querySelector('#size-chip-grid .size-chip[data-idx="'+idx+'"]');
-  const pn = chip ? chip.getAttribute('data-pn') : '';
-  const val = document.getElementById('pn-value');
-  const card = document.getElementById('pn-card');
-  if (val) {
-    if (pn) {
-      val.className = 'pn-value';
-      val.textContent = pn;
-      if (card) card.className = 'pn-card has-value';
-    } else {
-      val.className = 'pn-hint';
-      val.textContent = '（此規格尚未設定料號）';
-      if (card) card.className = 'pn-card';
-    }
-  }
+  refreshPnCard();
   // ── 報價卡 ──
   var priceCard = document.getElementById('price-card');
   if (priceCard && activeProduct && activeProduct._pricing) {
@@ -3313,26 +3341,16 @@ function selectAddonChip(idx) {
   var pnCard = document.getElementById('pn-card');
   if (isAlreadyActive) {
     clickedChip.classList.remove('active');
+    refreshPnCard();
     var card = document.getElementById('addon-price-card');
     if (card) card.style.display = 'none';
     var combinedCard = document.getElementById('combined-price-card');
     if (combinedCard) combinedCard.style.display = 'none';
-    if (pnVal) { pnVal.className = 'pn-hint'; pnVal.textContent = '↓ 點選下方規格後顯示料號'; }
-    if (pnCard) pnCard.className = 'pn-card';
     return;
   }
   chips.forEach(function(el,i){ el.classList.toggle('active', i===idx); });
   // 更新料號卡
-  var pn = clickedChip ? clickedChip.getAttribute('data-pn') : '';
-  if (pnVal && pnCard) {
-    if (pn) {
-      pnVal.className = 'pn-value'; pnVal.textContent = pn;
-      pnCard.className = 'pn-card has-value';
-    } else {
-      pnVal.className = 'pn-hint'; pnVal.textContent = '（此規格尚未設定料號）';
-      pnCard.className = 'pn-card';
-    }
-  }
+  refreshPnCard();
   var addon = activeProduct && activeProduct._addonPricing;
   if (!addon) return;
   var keys = Object.keys(addon.sizes);
