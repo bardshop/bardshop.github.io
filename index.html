@@ -147,18 +147,21 @@
   };
 
   function injectUI() {
-    if (document.getElementById('github-push-btn')) return;
-    var editBar = document.getElementById('edit-mode-bar');
-    if (!editBar) return;
-    var lockBtn = editBar.querySelector('.edit-lock-btn:last-of-type');
-    var pushBtn = document.createElement('button');
-    pushBtn.id = 'github-push-btn';
-    pushBtn.className = 'edit-mode-action-btn';
-    pushBtn.textContent = '🚀 推送 GitHub';
-    pushBtn.title = '自動將資料庫推送到 GitHub Pages 更新網站';
-    pushBtn.style.cssText = 'background:rgba(25,118,210,0.15);color:#64b5f6;border:1px solid rgba(25,118,210,0.4);transition:background 0.3s;';
+    var pushBtn = document.getElementById('github-push-btn');
+    if (!pushBtn) {
+      var editBar = document.getElementById('edit-mode-bar');
+      if (!editBar) return;
+      var lockBtn = editBar.querySelector('.edit-lock-btn:last-of-type');
+      pushBtn = document.createElement('button');
+      pushBtn.id = 'github-push-btn';
+      pushBtn.className = 'edit-mode-action-btn';
+      pushBtn.textContent = '🚀 推送 GitHub';
+      pushBtn.title = '自動將資料庫推送到 GitHub Pages 更新網站';
+      pushBtn.style.cssText = 'background:rgba(25,118,210,0.15);color:#64b5f6;border:1px solid rgba(25,118,210,0.4);transition:background 0.3s;';
+      editBar.insertBefore(pushBtn, lockBtn);
+    }
+    // 無論按鈕是動態建立還是已存在於靜態 HTML，都確保 onclick 已綁定
     pushBtn.onclick = function() { window.pushToGitHub(); };
-    editBar.insertBefore(pushBtn, lockBtn);
 
     if (!document.getElementById('github-pat-modal')) {
       var modal = document.createElement('div');
@@ -4325,7 +4328,9 @@ function exportFullHTML() {
   localStorage.setItem('bs-ann-autopop',a);
 })();
 </scr` + `ipt>`;
-      // 插在 </head> 前面
+      // 先清除所有舊的公告初始化腳本（避免每次 export 重複堆疊）
+      fullHTML = fullHTML.replace(/<script[^>]*>\s*\(function\(\)\{var t=[\s\S]*?localStorage\.setItem\('bs-ann-autopop'[\s\S]*?\}\)\(\);\s*<\/script>\n?/g, '');
+      // 插在 </head> 前面（只插一份）
       fullHTML = fullHTML.replace('</head>', annScript + '\n</head>');
 
       _downloadHTML(fullHTML);
