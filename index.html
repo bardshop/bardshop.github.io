@@ -1270,10 +1270,10 @@
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-title">商品類別</div>
-    <button class="cat-btn" onclick="filterCat('新品企劃')" style="background:linear-gradient(90deg,#ff6b6b22,#ffa50022);border-color:#ff6b6b44;">
+    <button class="cat-btn active" onclick="filterCat('新品企劃')" style="background:linear-gradient(90deg,#ff6b6b22,#ffa50022);border-color:#ff6b6b44;">
       🆕 新品企劃 <span class="count">30</span>
     </button>
-    <button class="cat-btn active" onclick="filterCat('壓克力商品')">
+    <button class="cat-btn" onclick="filterCat('壓克力商品')">
       壓克力商品 <span class="count">60</span>
     </button>
     <button class="cat-btn" onclick="filterCat('特殊貼紙/胸章')">
@@ -4671,7 +4671,7 @@ function setTheme(name, dotEl) {
 })();
 
 // ===== INIT =====
-window._activeCat = '壓克力商品';
+window._activeCat = '新品企劃';
 renderProducts();
 
 // ── 強制確保頁面載入時永遠從「鎖定」狀態開始 ──
