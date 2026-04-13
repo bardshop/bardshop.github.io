@@ -154,6 +154,7 @@
     }
     // 無論按鈕是動態建立還是已存在於靜態 HTML，都確保 onclick 已綁定
     pushBtn.onclick = function() { window.pushToGitHub(); };
+    if (pushBtn.textContent !== '🚀 推送 GitHub') { pushBtn.textContent = '🚀 推送 GitHub'; pushBtn.style.background = 'rgba(25,118,210,0.15)'; pushBtn.disabled = false; }
 
     if (!document.getElementById('github-pat-modal')) {
       var modal = document.createElement('div');
@@ -3799,6 +3800,12 @@ function exportFullHTML() {
 }
 
 function _downloadHTML(html) {
+  if (typeof window._blobCaptureResolve === 'function') {
+    var _r = window._blobCaptureResolve;
+    window._blobCaptureResolve = null;
+    _r(html);
+    return;
+  }
   const blob = new Blob([html], {type:'text/html;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
