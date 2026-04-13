@@ -1249,7 +1249,7 @@
     <hr class="sidebar-divider">
     <div class="sidebar-title" style="display:flex;align-items:center;justify-content:space-between;">
       <span>資料區域</span>
-      <button id="data-area-edit-btn" onclick="openDataAreaManager()" title="管理資料區域" style="display:none;background:rgba(232,197,71,0.15);border:1px solid rgba(232,197,71,0.35);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:600;line-height:1.6;">✏️ 管理</button>
+      <button id="data-area-edit-btn" onclick="openDataAreaManager()" title="管理資料區域" style="display:none;background:none;border:none;cursor:pointer;font-size:13px;padding:2px 6px;border-radius:4px;color:#666;">✏️ 管理</button>
     </div>
     <div id="data-area-list"></div>
   </aside>
@@ -2425,6 +2425,7 @@ function renderSidebar() {
   list.innerHTML = html;
   var editBtn = document.getElementById('cat-edit-btn');
   if (editBtn) editBtn.style.display = (typeof editUnlocked !== 'undefined' && editUnlocked) ? 'inline-flex' : 'none';
+
   // Render data-area-list
   var daList = document.getElementById('data-area-list');
   if (daList && typeof DATA_AREA !== 'undefined') {
@@ -2508,67 +2509,55 @@ function _daAction(idx) {
   else if (item.type === 'cat' && item.value) filterCat(item.value);
   else clearFilters();
 }
-function openDataAreaManager() {
-  _renderDataAreaManagerList();
-  document.getElementById('data-area-manager-modal').style.display = 'flex';
-}
-function closeDataAreaManager() {
-  document.getElementById('data-area-manager-modal').style.display = 'none';
-  _saveDataArea();
-  renderSidebar();
-}
+function openDataAreaManager() { _renderDataAreaManagerList(); document.getElementById('data-area-manager-modal').style.display = 'flex'; }
+function closeDataAreaManager() { document.getElementById('data-area-manager-modal').style.display = 'none'; _saveDataArea(); renderSidebar(); }
 function _renderDataAreaManagerList() {
-  var c = document.getElementById('data-area-manager-list');
-  if (!c) return;
-  if (!DATA_AREA.length) { c.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">尚無項目</div>'; return; }
-  c.innerHTML = DATA_AREA.map(function(item, idx) {
-    var typeLabel = item.type==='spec' ? (item.value ? '[已建規格]' : '[待補規格]') : item.type==='cat' ? ('[' + item.value + ']') : '[全部]';
-    return '<div style="display:flex;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid var(--border);">'
-      + '<input value="' + (item.icon||'')+'" oninput="DATA_AREA[' + idx + '].icon=this.value;_saveDataArea()" maxlength="4" style="width:44px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;text-align:center;">'
-      + '<input value="' + item.label + '" oninput="DATA_AREA[' + idx + '].label=this.value;_saveDataArea()" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;">'
-      + '<span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">' + typeLabel + '</span>'
-      + '<button onclick="moveDataAreaItemUp(' + idx + ')" ' + (idx===0 ? 'disabled style="opacity:0.3;"' : '') + ' style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text-muted);padding:2px 4px;">▲</button>'
-      + '<button onclick="moveDataAreaItemDown(' + idx + ')" ' + (idx===DATA_AREA.length-1 ? 'disabled style="opacity:0.3;"' : '') + ' style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text-muted);padding:2px 4px;">▼</button>'
-      + '<button onclick="deleteDataAreaItem(' + idx + ')" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;">刪除</button>'
-      + '</div>';
-  }).join('');
+  var list = document.getElementById('data-area-manager-list');
+  if (!list) return;
+  var html = '';
+  DATA_AREA.forEach(function(item, idx) {
+    var typeLabel = item.type === 'spec' ? (item.value ? '已建規格' : '待補規格') : '全部顯示';
+    html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">';
+    html += '<input type="text" value="' + (item.icon||'')
+      + '" style="width:36px;text-align:center;" onchange="DATA_AREA[' + idx + '].icon=this.value">';
+    html += '<input type="text" value="' + item.label
+      + '" style="flex:1;" onchange="DATA_AREA[' + idx + '].label=this.value">';
+    html += '<span style="font-size:11px;color:#888;">' + typeLabel + '</span>';
+    html += '<button onclick="moveDataAreaItemUp(' + idx + ')">▲</button>';
+    html += '<button onclick="moveDataAreaItemDown(' + idx + ')">▼</button>';
+    html += '<button onclick="deleteDataAreaItem(' + idx + ')" style="color:red;">刪除</button>';
+    html += '</div>';
+  });
+  list.innerHTML = html;
 }
 function addDataAreaItem() {
-  var iconEl = document.getElementById('new-da-icon');
-  var labelEl = document.getElementById('new-da-label');
-  var typeEl = document.getElementById('new-da-type');
-  var label = (labelEl.value || '').trim();
-  if (!label) { showToast('⚠️ 請輸入名稱'); return; }
-  var typeVal = typeEl.value;
-  var item = {icon: iconEl.value.trim(), label: label, type: 'all', value: null};
-  if (typeVal === 'spec_true') { item.type = 'spec'; item.value = true; }
-  else if (typeVal === 'spec_false') { item.type = 'spec'; item.value = false; }
-  DATA_AREA.push(item);
-  iconEl.value = ''; labelEl.value = '';
+  var icon = document.getElementById('da-new-icon').value.trim();
+  var label = document.getElementById('da-new-label').value.trim();
+  var type = document.getElementById('da-new-type').value;
+  if (!label) { alert('請輸入名稱'); return; }
+  var value = type === 'all' ? null : (type === 'hasspec');
+  DATA_AREA.push({icon: icon, label: label, type: type === 'all' ? 'all' : 'spec', value: value});
   _renderDataAreaManagerList();
   _saveDataArea();
-  showToast('✅ 已新增：' + label);
 }
 function deleteDataAreaItem(idx) {
-  if (!confirm('確定要刪除「' + DATA_AREA[idx].label + '」？')) return;
+  if (!confirm('確定刪除？')) return;
   DATA_AREA.splice(idx, 1);
   _renderDataAreaManagerList();
   _saveDataArea();
-  showToast('🗑 已刪除');
 }
 function moveDataAreaItemUp(idx) {
   if (idx <= 0) return;
-  var tmp = DATA_AREA[idx-1]; DATA_AREA[idx-1] = DATA_AREA[idx]; DATA_AREA[idx] = tmp;
+  var tmp = DATA_AREA[idx]; DATA_AREA[idx] = DATA_AREA[idx-1]; DATA_AREA[idx-1] = tmp;
   _renderDataAreaManagerList(); _saveDataArea();
 }
 function moveDataAreaItemDown(idx) {
-  if (idx >= DATA_AREA.length-1) return;
-  var tmp = DATA_AREA[idx+1]; DATA_AREA[idx+1] = DATA_AREA[idx]; DATA_AREA[idx] = tmp;
+  if (idx >= DATA_AREA.length - 1) return;
+  var tmp = DATA_AREA[idx]; DATA_AREA[idx] = DATA_AREA[idx+1]; DATA_AREA[idx+1] = tmp;
   _renderDataAreaManagerList(); _saveDataArea();
 }
-function _saveDataArea() {
-  try { localStorage.setItem('_db_data_area', JSON.stringify(DATA_AREA)); } catch(e) {}
-}
+function _saveDataArea() { localStorage.setItem('_db_data_area', JSON.stringify(DATA_AREA)); }
+
 function getCustomSpec(id) {
   try { const r = localStorage.getItem(SPEC_PREFIX + id); return r ? JSON.parse(r) : null; } catch(e) { return null; }
 }
@@ -3944,6 +3933,7 @@ function exportFullHTML() {
   if(c){localStorage.setItem('bs-ann-content',c);}else{localStorage.removeItem('bs-ann-content');}
   localStorage.setItem('bs-ann-autopop',a);
 })();
+</scr` + `ipt>`;
       // 先清除所有舊的公告初始化腳本（避免每次 export 重複堆疊）
       fullHTML = fullHTML.replace(/<script[^>]*>\s*\(function\(\)\{\s*var t=[\s\S]*?localStorage\.setItem\('bs-ann-autopop'[\s\S]*?\}\)\(\);\s*<\/script>\n?/g, '');
       // 插在 </head> 前面（只插一份）
@@ -4497,28 +4487,25 @@ font-family:&quot;Arial&quot;,sans-serif;color:red">1mm<o:p></o:p></span></b></p
   </div>
 </div>
 
-<div id="data-area-manager-modal" onclick="if(event.target===this)closeDataAreaManager()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1100;align-items:center;justify-content:center;padding:16px;">
-  <div style="background:var(--surface);border-radius:16px;max-width:500px;width:100%;display:flex;flex-direction:column;max-height:85vh;box-shadow:0 8px 32px rgba(0,0,0,0.3);overflow:hidden;">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px;border-bottom:1px solid var(--border);">
-      <span style="font-size:18px;font-weight:700;color:var(--text);">📋 管理資料區域</span>
-      <button onclick="closeDataAreaManager()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);line-height:1;">✕</button>
+<div id="data-area-manager-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:10px;padding:24px;width:420px;max-width:95vw;max-height:80vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;">管理資料區域</h3>
+      <button onclick="closeDataAreaManager()" style="background:none;border:none;font-size:20px;cursor:pointer;">×</button>
     </div>
-    <div id="data-area-manager-list" style="flex:1;overflow-y:auto;padding:0 20px;"></div>
-    <div style="padding:12px 20px;border-top:1px solid var(--border);background:var(--bg);">
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">新增項目</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <input id="new-da-icon" type="text" placeholder="圖示" maxlength="4" style="width:52px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;outline:none;text-align:center;">
-        <input id="new-da-label" type="text" placeholder="名稱" onkeydown="if(event.key==='Enter')addDataAreaItem()" style="flex:1;min-width:100px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;outline:none;">
-        <select id="new-da-type" style="padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;">
-          <option value="all">全部顯示</option>
-          <option value="spec_true">已建規格型</option>
-          <option value="spec_false">待補規格型</option>
-        </select>
-        <button onclick="addDataAreaItem()" style="background:rgba(232,197,71,0.2);border:1px solid rgba(232,197,71,0.4);color:var(--accent);border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-weight:600;white-space:nowrap;">➕ 新增</button>
-      </div>
+    <div id="data-area-manager-list"></div>
+    <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;">
+      <input id="da-new-icon" type="text" placeholder="圖示" style="width:44px;text-align:center;">
+      <input id="da-new-label" type="text" placeholder="名稱" style="flex:1;min-width:80px;">
+      <select id="da-new-type">
+        <option value="all">全部顯示</option>
+        <option value="hasspec">已建規格型</option>
+        <option value="nospec">待補規格型</option>
+      </select>
+      <button onclick="addDataAreaItem()" style="padding:4px 10px;">➕ 新增</button>
     </div>
-    <div style="padding:0 20px 16px;display:flex;justify-content:flex-end;">
-      <button onclick="closeDataAreaManager()" style="background:rgba(232,197,71,0.15);border:1px solid rgba(232,197,71,0.35);color:var(--accent);border-radius:8px;padding:8px 20px;font-size:14px;cursor:pointer;font-weight:600;">完成</button>
+    <div style="margin-top:16px;text-align:right;">
+      <button onclick="closeDataAreaManager()" style="padding:6px 16px;background:#4a90d9;color:#fff;border:none;border-radius:6px;cursor:pointer;">完成</button>
     </div>
   </div>
 </div>
