@@ -3944,7 +3944,6 @@ const DATA_AREA = [
     }
   } catch(e) {}
 })();
-</scr` + `ipt>`;
       // 先清除所有舊的公告初始化腳本（避免每次 export 重複堆疊）
       fullHTML = fullHTML.replace(/<script[^>]*>\s*\(function\(\)\{\s*var t=[\s\S]*?localStorage\.setItem\('bs-ann-autopop'[\s\S]*?\}\)\(\);\s*<\/script>\n?/g, '');
       // 插在 </head> 前面（只插一份）
