@@ -3763,6 +3763,61 @@ function addProductImage() {
   renderProducts();
   showToast(`✅ 已新增第 ${imgs.length} 張圖片`);
 }
+function handleImgFileUpload(event) {
+  if (!activeProduct) { event.target.value=""; return; }
+  var file = event.target.files[0];
+  if (!file) return;
+  var pat = localStorage.getItem("_gh_pat");
+  if (!pat) {
+    showToast("⚠️ 請先設定 GitHub PAT（聯絡管理員）");
+    event.target.value=""; return;
+  }
+  showToast("⏳ 上傳中，請稍候...");
+  var reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      var b64 = e.target.result.split(",")[1];
+      var ext = file.type.includes("gif") ? "gif" :
+                file.type.includes("png") ? "png" :
+                (file.type.includes("jpeg")||file.type.includes("jpg")) ? "jpg" : "webp";
+      var fname = activeProduct.id + "." + ext;
+      var repo = "sunrain065/bardshop-db";
+      var apiBase = "https://api.github.com/repos/" + repo + "/contents/assets/images/";
+      var sha;
+      try {
+        var chk = await fetch(apiBase + fname, {headers:{"Authorization":"token "+pat}});
+        var cd = await chk.json();
+        if (cd.sha) sha = cd.sha;
+      } catch(e2){}
+      var body = {message:"img: upload "+fname, content:b64};
+      if (sha) body.sha = sha;
+      var resp = await fetch(apiBase + fname, {
+        method:"PUT",
+        headers:{"Authorization":"token "+pat,"Content-Type":"application/json"},
+        body:JSON.stringify(body)
+      });
+      var data = await resp.json();
+      if (data.content && data.content.sha) {
+        var newUrl = "https://sunrain065.github.io/bardshop-db/assets/images/" + fname;
+        var imgs = getProductImages(activeProduct.id);
+        var filtered = imgs.filter(function(u){ return !u.includes("/assets/images/"+activeProduct.id+"."); });
+        filtered.unshift(newUrl);
+        setProductImages(activeProduct.id, filtered);
+        if (typeof renderImgEditPanel === "function") renderImgEditPanel();
+        else { try { galleryShow(filtered, 0); } catch(ge){} }
+        event.target.value = "";
+        showToast("✅ 上傳成功！");
+      } else {
+        showToast("❌ 上傳失敗：" + (data.message||"未知錯誤"));
+        event.target.value = "";
+      }
+    } catch(err) {
+      showToast("❌ 錯誤：" + err.message.substring(0,40));
+      event.target.value = "";
+    }
+  };
+  reader.readAsDataURL(file);
+}
 
 function imgDelete(idx) {
   if (!activeProduct) return;
