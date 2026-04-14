@@ -2,7 +2,8 @@
   "_meta": {
     "created": "2026-04-14T05:42:50.415Z",
     "description": "Backup of all bardshop_img localStorage entries before GitHub migration",
-    "restore_script": "Object.entries(backup.images).forEach(([id,urls])=>localStorage.setItem(\"bardshop_img_\"+id,JSON.stringify(urls)))"
+    "restore_script": "Object.entries(backup.images).forEach(([id,urls])=>localStorage.setItem(\"bardshop_img_\"+id,JSON.stringify(urls)))",
+    "updated": "2026-04-14T08:44:26.983Z"
   },
   "images": {
     "uv-badge": [
@@ -623,6 +624,48 @@
     ],
     "rear-fender": [
       "https://shoplineimg.com/57b7175f617069114dd11900/62a7e8f59e60550021fcef36/800x.webp?source_format=png"
+    ],
+    "3d-scene-painting-on-mdf-board": [
+      "https://shoplineimg.com/57b7175f617069114dd11900/68ca999f454a4600149666aa/800x.webp?source_format=png"
+    ],
+    "mdf-key-house": [
+      "https://shoplineimg.com/57b7175f617069114dd11900/68ca8948fe72bc000e39524d/800x.webp?source_format=png"
+    ],
+    "mdf-keychain": [
+      "https://shoplineimg.com/57b7175f617069114dd11900/68ca8508d2d1720010b46cf2/800x.webp?source_format=png"
+    ],
+    "custom-metal-collect-card": [
+      "https://shoplineimg.com/57b7175f617069114dd11900/63e06a499bb02600202b3262/800x.webp?source_format=png"
+    ],
+    "material-package": [
+      "https://shoplineimg.com/57b7175f617069114dd11900/5c29a3ed64665500182b15a1/800x.webp?source_format=jpg"
+    ],
+    "oem-packaging": [
+      "https://img.shoplineapp.com/media/image_clips/65d5872e12632e00177f8e04/original.png"
+    ],
+    "design-expedited-otherfee-1": [
+      "https://img.shoplineapp.com/media/image_clips/6438b3db4fe78900230479bd/original.png"
+    ],
+    "oem": [
+      "https://img.shoplineapp.com/media/image_clips/65e99e2f90e08800204c2997/original.png"
+    ],
+    "pvclfp": [
+      "https://img.shoplineapp.com/media/image_clips/6458cebb34e201001ab8b7ed/original.png"
+    ],
+    "fabric": [
+      "https://img.shoplineapp.com/media/image_clips/65d590852f1dd90014567bd0/original.png"
+    ],
+    "wood-1": [
+      "https://img.shoplineapp.com/media/image_clips/609b8ee65e5ba3003b8323e6/original.jpg"
+    ],
+    "le": [
+      "https://img.shoplineapp.com/media/image_clips/59f6b8279f9a4f02d0000107/original.jpg"
+    ],
+    "alum-plate": [
+      "https://img.shoplineapp.com/media/image_clips/5da4088ab21c0c00293614d6/original.png"
+    ],
+    "acrylic-oem": [
+      "https://img.shoplineapp.com/media/image_clips/5d4a89abe298ee003505567f/original.png"
     ]
   }
 }
