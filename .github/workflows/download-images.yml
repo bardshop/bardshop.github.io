@@ -10,72 +10,87 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download all product images
+      - name: Download product images from backup
         run: |
           mkdir -p assets/images
           python3 << 'PYEOF'
           import json, urllib.request, os
 
-          # Read the URL source file
-          with open('img_urls.json') as f:
-              data = json.load(f)
+          # Use the image backup (already in repo)
+          with open('_image_backup.json') as f:
+              backup = json.load(f)
+          
+          # Also try img_urls.json if it exists
+          extra = {}
+          if os.path.exists('img_urls.json'):
+              with open('img_urls.json') as f:
+                  data = json.load(f)
+              extra.update(data.get('working', {}))
+              extra.update(data.get('broken', {}))
 
-          # Combine working + broken (try all)
-          all_urls = {}
-          all_urls.update(data.get('working', {}))
-          all_urls.update(data.get('broken', {}))
-          print(f"Total products to process: {len(all_urls)}")
+          images = backup['images']  # {id: [url, ...]}
+          print(f"Backup images: {len(images)}, Extra: {len(extra)}")
 
           ok, fail = [], []
-          for pid, url in all_urls.items():
-              if not url:
-                  continue
-              # Determine extension
-              if 'source_format=gif' in url or '.gif' in url:
+
+          def try_download(pid, url):
+              if 'source_format=gif' in url or url.endswith('.gif'):
                   ext = 'gif'
-              elif 'source_format=png' in url or 'original.png' in url or '.png' in url:
+              elif 'source_format=png' in url or 'original.png' in url or url.endswith('.png'):
                   ext = 'png'
-              elif 'source_format=jpg' in url or '.jpg' in url:
+              elif 'source_format=jpg' in url or url.endswith('.jpg'):
                   ext = 'jpg'
               else:
                   ext = 'webp'
-
               fname = f'assets/images/{pid}.{ext}'
+              req = urllib.request.Request(
+                  url, headers={'User-Agent': 'Mozilla/5.0 (compatible)'}
+              )
+              with urllib.request.urlopen(req, timeout=20) as resp:
+                  data = resp.read()
+              if len(data) < 200:
+                  raise ValueError(f'too small: {len(data)}b')
+              with open(fname, 'wb') as f:
+                  f.write(data)
+              return ext, len(data)
+
+          # Process backup images
+          for pid, urls in images.items():
+              url = urls[0] if urls else None
+              if not url:
+                  continue
               try:
-                  req = urllib.request.Request(
-                      url,
-                      headers={
-                          'User-Agent': 'Mozilla/5.0 (compatible)',
-                          'Accept': 'image/webp,image/png,image/*,*/*'
-                      }
-                  )
-                  with urllib.request.urlopen(req, timeout=20) as resp:
-                      content = resp.read()
-                  if len(content) < 200:
-                      fail.append(f'{pid}: too small ({len(content)}b)')
-                      print(f'SKIP {pid}: too small ({len(content)}b)')
-                      continue
-                  with open(fname, 'wb') as f:
-                      f.write(content)
-                  kb = len(content) // 1024
-                  ok.append(f'{pid}.{ext} ({kb}KB)')
-                  print(f'OK   {pid}.{ext} ({kb}KB)')
+                  ext, size = try_download(pid, url)
+                  ok.append(f'{pid}.{ext} ({size//1024}KB)')
+                  print(f'OK   {pid}')
               except Exception as e:
-                  fail.append(f'{pid}: {str(e)[:80]}')
+                  fail.append(f'{pid}: {str(e)[:60]}')
+                  print(f'FAIL {pid}: {e}')
+
+          # Process extra (img_urls.json) - new products not in backup
+          for pid, url in extra.items():
+              if pid in images:
+                  continue  # already processed
+              if not url:
+                  continue
+              try:
+                  ext, size = try_download(pid, url)
+                  ok.append(f'{pid}.{ext} ({size//1024}KB) [new]')
+                  print(f'OK   {pid} [new]')
+              except Exception as e:
+                  fail.append(f'{pid}: {str(e)[:60]}')
                   print(f'FAIL {pid}: {e}')
 
           print(f'\nSuccess: {len(ok)} | Failed: {len(fail)}')
           if fail:
-              print('\nFailed products:')
-              for f in fail:
-                  print(f'  - {f}')
-
-          # Save results for reference
-          with open('_download_results.json', 'w') as f:
-              json.dump({'ok': ok, 'failed': fail, 'total': len(all_urls)}, f, indent=2, ensure_ascii=False)
+              print('\nFailed:')
+              for f in fail: print(f'  - {f}')
+          
+          with open('_download_results.json', 'w', encoding='utf-8') as f:
+              json.dump({'ok': ok, 'failed': fail}, f, indent=2, ensure_ascii=False)
           PYEOF
 
-      - name: Commit images to repo
+      - name: Commit images
         run: |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
@@ -83,7 +98,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Nothing new to commit"
           else
-            COUNT=$(git diff --staged --name-only | grep 'assets/images/' | wc -l)
-            git commit -m "feat: add ${COUNT} product images to repo (auto-downloaded)"
+            COUNT=$(git diff --staged --name-only | grep 'assets/images/' | wc -l || echo 0)
+            git commit -m "feat: add ${COUNT} product images (auto-downloaded)"
             git push
           fi
