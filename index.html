@@ -2194,6 +2194,7 @@ const DATA_AREA = [
   } catch(e) {}
 })();
 
+(function(){var _da=DATA_AREA||[];var _chg=false;_da.forEach(function(x){if(x.label==='過往公告'&&x.type==='spec'){x.type='pastAnn';x.value=null;_chg=true;}});if(_chg){try{localStorage.setItem('_db_data_area',JSON.stringify(_da));}catch(e){}}})();
 const PAST_ANNOUNCEMENTS = [];
 (function() {
   try {
