@@ -2178,7 +2178,7 @@ const CAT_ORDER = ['壓克力商品','特殊貼紙/胸章','杯墊/皂墊/地墊
 })();
 const DATA_AREA = [
   {icon:'✔', label:'商品知識', type:'spec', value:true},
-  {icon:'⚠', label:'過往公告', type:'spec', value:false},
+  {icon:'⚠', label:'過往公告', type:'pastAnn', value:null},
   {icon:'🔍', label:'全部顯示', type:'all', value:null}
 ];
 (function() {
@@ -2193,7 +2193,17 @@ const DATA_AREA = [
     }
   } catch(e) {}
 })();
-let currentView = 'grid';
+l
+const PAST_ANNOUNCEMENTS = [];
+(function() {
+  try {
+    var saved = localStorage.getItem('_db_past_ann');
+    if (saved) {
+      var arr = JSON.parse(saved);
+      if (Array.isArray(arr)) { PAST_ANNOUNCEMENTS.length=0; arr.forEach(function(item){ PAST_ANNOUNCEMENTS.push(item); }); }
+    }
+  } catch(e) {}
+})();et currentView = 'grid';
 let filterSpecOnly = null; // null = all, true = has spec, false = no spec
 let currentSort = 'default'; // default | newest | oldest
 let activeProduct = null;
@@ -2505,6 +2515,7 @@ function _saveCatOrder() {
 function _daAction(idx) {
   if (!DATA_AREA || idx < 0 || idx >= DATA_AREA.length) return;
   var item = DATA_AREA[idx];
+  if (item.type === 'pastAnn') { openPastAnnModal(); return; }
   if (item.type === 'spec') filterSpec(item.value === true);
   else if (item.type === 'cat' && item.value) filterCat(item.value);
   else clearFilters();
@@ -4223,6 +4234,84 @@ function annInsertLink() {
 
 function editAnnouncement() { openAnnModal(true); }
 
+function archiveCurrentAnn() {
+  var title = localStorage.getItem('bs-ann-title') || '';
+  var content = localStorage.getItem('bs-ann-content') || '';
+  if (!title && !content) { alert('目前沒有公告可封存'); return; }
+  if (!confirm('確定封存目前公告至「過往公告」？')) return;
+  var now = new Date();
+  var d = now.getFullYear() + '/' + (now.getMonth()+1) + '/' + now.getDate();
+  PAST_ANNOUNCEMENTS.unshift({title:title, content:content, date:d});
+  _savePastAnn();
+  clearAnnouncement();
+  closeAnnModal();
+}
+function _savePastAnn() {
+  localStorage.setItem('_db_past_ann', JSON.stringify(PAST_ANNOUNCEMENTS));
+}
+function openPastAnnModal() {
+  renderPastAnnList();
+  var m = document.getElementById('past-ann-modal');
+  if (m) m.style.display = 'flex';
+}
+function closePastAnnModal() {
+  var m = document.getElementById('past-ann-modal');
+  if (m) m.style.display = 'none';
+}
+function renderPastAnnList() {
+  var list = document.getElementById('past-ann-list');
+  if (!list) return;
+  if (!PAST_ANNOUNCEMENTS.length) {
+    list.innerHTML = '<div style="text-align:center;color:#bbb;padding:36px;font-size:14px;">尚無封存的公告</div>';
+    return;
+  }
+  var eu = (typeof editUnlocked !== 'undefined' && editUnlocked);
+  list.innerHTML = PAST_ANNOUNCEMENTS.map(function(ann, idx) {
+    var t = ann.title || '(無標題)';
+    var preview = (ann.content || '').replace(/<[^>]*>/g, '').substring(0, 80);
+    var more = ann.content && ann.content.replace(/<[^>]*>/g,'').length > 80 ? '&hellip;' : '';
+    var delBtn = eu ? '<button onclick="event.stopPropagation();deletePastAnn(' + idx + ')" style="background:none;border:1px solid #ffcdd2;color:#e57373;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;">刪除</button>' : '';
+    return '<div onclick="openPastAnnDetail(' + idx + ')" style="border:1px solid #e8e8e8;border-radius:8px;padding:14px 16px;cursor:pointer;background:#fafafa;" onmouseover="this.style.background=\'#eef2ff\'" onmouseout="this.style.background=\'#fafafa\'"><div style="display:flex;align-items:center;gap:8px;"><span style="flex:1;font-weight:600;font-size:14px;color:#333;">' + t + '</span><span style="font-size:11px;color:#bbb;">' + (ann.date||'') + '</span>' + delBtn + '</div>' + (preview ? '<div style="font-size:12px;color:#999;margin-top:5px;">' + preview + more + '</div>' : '') + '</div>';
+  }).join('');
+}
+var _pastAnnDetailIdx = -1;
+function openPastAnnDetail(idx) {
+  var ann = PAST_ANNOUNCEMENTS[idx];
+  if (!ann) return;
+  _pastAnnDetailIdx = idx;
+  document.getElementById('past-ann-detail-title').textContent = ann.title || '(無標題)';
+  document.getElementById('past-ann-detail-date').textContent = ann.date || '';
+  document.getElementById('past-ann-detail-body').innerHTML = ann.content || '';
+  var rb = document.getElementById('past-ann-detail-restore-btn');
+  if (rb) rb.style.display = (typeof editUnlocked !== 'undefined' && editUnlocked) ? 'inline-block' : 'none';
+  var m = document.getElementById('past-ann-detail-modal');
+  if (m) m.style.display = 'flex';
+}
+function closePastAnnDetail() {
+  var m = document.getElementById('past-ann-detail-modal');
+  if (m) m.style.display = 'none';
+}
+function deletePastAnn(idx) {
+  if (!confirm('確定刪除此筆過往公告？')) return;
+  PAST_ANNOUNCEMENTS.splice(idx, 1);
+  _savePastAnn();
+  renderPastAnnList();
+}
+function restoreFromPastAnn() {
+  var ann = PAST_ANNOUNCEMENTS[_pastAnnDetailIdx];
+  if (!ann || !confirm('復原會覆蓋現有公告，確定嗎？')) return;
+  localStorage.setItem('bs-ann-title', ann.title || '');
+  localStorage.setItem('bs-ann-content', ann.content || '');
+  var bar = document.getElementById('announcement-bar');
+  var annTextEl = document.getElementById('announcement-text');
+  if (bar) bar.style.display = '';
+  if (annTextEl) annTextEl.innerHTML = '<strong>' + (ann.title||'') + '</strong>';
+  PAST_ANNOUNCEMENTS.splice(_pastAnnDetailIdx, 1);
+  _savePastAnn();
+  closePastAnnDetail();
+  closePastAnnModal();
+  alert('已復原為現在公告');
+}
 function showAll() {
   const page = document.getElementById('detail-page');
   if (page && page.classList.contains('open')) closePanel();
@@ -4427,7 +4516,7 @@ font-family:&quot;Arial&quot;,sans-serif;color:red">1mm<o:p></o:p></span></b></p
     <!-- 編輯模式 Footer -->
     <div id="ann-modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; padding: 12px 22px; border-top: 1px solid var(--border); flex-shrink: 0;">
       <button onclick="closeAnnModal()" style="padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text-muted);font-size:14px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">取消</button>
-      <button onclick="saveAnnouncement()" style="padding:8px 20px;border:none;border-radius:8px;background:#1976d2;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">💾 儲存公告</button>
+      <button onclick="archiveCurrentAnn()" style="background:#fff3e0;border:1px solid #ffb74d;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:13px;color:#e65100;font-weight:500;">📦 封存公告</button> <button onclick="saveAnnouncement()" style="padding:8px 20px;border:none;border-radius:8px;background:#1976d2;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">💾 儲存公告</button>
     </div>
 
     <!-- 瀏覽模式 Footer -->
@@ -4509,6 +4598,7 @@ font-family:&quot;Arial&quot;,sans-serif;color:red">1mm<o:p></o:p></span></b></p
     </div>
   </div>
 </div>
+<div id="past-ann-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;align-items:center;justify-content:center;"><div style="background:#fff;border-radius:12px;width:min(700px,95vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,0.25);overflow:hidden;"><div style="padding:16px 20px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:16px;font-weight:700;color:#333;">📋 過往公告</span><button onclick="closePastAnnModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;">×</button></div><div id="past-ann-list" style="overflow-y:auto;flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:80px;"></div><div style="padding:12px 20px;border-top:1px solid #eee;text-align:right;"><button onclick="closePastAnnModal()" style="background:#f0f0f0;border:none;border-radius:6px;padding:8px 20px;cursor:pointer;font-size:13px;">關閉</button></div></div></div><div id="past-ann-detail-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:2100;align-items:center;justify-content:center;"><div style="background:#fff;border-radius:12px;width:min(700px,95vw);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,0.3);overflow:hidden;"><div style="padding:16px 20px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:12px;"><div style="flex:1;"><div id="past-ann-detail-title" style="font-size:15px;font-weight:700;color:#333;"></div><div id="past-ann-detail-date" style="font-size:12px;color:#aaa;margin-top:3px;"></div></div><button onclick="closePastAnnDetail()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;">×</button></div><div id="past-ann-detail-body" style="overflow-y:auto;flex:1;padding:20px;line-height:1.7;font-size:14px;"></div><div style="padding:12px 20px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;"><button id="past-ann-detail-restore-btn" onclick="restoreFromPastAnn()" style="display:none;background:#fff8e1;border:1px solid #ffd54f;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;color:#f57f17;">🔃 復原為現在公告</button><button onclick="closePastAnnDetail()" style="background:#f0f0f0;border:none;border-radius:6px;padding:8px 20px;cursor:pointer;font-size:13px;">返回</button></div></div></div>
 <div id="cat-manager-modal" onclick="if(event.target===this)closeCatManager()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1100;align-items:center;justify-content:center;padding:16px;">
   <div style="background:var(--surface);border-radius:16px;max-width:460px;width:100%;display:flex;flex-direction:column;max-height:80vh;box-shadow:0 8px 32px rgba(0,0,0,0.3);overflow:hidden;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px;border-bottom:1px solid var(--border);">
