@@ -1099,7 +1099,8 @@
   .pwchg-err  { font-size:11px; color:#ff6b6b; margin-top:3px; min-height:14px; }
 
   /* ===== ANNOUNCEMENT CONTENT NORMALIZE ===== */
-  #ann-editor-content h1, #ann-editor-content h2, #ann-editor-content h3,
+  #ann-editor-content h1, #ann-editor-content h2, #ann-editor-content h2 { font-size: 1.35em; font-weight: 700; margin: 4px 0 6px 0; line-height: 1.4; }
+  #ann-editor-content h3 { font-size: 1.15em; font-weight: 700; margin: 4px 0 6px 0; line-height: 1.5; }
   #ann-editor-content h4, #ann-editor-content h5, #ann-editor-content h6 {
     font-size: inherit;
     font-weight: 700;
@@ -4287,6 +4288,23 @@ function annFormat(cmd, val) {
   document.getElementById('ann-editor-content').focus();
   document.execCommand(cmd, false, val || null);
 }
+function annFontSize(delta) {
+  var editor = document.getElementById('ann-editor-content');
+  editor.focus();
+  var sel = window.getSelection();
+  if (!sel || !sel.rangeCount || sel.isCollapsed) { showToast('請先選取要調整的文字'); return; }
+  document.execCommand('fontSize', false, '7');
+  var fonts = editor.querySelectorAll('font[size="7"]');
+  var el = sel.anchorNode ? (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode) : editor;
+  var curSize = parseFloat(window.getComputedStyle(el).fontSize) || 14;
+  var newSize = Math.max(8, Math.min(72, Math.round(curSize) + delta));
+  fonts.forEach(function(f) {
+    var span = document.createElement('span');
+    span.style.fontSize = newSize + 'px';
+    while(f.firstChild) span.appendChild(f.firstChild);
+    f.parentNode.replaceChild(span, f);
+  });
+}
 
 function annInsertImg() {
   const url = prompt('請輸入圖片網址：');
@@ -4531,6 +4549,8 @@ renderProducts();
       <button onclick="annFormat('underline')" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text);text-decoration:underline;">U</button>
       <button onclick="annFormat('insertUnorderedList')" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text);">• 清單</button>
       <button onclick="annFormat('formatBlock','h3')" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text);">標題</button>
+      <button onclick="annFontSize(2)" title="字體放大" style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:4px 8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text);">A↑</button>
+      <button onclick="annFontSize(-2)" title="字體縮小" style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:4px 8px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text-dim);">A↓</button>
       <button onclick="annFormat('removeFormat')" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text-muted);">清除格式</button>
       <button onclick="annInsertImg()" style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text);">🖼 插圖</button>
     </div>
