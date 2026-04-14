@@ -4239,8 +4239,7 @@ function editAnnouncement() { openAnnModal(true); }
 function archiveCurrentAnn() {
   var title = localStorage.getItem('bs-ann-title') || '';
   var content = localStorage.getItem('bs-ann-content') || '';
-  if (!title && !content) { alert('目前沒有公告可封存'); return; }
-  if (!confirm('確定封存目前公告至「過往公告」？')) return;
+  if (!title && !content) return;
   var now = new Date();
   var d = now.getFullYear() + '/' + (now.getMonth()+1) + '/' + now.getDate();
   PAST_ANNOUNCEMENTS.unshift({title:title, content:content, date:d});
