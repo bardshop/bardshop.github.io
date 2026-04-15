@@ -3025,7 +3025,7 @@ function selectGroupChip(groupIdx, optIdx) {
   if (!groups) return;
   var selections = groups.map(function(grp, gi) {
     var active = document.querySelector('#size-chip-group-'+gi+' .size-chip.active');
-    return active ? active.textContent.trim() : null;
+    return active ? (active.getAttribute("data-label") || active.textContent.trim()) : null;
   });
   if (selections.every(Boolean)) {
     var pricingKey = selections.join(' ');
@@ -3043,6 +3043,11 @@ function selectGroupChip(groupIdx, optIdx) {
     if (priceCard && activeProduct && activeProduct._pricing) {
       var pricing = activeProduct._pricing;
       var sizeData = pricing.sizes[pricingKey];
+      if(!sizeData && pricing.dynamicPrintMethod){
+        for(var __si = 0; __si < selections.length; __si++){
+          if(pricing.sizes[selections[__si]]){ sizeData = pricing.sizes[selections[__si]]; break; }
+        }
+      }
       if(!sizeData){ var __pkeys = Object.keys(pricing.sizes); if(__pkeys.length === 1) sizeData = pricing.sizes[__pkeys[0]]; }
       if(sizeData && typeof applyPrintMethodOverride === "function") sizeData = applyPrintMethodOverride(sizeData, pricing);
       if (sizeData) {
