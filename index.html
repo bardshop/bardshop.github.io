@@ -1121,7 +1121,7 @@
     border-radius: 8px;
   }
 
-.pn-code{color:#c2410c;font-family:"SF Mono","Menlo","Monaco","Consolas","Courier New",monospace;font-weight:700;font-size:18px;letter-spacing:0.5px;}
+.pn-code{color:#c2410c;font-family:"SF Mono",Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-weight:600;font-size:16px;letter-spacing:0;}
 </style>
 
 
@@ -2731,6 +2731,9 @@ function autoFillPartNoCard(p, force) {
         if(selections.indexOf(sizeOpts[oi].label) >= 0){ matched = sizeOpts[oi]; break; }
       }
       if(matched && matched.partNumber){ showPN(matched.partNumber, matched.label); return; }
+      // Fallback: if only 1 sizeOpt has partNumber, use it (powerbank case)
+      var optsWithPnFallback = sizeOpts.filter(function(o){ return o && o.partNumber; });
+      if(optsWithPnFallback.length === 1){ showPN(optsWithPnFallback[0].partNumber, selections.join(' / ')); return; }
       showHint(); return;
     }
     var activeSizeChip = document.querySelector('.size-chip.active[data-idx]');
