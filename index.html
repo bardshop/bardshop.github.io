@@ -2674,7 +2674,7 @@ function autoFillPartNoCard(p, force) {
       var allFilled = true;
       for(var gi = 0; gi < groups.length; gi++){
         var active = document.querySelector('[data-gidx="' + gi + '"].size-chip.active');
-        if(active){ selections.push(active.textContent.trim()); } else { selections.push(null); allFilled = false; }
+        if(active){ selections.push(active.getAttribute("data-label") || active.textContent.trim()); } else { selections.push(null); allFilled = false; }
       }
       if(!allFilled){ showHint(); return; }
       if(p._pricing && p._pricing.sizes){
@@ -2777,12 +2777,12 @@ function renderSpecView(p) {
     ${p._specGroups && p._specGroups.length > 0 ? p._specGroups.map((grp, gi) => `<div class="sfc">
       <div class="sfc-label">${escHtml(grp.label)}</div>
       <div class="size-chip-grid" id="size-chip-group-${gi}" style="margin-top:6px;">
-        ${grp.options.map((opt, oi) => `<div class="size-chip" data-gidx="${gi}" data-oidx="${oi}" onclick="selectGroupChip(${gi},${oi})">${(function(__l){var __of=__l.indexOf('(官網)')>=0;var __c=__l.replace(/\s*\(官網\)\s*/,'').trim();return escHtml(__c)+(__of?'<span class="badge-official">官網</span>':'');})(opt)}</div>`).join('')}
+        ${grp.options.map((opt, oi) => `<div class="size-chip" data-gidx="${gi}" data-oidx="${oi}" data-label="${escHtml(opt)}" onclick="selectGroupChip(${gi},${oi})">${(function(__l){var __of=__l.indexOf('(官網)')>=0;var __c=__l.replace(/\s*\(官網\)\s*/,'').trim();return escHtml(__c)+(__of?'<span class="badge-official">官網</span>':'');})(opt)}</div>`).join('')}
       </div>
     </div>`).join('') : `<div class="sfc">
       <div class="sfc-label">尺寸規格</div>
       <div class="size-chip-grid" id="size-chip-grid" style="margin-top:6px;">
-        ${sizeOpts.filter(opt => opt.label.indexOf('加購') === -1).map((opt, i) => `<div class="size-chip" data-idx="${i}" data-pn="${escHtml(opt.partNumber||'')}" onclick="selectSizeChip(${i})">${(function(__l){var __of=__l.indexOf('(官網)')>=0;var __c=__l.replace(/\s*\(官網\)\s*/,'').trim();return escHtml(__c)+(__of?'<span class="badge-official">官網</span>':'');})(opt.label)}</div>`).join('')}
+        ${sizeOpts.filter(opt => opt.label.indexOf('加購') === -1).map((opt, i) => `<div class="size-chip" data-idx="${i}" data-label="${escHtml(opt.label)}" data-pn="${escHtml(opt.partNumber||'')}" onclick="selectSizeChip(${i})">${(function(__l){var __of=__l.indexOf('(官網)')>=0;var __c=__l.replace(/\s*\(官網\)\s*/,'').trim();return escHtml(__c)+(__of?'<span class="badge-official">官網</span>':'');})(opt.label)}</div>`).join('')}
       </div>
     </div>`}
     ${p._pricing ? `<div class="price-card" id="price-card" style="display:none;"><div class="price-card-header"><span class="price-card-title">💰 參考報價（NT￥／件）</span><span class="price-sample" id="price-sample"></span></div><table class="price-table"><thead><tr><th>數量</th><th>單價 (NT￥)</th></tr></thead><tbody id="price-tbody"></tbody></table><div class="price-moq">最低起訂量：25 件</div></div>` : ''}${p._addonPricing ? buildAddonHtml(p._addonPricing, sizeOpts) : ''}`;
