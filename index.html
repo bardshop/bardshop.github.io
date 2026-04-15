@@ -4172,10 +4172,12 @@ function importImages() {
 function openPanel(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
-  // SAFE_INJECT_PRICING_OVERRIDE: load pricing from localStorage if exists
+  // SAFE_INJECT_PRICING_OVERRIDE: load pricing/specGroups from localStorage if exists
   try {
     var __pls = localStorage.getItem("bardshop_pricing_" + p.id);
     if (__pls) { var __parsed = JSON.parse(__pls); if (__parsed && __parsed.sizes) p._pricing = __parsed; }
+    var __sgls = localStorage.getItem("bardshop_specgroups_" + p.id);
+    if (__sgls) { var __sgp = JSON.parse(__sgls); if (__sgp && __sgp.length != null) p._specGroups = __sgp; }
   } catch(e) {}
 
   activeProduct = p;
