@@ -2381,6 +2381,7 @@ function checkPin() {
   if (pinBuffer === atob(EDIT_PIN_B64)) {
     editUnlocked = true;
     closeLockModal();
+    renderProducts();
     document.getElementById('edit-mode-bar').classList.add('visible');
     document.getElementById('edit-mode-toggle').textContent = '🔓 已解鎖';
     document.getElementById('edit-mode-toggle').style.color = '#e8c547';
@@ -2415,6 +2416,7 @@ function lockEditMode() {
   const bi = document.getElementById('btn-import-img');
   if (be) be.style.display = 'none';
   if (bi) bi.style.display = 'none';
+  renderProducts();
   renderSidebar();
   if (activeProduct) openPanel(activeProduct.id);
   showToast('🔒 已鎖定');
