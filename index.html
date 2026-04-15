@@ -4150,6 +4150,12 @@ function importImages() {
 function openPanel(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
+  // SAFE_INJECT_PRICING_OVERRIDE: load pricing from localStorage if exists
+  try {
+    var __pls = localStorage.getItem("bardshop_pricing_" + p.id);
+    if (__pls) { var __parsed = JSON.parse(__pls); if (__parsed && __parsed.sizes) p._pricing = __parsed; }
+  } catch(e) {}
+
   activeProduct = p;
 
   // 隱藏列表，顯示詳情頁
