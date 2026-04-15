@@ -1,0 +1,525 @@
+{
+  "_meta": {
+    "created": "2026-04-15T11:36:17.131Z",
+    "purpose": "Batch 1: light-stick, laminated-acrylic, wedding-card pricing/spec/sizeOpts"
+  },
+  "products": {
+    "light-stick": {
+      "sizeOpts": [
+        {
+          "label": "質感霧白 (扁型 10×4.5cm 3mm 15段變光)",
+          "partNumber": "PACRTSPK3-B"
+        },
+        {
+          "label": "高階球形 (球形燈罩 5mm 15段變光)",
+          "partNumber": "CACRTSPK-A"
+        }
+      ],
+      "spec": {
+        "moq": "霧白款 51件起訂 / 球形款 200件起訂",
+        "size": "見下方款式選擇",
+        "material": "壓克力片 + LED燈條",
+        "print": "雷射雕刻 / 全彩印刷",
+        "leadtime": ""
+      },
+      "pricing": {
+        "tiers": [
+          "51-250",
+          "251-500",
+          "501+",
+          "1001+",
+          "2501+",
+          "5001+",
+          "10001+"
+        ],
+        "sizes": {
+          "質感霧白 (扁型 10×4.5cm 3mm 15段變光)": {
+            "partno": "PACRTSPK3-B",
+            "sample": 800,
+            "prices": [
+              124,
+              112,
+              102,
+              97,
+              93,
+              90,
+              null
+            ]
+          },
+          "高階球形 (球形燈罩 5mm 15段變光)": {
+            "partno": "CACRTSPK-A",
+            "sample": 2700,
+            "prices": [
+              220,
+              185,
+              170,
+              162,
+              154,
+              149,
+              145
+            ]
+          }
+        },
+        "note": "飛機盒 WPACARC-F7 +$15 / 泡綿 WPSFOAA-BK1423 / 遙控器 +$20000 / 保固1年 / 人為損壞不保 / 球形款185g白盒 / 霧白款OPP袋"
+      }
+    },
+    "laminated-acrylic": {
+      "sizeOpts": [
+        {
+          "label": "3mm 14.8×21cm 單面印刷",
+          "partNumber": "PACRTSPFF3-1421-S"
+        },
+        {
+          "label": "3mm 14.8×21cm 雙面印刷",
+          "partNumber": "PACRTSPFF3-1421-D"
+        },
+        {
+          "label": "2mm 14.8×21cm 單面印刷",
+          "partNumber": "PACRTSPFF2-1421-S"
+        },
+        {
+          "label": "2mm 14.8×21cm 雙面印刷",
+          "partNumber": "PACRTSPFF2-1421-D"
+        },
+        {
+          "label": "3mm 10×14.8cm 單面印刷",
+          "partNumber": "PACRTSPFF3-1014-S"
+        },
+        {
+          "label": "3mm 10×14.8cm 雙面印刷",
+          "partNumber": "PACRTSPFF3-1014-D"
+        },
+        {
+          "label": "2mm 10×14.8cm 單面印刷",
+          "partNumber": "PACRTSPFF2-1014-S"
+        },
+        {
+          "label": "2mm 10×14.8cm 雙面印刷",
+          "partNumber": "PACRTSPFF2-1014-D"
+        }
+      ],
+      "spec": {
+        "moq": "5件起訂",
+        "size": "見下方款式選擇",
+        "material": "兩片壓克力 + 不鏽鋼雙頭廣告釘",
+        "print": "全彩印刷",
+        "leadtime": ""
+      },
+      "pricing": {
+        "tiers": [
+          "5-50",
+          "51-250",
+          "251-500",
+          "500+",
+          "1000+",
+          "2500+",
+          "5000+"
+        ],
+        "sizes": {
+          "3mm 14.8×21cm 單面印刷": {
+            "partno": "PACRTSPFF3-1421-S",
+            "sample": 800,
+            "prices": [
+              310,
+              282,
+              269,
+              256,
+              249,
+              241,
+              234
+            ]
+          },
+          "3mm 14.8×21cm 雙面印刷": {
+            "partno": "PACRTSPFF3-1421-D",
+            "sample": 850,
+            "prices": [
+              340,
+              312,
+              299,
+              286,
+              279,
+              271,
+              264
+            ]
+          },
+          "2mm 14.8×21cm 單面印刷": {
+            "partno": "PACRTSPFF2-1421-S",
+            "sample": 800,
+            "prices": [
+              273,
+              248,
+              236,
+              225,
+              218,
+              212,
+              206
+            ]
+          },
+          "2mm 14.8×21cm 雙面印刷": {
+            "partno": "PACRTSPFF2-1421-D",
+            "sample": 850,
+            "prices": [
+              303,
+              278,
+              266,
+              255,
+              248,
+              242,
+              236
+            ]
+          },
+          "3mm 10×14.8cm 單面印刷": {
+            "partno": "PACRTSPFF3-1014-S",
+            "sample": 700,
+            "prices": [
+              235,
+              213,
+              203,
+              194,
+              188,
+              182,
+              177
+            ]
+          },
+          "3mm 10×14.8cm 雙面印刷": {
+            "partno": "PACRTSPFF3-1014-D",
+            "sample": 750,
+            "prices": [
+              255,
+              233,
+              223,
+              214,
+              208,
+              202,
+              197
+            ]
+          },
+          "2mm 10×14.8cm 單面印刷": {
+            "partno": "PACRTSPFF2-1014-S",
+            "sample": 700,
+            "prices": [
+              208,
+              189,
+              180,
+              172,
+              167,
+              162,
+              157
+            ]
+          },
+          "2mm 10×14.8cm 雙面印刷": {
+            "partno": "PACRTSPFF2-1014-D",
+            "sample": 750,
+            "prices": [
+              228,
+              209,
+              200,
+              192,
+              187,
+              182,
+              177
+            ]
+          }
+        },
+        "note": "材料：兩片壓克力 + 不鏽鋼雙頭廣告釘"
+      }
+    },
+    "wedding-card": {
+      "sizeOpts": [
+        {
+          "label": "5.4×8.6cm 單面印刷 (官網)",
+          "partNumber": "PACRF-0508-S"
+        },
+        {
+          "label": "5.4×8.6cm 雙面印刷 (官網)",
+          "partNumber": "PACRF-0508-D"
+        },
+        {
+          "label": "5.4×9cm 藍格 單面印刷 (官網)",
+          "partNumber": "PACRF-0509-S"
+        },
+        {
+          "label": "5.4×9cm 藍格 雙面印刷 (官網)",
+          "partNumber": "PACRF-0509-D"
+        },
+        {
+          "label": "10.5×14.8cm 單面印刷 (官網)",
+          "partNumber": "PACRF-1014-S"
+        },
+        {
+          "label": "10.5×14.8cm 雙面印刷 (官網)",
+          "partNumber": "PACRF-1014-D"
+        },
+        {
+          "label": "11×11cm 單面印刷 (官網)",
+          "partNumber": "PACRF-1111-S"
+        },
+        {
+          "label": "11×11cm 雙面印刷 (官網)",
+          "partNumber": "PACRF-1111-D"
+        },
+        {
+          "label": "13×19cm 單面印刷 (官網)",
+          "partNumber": "PACRF-1319-S"
+        },
+        {
+          "label": "13×19cm 雙面印刷 (官網)",
+          "partNumber": "PACRF-1319-D"
+        },
+        {
+          "label": "14.8×21cm 單面印刷 (官網)",
+          "partNumber": "PACRF-1421-S"
+        },
+        {
+          "label": "14.8×21cm 雙面印刷 (官網)",
+          "partNumber": "PACRF-1421-D"
+        },
+        {
+          "label": "15×23.5cm 藍格 單面印刷 (官網)",
+          "partNumber": "PACRF-1523-S"
+        },
+        {
+          "label": "15×23.5cm 藍格 雙面印刷 (官網)",
+          "partNumber": "PACRF-1523-D"
+        },
+        {
+          "label": "21×29.7cm A4 單面印刷 (官網)",
+          "partNumber": "PACRF-2129-S"
+        },
+        {
+          "label": "21×29.7cm A4 雙面印刷 (官網)",
+          "partNumber": "PACRF-2129-D"
+        }
+      ],
+      "spec": {
+        "moq": "5件起訂",
+        "size": "見下方款式選擇 (官網有 8 種尺寸 + 多種客製尺寸)",
+        "material": "壓克力 2mm",
+        "print": "全彩印刷 / 加一層白墨 +120",
+        "leadtime": ""
+      },
+      "pricing": {
+        "tiers": [
+          "5-50",
+          "51-250",
+          "251-500",
+          "500+",
+          "1000+",
+          "2500+",
+          "5000+"
+        ],
+        "sizes": {
+          "5.4×8.6cm 單面印刷 (官網)": {
+            "partno": "PACRF-0508-S",
+            "sample": 250,
+            "prices": [
+              19,
+              17,
+              16,
+              15.3,
+              14.9,
+              14.4,
+              14
+            ]
+          },
+          "5.4×8.6cm 雙面印刷 (官網)": {
+            "partno": "PACRF-0508-D",
+            "sample": 250,
+            "prices": [
+              25,
+              23,
+              22,
+              21.3,
+              20.9,
+              20.4,
+              20
+            ]
+          },
+          "5.4×9cm 藍格 單面印刷 (官網)": {
+            "partno": "PACRF-0509-S",
+            "sample": 250,
+            "prices": [
+              19,
+              17,
+              16,
+              15.3,
+              14.9,
+              14.4,
+              14
+            ]
+          },
+          "5.4×9cm 藍格 雙面印刷 (官網)": {
+            "partno": "PACRF-0509-D",
+            "sample": 250,
+            "prices": [
+              25,
+              23,
+              22,
+              21.3,
+              20.9,
+              20.4,
+              20
+            ]
+          },
+          "10.5×14.8cm 單面印刷 (官網)": {
+            "partno": "PACRF-1014-S",
+            "sample": 400,
+            "prices": [
+              56,
+              51,
+              49,
+              46,
+              45,
+              44,
+              43
+            ]
+          },
+          "10.5×14.8cm 雙面印刷 (官網)": {
+            "partno": "PACRF-1014-D",
+            "sample": 400,
+            "prices": [
+              74,
+              69,
+              67,
+              64,
+              63,
+              62,
+              61
+            ]
+          },
+          "11×11cm 單面印刷 (官網)": {
+            "partno": "PACRF-1111-S",
+            "sample": 350,
+            "prices": [
+              42,
+              39,
+              37,
+              35,
+              34,
+              33,
+              32
+            ]
+          },
+          "11×11cm 雙面印刷 (官網)": {
+            "partno": "PACRF-1111-D",
+            "sample": 350,
+            "prices": [
+              55,
+              52,
+              50,
+              48,
+              47,
+              46,
+              45
+            ]
+          },
+          "13×19cm 單面印刷 (官網)": {
+            "partno": "PACRF-1319-S",
+            "sample": 450,
+            "prices": [
+              66,
+              60,
+              57,
+              55,
+              53,
+              52,
+              50
+            ]
+          },
+          "13×19cm 雙面印刷 (官網)": {
+            "partno": "PACRF-1319-D",
+            "sample": 450,
+            "prices": [
+              88,
+              82,
+              79,
+              77,
+              75,
+              74,
+              72
+            ]
+          },
+          "14.8×21cm 單面印刷 (官網)": {
+            "partno": "PACRF-1421-S",
+            "sample": 500,
+            "prices": [
+              79,
+              72,
+              68,
+              65,
+              63,
+              61,
+              60
+            ]
+          },
+          "14.8×21cm 雙面印刷 (官網)": {
+            "partno": "PACRF-1421-D",
+            "sample": 500,
+            "prices": [
+              107,
+              100,
+              96,
+              93,
+              91,
+              89,
+              88
+            ]
+          },
+          "15×23.5cm 藍格 單面印刷 (官網)": {
+            "partno": "PACRF-1523-S",
+            "sample": 800,
+            "prices": [
+              159,
+              145,
+              138,
+              131,
+              127,
+              124,
+              120
+            ]
+          },
+          "15×23.5cm 藍格 雙面印刷 (官網)": {
+            "partno": "PACRF-1523-D",
+            "sample": 800,
+            "prices": [
+              214,
+              200,
+              193,
+              186,
+              182,
+              179,
+              175
+            ]
+          },
+          "21×29.7cm A4 單面印刷 (官網)": {
+            "partno": "PACRF-2129-S",
+            "sample": 800,
+            "prices": [
+              159,
+              145,
+              138,
+              131,
+              127,
+              124,
+              120
+            ]
+          },
+          "21×29.7cm A4 雙面印刷 (官網)": {
+            "partno": "PACRF-2129-D",
+            "sample": 800,
+            "prices": [
+              214,
+              200,
+              193,
+              186,
+              182,
+              179,
+              175
+            ]
+          }
+        },
+        "note": "造型壓克力片 2mm 報價 / 加一層白墨 +120 / 雙面 = 單面 + 規格差額 (3×3 +2 / 5×5 +4 / 7×7 +6 / 9×9 +9 / 11×11 +13 / 13×13 +18 / 12×20 +22 / 15×20 +28 / 20×20 +35 / A4 +55 / 30×40 +110 / 61×42 +177) / 10000+ 一律詢問"
+      }
+    }
+  }
+}
