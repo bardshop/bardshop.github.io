@@ -2670,82 +2670,22 @@ function buildAddonHtml(addon, sizeOpts) {
     +'<div class="price-moq">最低起訂量：25 件</div></div>';
 }
 
-function autoFillPartNoCard(p, force) {
-    if(!p) return;
-    var pnValue = document.getElementById('pn-value');
-    var pnCard = document.getElementById('pn-card');
-    if(!pnValue || !pnCard) return;
-    if(!force && !pnValue.classList.contains('pn-hint')) return;
-    var sizeOpts = (typeof getEffectiveSizeOpts === 'function') ? getEffectiveSizeOpts(p) : (p._sizeOpts || []);
-    var optsWithPn = sizeOpts.filter(function(o){ return o && o.partNumber; });
-    var hasGroups = p._specGroups && p._specGroups.length > 0;
-    // RULE: auto-fill only when exactly 1 sizeOpt total AND it has partNumber AND no specGroups
-    if(sizeOpts.length === 1 && optsWithPn.length === 1 && !hasGroups){
-      pnValue.innerHTML = '<span class="pn-code">' + optsWithPn[0].partNumber + '</span>';
-      pnValue.classList.remove('pn-hint');
-      pnCard.classList.add('has-value');
-      var pnLabel = document.getElementById('pn-label');
-      if(pnLabel) pnLabel.textContent = '料號';
-    }
-    // Multi sizeOpts or has specGroups: leave hint, wait for user click via refreshPnCardFromSelections
-  }
-
-function refreshPartNoFromSelections(p) {
+function autoFillPartNoCard(p) {
   if(!p) return;
   var pnValue = document.getElementById('pn-value');
   var pnCard = document.getElementById('pn-card');
-  var pnLabel = document.getElementById('pn-label');
   if(!pnValue || !pnCard) return;
-  var sizeOpts = (typeof getEffectiveSizeOpts === 'function') ? getEffectiveSizeOpts(p) : (p._sizeOpts || []);
-  var groups = p._specGroups || [];
-  function showHint(){
-    pnValue.innerHTML = '<span class="pn-hint" id="pn-hint">↓ 點選下方規格後顯示料號</span>';
-    pnValue.classList.add('pn-hint');
-    pnCard.classList.remove('has-value');
-    if(pnLabel) pnLabel.textContent = '料號';
-  }
-  function showPN(partNo, suffix){
-    pnValue.innerHTML = '<span class="pn-code">' + partNo + '</span>';
-    pnValue.classList.remove('pn-hint');
+  if(!arguments[1] && !pnValue.classList.contains("pn-hint")) return;
+  var sizeOpts = getEffectiveSizeOpts(p);
+  var optsWithPn = sizeOpts.filter(function(o){ return o.partNumber && o.label.indexOf('加購') === -1; });
+  if(optsWithPn.length === 0) return;
+  if(optsWithPn.length === 1) {
+    pnValue.textContent = optsWithPn[0].partNumber;
+    pnValue.className = 'pn-value';
     pnCard.classList.add('has-value');
-    if(pnLabel) pnLabel.textContent = '料號' + (suffix ? '（' + suffix + '）' : '');
-  }
-  // CASE A: groups exist (like magic ticket card) - need ALL groups selected
-  if(groups.length > 0){
-    var selections = groups.map(function(grp, gi){
-      var active = document.querySelector('[data-gidx="' + gi + '"].size-chip.active');
-      return active ? active.textContent.trim() : null;
-    });
-    if(!selections.every(Boolean)){ showHint(); return; }
-    // Try to find matching sizeOpt by combined label
-    var combinedKey = selections.join(' ');
-    // Strategy 1: look up _pricing.sizes by any selection (often keyed by print method)
-    if(p._pricing && p._pricing.sizes){
-      for(var sel of selections){
-        if(p._pricing.sizes[sel] && p._pricing.sizes[sel].partno){
-          showPN(p._pricing.sizes[sel].partno, sel); return;
-        }
-      }
-    }
-    // Strategy 2: match against sizeOpts label
-    var matched = sizeOpts.find(function(o){ return selections.indexOf(o.label) >= 0; });
-    if(matched && matched.partNumber){ showPN(matched.partNumber, matched.label); return; }
-    showHint(); return;
-  }
-  // CASE B: no groups, just sizeOpts - need active size chip
-  var activeSizeChip = document.querySelector('.size-chip.active[data-idx]');
-  if(!activeSizeChip){
-    if(sizeOpts.length === 1 && sizeOpts[0].partNumber){
-      showPN(sizeOpts[0].partNumber); return;
-    }
-    showHint(); return;
-  }
-  var idx = parseInt(activeSizeChip.getAttribute('data-idx'), 10);
-  var opt = sizeOpts[idx];
-  if(opt && opt.partNumber){ showPN(opt.partNumber); return; }
-  showHint();
-}
- else {
+    var lbl = document.getElementById('pn-stand-label');
+    if(lbl) lbl.textContent = '料號（' + optsWithPn[0].label + '）';
+  } else {
     var html2 = optsWithPn.map(function(o){
       return '<span style="display:block;font-size:12px;margin:2px 0;"><b>' + escHtml(o.label) + '</b>: ' + escHtml(o.partNumber) + '</span>';
     }).join('');
@@ -3034,7 +2974,7 @@ function selectSizeChip(idx) {
   }
 
   // After size chip click, also populate partNumber if applicable
-  if (typeof activeProduct !== "undefined") { refreshPartNoFromSelections(activeProduct); }
+  if (typeof activeProduct !== "undefined") { autoFillPartNoCard(activeProduct, true); }
 }
 
 
@@ -3091,7 +3031,7 @@ function selectGroupChip(groupIdx, optIdx) {
   }
 
   // After group chip click, also populate single-sizeOpt partNumber if available
-  if (typeof activeProduct !== "undefined") { refreshPartNoFromSelections(activeProduct); }
+  if (typeof activeProduct !== "undefined") { autoFillPartNoCard(activeProduct, true); }
 }
 
 // ===== TITLE STYLE =====
