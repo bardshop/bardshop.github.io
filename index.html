@@ -1122,6 +1122,8 @@
   }
 
 .pn-code{color:#c2410c;font-family:"SF Mono",Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-weight:600;font-size:16px;letter-spacing:0;}
+
+.badge-official{display:inline-block;background:#10b981;color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:6px;letter-spacing:0.3px;vertical-align:middle;}
 </style>
 
 
@@ -2703,6 +2705,25 @@ function autoFillPartNoCard(p, force) {
     if(opt && opt.partNumber){ showPN(opt.partNumber); return; }
     showHint();
   }
+
+function applyPrintMethodOverride(sizeData, pricing){
+  if(!sizeData || !pricing || !pricing.dynamicPrintMethod) return sizeData;
+  var activeChips = document.querySelectorAll('.size-chip.active');
+  var isDual = false;
+  for(var i = 0; i < activeChips.length; i++){
+    var t = (activeChips[i].textContent || '').trim();
+    if(t.indexOf('雙面印刷') >= 0 || t.indexOf('雙面') >= 0) { isDual = true; break; }
+  }
+  if(!isDual) return sizeData;
+  var out = {};
+  for(var k in sizeData){ out[k] = sizeData[k]; }
+  if(sizeData.dualPartno) out.partno = sizeData.dualPartno;
+  if(sizeData.dualSample !== undefined) out.sample = sizeData.dualSample;
+  if(sizeData.dualPrices && sizeData.dualPrices.length){ out.prices = sizeData.dualPrices; }
+  else if(sizeData.dualUpcharge != null && sizeData.prices){ out.prices = sizeData.prices.map(function(p){ return (p == null ? null : Math.round((p + sizeData.dualUpcharge) * 10) / 10); }); }
+  return out;
+}
+
 function renderSpecView(p) {
   const card = document.getElementById('spec-edit-card');
   if (!card) return;
@@ -2756,12 +2777,12 @@ function renderSpecView(p) {
     ${p._specGroups && p._specGroups.length > 0 ? p._specGroups.map((grp, gi) => `<div class="sfc">
       <div class="sfc-label">${escHtml(grp.label)}</div>
       <div class="size-chip-grid" id="size-chip-group-${gi}" style="margin-top:6px;">
-        ${grp.options.map((opt, oi) => `<div class="size-chip" data-gidx="${gi}" data-oidx="${oi}" onclick="selectGroupChip(${gi},${oi})">${escHtml(opt)}</div>`).join('')}
+        ${grp.options.map((opt, oi) => `<div class="size-chip" data-gidx="${gi}" data-oidx="${oi}" onclick="selectGroupChip(${gi},${oi})">${(function(__l){var __of=__l.indexOf('(官網)')>=0;var __c=__l.replace(/\s*\(官網\)\s*/,'').trim();return escHtml(__c)+(__of?'<span class="badge-official">官網</span>':'');})(opt)}</div>`).join('')}
       </div>
     </div>`).join('') : `<div class="sfc">
       <div class="sfc-label">尺寸規格</div>
       <div class="size-chip-grid" id="size-chip-grid" style="margin-top:6px;">
-        ${sizeOpts.filter(opt => opt.label.indexOf('加購') === -1).map((opt, i) => `<div class="size-chip" data-idx="${i}" data-pn="${escHtml(opt.partNumber||'')}" onclick="selectSizeChip(${i})">${escHtml(opt.label)}</div>`).join('')}
+        ${sizeOpts.filter(opt => opt.label.indexOf('加購') === -1).map((opt, i) => `<div class="size-chip" data-idx="${i}" data-pn="${escHtml(opt.partNumber||'')}" onclick="selectSizeChip(${i})">${(function(__l){var __of=__l.indexOf('(官網)')>=0;var __c=__l.replace(/\s*\(官網\)\s*/,'').trim();return escHtml(__c)+(__of?'<span class="badge-official">官網</span>':'');})(opt.label)}</div>`).join('')}
       </div>
     </div>`}
     ${p._pricing ? `<div class="price-card" id="price-card" style="display:none;"><div class="price-card-header"><span class="price-card-title">💰 參考報價（NT￥／件）</span><span class="price-sample" id="price-sample"></span></div><table class="price-table"><thead><tr><th>數量</th><th>單價 (NT￥)</th></tr></thead><tbody id="price-tbody"></tbody></table><div class="price-moq">最低起訂量：25 件</div></div>` : ''}${p._addonPricing ? buildAddonHtml(p._addonPricing, sizeOpts) : ''}`;
@@ -3023,6 +3044,7 @@ function selectGroupChip(groupIdx, optIdx) {
       var pricing = activeProduct._pricing;
       var sizeData = pricing.sizes[pricingKey];
       if(!sizeData){ var __pkeys = Object.keys(pricing.sizes); if(__pkeys.length === 1) sizeData = pricing.sizes[__pkeys[0]]; }
+      if(sizeData && typeof applyPrintMethodOverride === "function") sizeData = applyPrintMethodOverride(sizeData, pricing);
       if (sizeData) {
         var tbody = document.getElementById('price-tbody');
         var sampleEl = document.getElementById('price-sample');
