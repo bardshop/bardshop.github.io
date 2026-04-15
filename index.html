@@ -3830,7 +3830,7 @@ function handleImgFileUpload(event) {
     showToast('\u23f3 \u4e0a\u50b3\u4e2d... (0/' + files.length + ')');
 
     // Upload each file to GitHub
-    var apiBase = 'https://api.github.com/repos/bardshop/bardshop-db/contents/assets/images/';
+    var apiBase = 'https://api.github.com/repos/bardshop/bardshop.github.io/contents/assets/images/';
     var ts = Date.now();
     var promises = files.map(async (file, idx) => {
       var ext = file.type.includes('gif') ? 'gif' : file.type.includes('png') ? 'png' :
@@ -3854,7 +3854,7 @@ function handleImgFileUpload(event) {
       });
       var data = await resp.json();
       if (data.content && data.content.sha) {
-        return 'https://bardshop.github.io/bardshop-db/assets/images/' + fname;
+        return 'https://bardshop.github.io/assets/images/' + fname;
       }
       throw new Error(data.message || '\u672a\u77e5\u932f\u8aa4');
     });
