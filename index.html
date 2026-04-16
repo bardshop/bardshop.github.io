@@ -498,6 +498,9 @@
   }
   .tag.moq { color: var(--green); border-color: rgba(76,175,130,0.3); background: rgba(76,175,130,0.08); }
   .tag.material { color: var(--blue); border-color: rgba(91,155,213,0.3); background: rgba(91,155,213,0.08); }
+  
+  .card-cat-tag { display:inline-block; font-size:11px; color:#8b7355; background:rgba(139,115,85,0.08); border:1px solid rgba(139,115,85,0.15); border-radius:10px; padding:1px 8px; margin-bottom:4px; white-space:nowrap; }
+  .card-cat-extra { font-size:10px; color:#999; margin-left:2px; }
   .card-footer {
     display: flex; justify-content: space-between; align-items: center;
     padding-top: 10px; border-top: 1px solid var(--border);
@@ -2193,10 +2196,12 @@ function getFiltered() {
   const result = PRODUCTS.filter(p => {
     if (_getDeletedIds().has(p.id)) return false;
     if (!editUnlocked && _getHiddenIds().has(p.id)) return false;
-    if (activeCat === '新品企劃') {
-      if (!p.newArrival) return false;
-    } else if (activeCat && p.cat !== activeCat) return false;
-    if (q && !p.name.toLowerCase().includes(q)) return false;
+    // 搜尋時忽略分類篩選，搜全部商品
+    if (q) {
+      if (!p.name.toLowerCase().includes(q)) return false;
+    } else {
+      if (activeCat && !productInCat(p, activeCat)) return false;
+    }
     if (filterSpecOnly === true && !p.hasSpec) return false;
     if (filterSpecOnly === false && p.hasSpec) return false;
     return true;
@@ -2222,6 +2227,8 @@ function renderProducts() {
   const info = document.getElementById('results-info');
   const specCount = PRODUCTS.filter(p => p.hasSpec).length;
   document.getElementById('spec-count').textContent = specCount;
+  var _uniqueTotal = PRODUCTS.filter(function(p){ return !_getDeletedIds().has(p.id) && (editUnlocked || !_getHiddenIds().has(p.id)); }).length;
+  document.getElementById('total-count').textContent = _uniqueTotal;
 
   info.innerHTML = `顯示 <strong>${filtered.length}</strong> 件商品（共 ${PRODUCTS.length} 件）`;
 
@@ -2247,6 +2254,7 @@ function renderProducts() {
           ${!p.hasSpec ? '<span class="card-no-spec">待補規格</span>' : ''}
         </div>
         <div class="card-body">
+          <div class="card-cat-tag">${p.cat}</div>
           <div class="card-name">${p.name}</div>
           <div class="card-meta">
             ${p.moq ? `<span class="tag moq">📦 ${p.moq.split('，')[0]}</span>` : ''}
@@ -2272,7 +2280,7 @@ function renderProducts() {
               : getCatIcon(p.cat)}
           </div>
           <div style="min-width:0;">
-            <div class="list-name">${p.name}</div>
+            <div class="list-name">${p.name} <span class="card-cat-tag" style="font-size:10px;vertical-align:middle;margin-left:6px;">${p.cat}</span></div>
             <div class="list-meta">
               ${p.moq ? `<span class="tag moq">📦 ${p.moq.split('，')[0]}</span>` : ''}
               ${p.material ? `<span class="tag material">🧪 ${p.material}</span>` : ''}
@@ -2388,7 +2396,39 @@ const SPEC_PREFIX  = 'bardshop_spec_';
 const NOTES_PREFIX = 'bardshop_notes_';
 
 
-function renderSidebar() {
+
+  // === 分類管理 UI ===
+  function renderCatManager(p) {
+    if (!editUnlocked) return '';
+    var extras = getExtraCats(p.id);
+    var chips = CAT_ORDER.filter(function(c) { return c !== p.cat; }).map(function(c) {
+      var isOn = extras.indexOf(c) >= 0;
+      return '<span class="cat-mgmt-chip' + (isOn ? ' active' : '') + '" '
+        + 'onclick="toggleExtraCat(\'' + p.id.replace(/'/g, "\\'") + '\',\'' + c.replace(/'/g, "\\'") + '\')" '
+        + 'style="display:inline-block;margin:3px;padding:4px 10px;border-radius:14px;font-size:12px;cursor:pointer;'
+        + 'border:1px solid ' + (isOn ? '#c0854a' : '#ddd') + ';'
+        + 'background:' + (isOn ? 'rgba(192,133,74,0.12)' : '#fafafa') + ';'
+        + 'color:' + (isOn ? '#c0854a' : '#888') + ';">'
+        + (isOn ? '✓ ' : '') + c + '</span>';
+    }).join('');
+    return '<div id="cat-manager" style="margin:8px 0 16px;padding:10px 14px;background:rgba(192,133,74,0.04);border:1px dashed rgba(192,133,74,0.25);border-radius:10px;">'
+      + '<div style="font-size:12px;color:#8b7355;margin-bottom:6px;font-weight:600;">⚙ 分類管理 <span style="font-weight:400;color:#aaa;">(點擊新增/移除額外分類)</span></div>'
+      + '<div style="font-size:11px;color:#aaa;margin-bottom:6px;">主分類：<strong style="color:#8b7355;">' + p.cat + '</strong></div>'
+      + chips + '</div>';
+  }
+
+  function toggleExtraCat(pid, cat) {
+    var extras = getExtraCats(pid);
+    var idx = extras.indexOf(cat);
+    if (idx >= 0) extras.splice(idx, 1);
+    else extras.push(cat);
+    saveExtraCats(pid, extras);
+    // Re-render the product panel
+    var p = PRODUCTS.find(function(x) { return x.id === pid; });
+    if (p) openPanel(pid);
+  }
+
+  function renderSidebar() {
   var list = document.getElementById('cat-list');
   if (!list) return;
   var activeCat = window._activeCat || null;
@@ -2398,8 +2438,7 @@ function renderSidebar() {
     return PRODUCTS.filter(function(p) {
       if (deletedIds.has(p.id)) return false;
       if (!editUnlocked && hiddenIds.has(p.id)) return false;
-      if (cat === '新品企劃') return !!p.newArrival;
-      return p.cat === cat;
+      return productInCat(p, cat);
     }).length;
   }
   var html = '<button class="cat-btn' + (activeCat === '新品企劃' ? ' active' : '') + '"'
@@ -2580,6 +2619,12 @@ function getCustomSizeOpts(id) {
 }
 function saveSizeOpts(id, arr) {
   try { localStorage.setItem(SIZE_OPTS_PREFIX + id, JSON.stringify(arr)); } catch(e) {} }
+
+  // === 多分類功能 ===
+  const EXTRA_CATS_PREFIX = 'bardshop_extracats_';
+  function getExtraCats(id) { try { var s = localStorage.getItem(EXTRA_CATS_PREFIX + id); return s ? JSON.parse(s) : []; } catch(e) { return []; } }
+  function saveExtraCats(id, arr) { try { if(arr && arr.length) localStorage.setItem(EXTRA_CATS_PREFIX + id, JSON.stringify(arr)); else localStorage.removeItem(EXTRA_CATS_PREFIX + id); } catch(e){} }
+  function productInCat(p, cat) { if (cat === '新品企劃') return !!p.newArrival; if (p.cat === cat) return true; var extras = getExtraCats(p.id); return extras.indexOf(cat) >= 0; }
 function getEffectiveSizeOpts(p) {
   const c = getCustomSizeOpts(p.id);
   if (c) return c;
@@ -4209,7 +4254,8 @@ function openPanel(id) {
 
   // 標題
   html += `<div class="detail-title">${p.name}</div>`;
-  html += `<div class="detail-cat">${p.cat} · ${p.hasSpec ? '規格已建立' : '規格建立中'}</div>`;
+  html += `<div class="detail-cat">${p.cat}${(function(){ var ex = getExtraCats(p.id); return ex.length ? ' · ' + ex.join(' · ') : ''; })()} · ${p.hasSpec ? '規格已建立' : '規格建立中'}</div>`;
+  html += renderCatManager(p);
 
   if (!p.hasSpec) {
     html += `<div class="detail-card" style="border-color:rgba(255,107,53,0.35);background:rgba(255,107,53,0.06)">
