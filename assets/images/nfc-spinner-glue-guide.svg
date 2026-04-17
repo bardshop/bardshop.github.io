@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" font-family="'Noto Sans TC','Microsoft JhengHei','PingFang TC',sans-serif">
+  <defs>
+    <linearGradient id="hdr" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e67e22"/>
+      <stop offset="100%" stop-color="#f39c12"/>
+    </linearGradient>
+    <linearGradient id="safe" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#27ae60"/>
+      <stop offset="100%" stop-color="#2ecc71"/>
+    </linearGradient>
+    <linearGradient id="warn" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#c0392b"/>
+      <stop offset="100%" stop-color="#e74c3c"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="520" rx="12" fill="#fefefe" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="450" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#2c3e50">NFC 旋轉鑰匙圈 — CD 黏死說明</text>
+  <line x1="280" y1="52" x2="620" y2="52" stroke="#e67e22" stroke-width="3" stroke-linecap="round"/>
+  <rect x="30" y="75" width="410" height="200" rx="10" fill="#eafaf1" stroke="#27ae60" stroke-width="2"/>
+  <rect x="30" y="75" width="410" height="38" rx="10" fill="url(#safe)"/>
+  <rect x="30" y="103" width="410" height="10" fill="url(#safe)"/>
+  <text x="235" y="100" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">可拆換（預設）</text>
+  <text x="235" y="101" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">PACRIMK2-3-NFC__-__</text>
+  <rect x="60" y="130" width="70" height="70" rx="35" fill="#fff" stroke="#27ae60" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="95" y="162" text-anchor="middle" font-size="11" fill="#27ae60" font-weight="bold">CD</text>
+  <text x="95" y="178" text-anchor="middle" font-size="9" fill="#666">可取下</text>
+  <text x="150" y="170" text-anchor="middle" font-size="20" fill="#999">+</text>
+  <rect x="170" y="135" width="80" height="60" rx="6" fill="#fff" stroke="#27ae60" stroke-width="2"/>
+  <text x="210" y="162" text-anchor="middle" font-size="11" fill="#27ae60" font-weight="bold">底座</text>
+  <text x="210" y="178" text-anchor="middle" font-size="9" fill="#666">旋轉軸承</text>
+  <text x="270" y="170" text-anchor="middle" font-size="20" fill="#999">→</text>
+  <g transform="translate(290,130)">
+    <rect width="70" height="70" rx="35" fill="#d5f5e3" stroke="#27ae60" stroke-width="2"/>
+    <text x="35" y="30" text-anchor="middle" font-size="9" fill="#27ae60">CD 可拆換</text>
+    <text x="35" y="44" text-anchor="middle" font-size="9" fill="#27ae60">更換不同</text>
+    <text x="35" y="58" text-anchor="middle" font-size="9" fill="#27ae60">圖案 CD</text>
+  </g>
+  <text x="235" y="225" text-anchor="middle" font-size="12" fill="#2c3e50">• CD 與軸承分離，客人可自行更換 CD</text>
+  <text x="235" y="245" text-anchor="middle" font-size="12" fill="#2c3e50">• 適合需要多款 CD 替換的客人</text>
+  <text x="235" y="265" text-anchor="middle" font-size="12" fill="#27ae60" font-weight="bold">✓ 無氣泡問題</text>
+  <rect x="460" y="75" width="410" height="200" rx="10" fill="#fdf2f2" stroke="#c0392b" stroke-width="2"/>
+  <rect x="460" y="75" width="410" height="38" rx="10" fill="url(#warn)"/>
+  <rect x="460" y="103" width="410" height="10" fill="url(#warn)"/>
+  <text x="665" y="100" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">黏死不可拆</text>
+  <text x="665" y="101" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">PACRIMK23N-NFC__-__</text>
+  <rect x="490" y="130" width="70" height="70" rx="35" fill="#fff" stroke="#c0392b" stroke-width="2"/>
+  <text x="525" y="162" text-anchor="middle" font-size="11" fill="#c0392b" font-weight="bold">CD</text>
+  <text x="525" y="178" text-anchor="middle" font-size="9" fill="#666">黏合</text>
+  <text x="580" y="170" text-anchor="middle" font-size="20" fill="#999">+</text>
+  <rect x="600" y="135" width="80" height="60" rx="6" fill="#fff" stroke="#c0392b" stroke-width="2"/>
+  <text x="640" y="155" text-anchor="middle" font-size="11" fill="#c0392b" font-weight="bold">底座</text>
+  <text x="640" y="170" text-anchor="middle" font-size="9" fill="#666">旋轉軸承</text>
+  <text x="640" y="185" text-anchor="middle" font-size="9" fill="#c0392b">膠水固定</text>
+  <text x="700" y="170" text-anchor="middle" font-size="20" fill="#999">→</text>
+  <g transform="translate(720,130)">
+    <rect width="70" height="70" rx="35" fill="#fadbd8" stroke="#c0392b" stroke-width="2"/>
+    <text x="35" y="30" text-anchor="middle" font-size="9" fill="#c0392b">CD 固定</text>
+    <text x="35" y="44" text-anchor="middle" font-size="9" fill="#c0392b">不會掉落</text>
+    <text x="35" y="58" text-anchor="middle" font-size="9" fill="#c0392b">不可拆</text>
+  </g>
+  <text x="665" y="225" text-anchor="middle" font-size="12" fill="#2c3e50">• CD 與軸承以膠水固定，不會脫落</text>
+  <text x="665" y="245" text-anchor="middle" font-size="12" fill="#2c3e50">• 適合只用一款 CD、不想掉落的客人</text>
+  <text x="665" y="265" text-anchor="middle" font-size="12" fill="#c0392b" font-weight="bold">⚠ 半透圖可能產生氣泡（見下方說明）</text>
+  <rect x="30" y="295" width="840" height="210" rx="10" fill="#fff9e6" stroke="#f39c12" stroke-width="2"/>
+  <rect x="30" y="295" width="840" height="38" rx="10" fill="url(#hdr)"/>
+  <rect x="30" y="323" width="840" height="10" fill="url(#hdr)"/>
+  <text x="450" y="320" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">⚠ 黏死版注意事項</text>
+  <text x="60" y="360" font-size="13" fill="#2c3e50" font-weight="bold">1. 半透圖案可能產生氣泡</text>
+  <text x="80" y="382" font-size="12" fill="#555">黏死時膠水可能在正面形成氣泡，尤其在透明或半透明區域較為明顯。</text>
+  <text x="60" y="412" font-size="13" fill="#2c3e50" font-weight="bold">2. 建議使用滿版圖</text>
+  <text x="80" y="434" font-size="12" fill="#555">若客戶選擇黏死，建議 CD 圖案採用滿版設計（無大面積透明區），可有效避免氣泡問題。</text>
+  <text x="60" y="464" font-size="13" fill="#2c3e50" font-weight="bold">3. 訂單備註</text>
+  <text x="80" y="486" font-size="12" fill="#555">如客戶要求黏死但尚無對應料號，訂單請備註「需黏死」，並使用 PACRIMK23N 前綴料號下單。</text>
+  <g transform="translate(720,345)">
+    <rect x="0" y="0" width="130" height="80" rx="8" fill="#fce4e4" stroke="#e74c3c" stroke-width="1.5"/>
+    <circle cx="35" cy="30" r="6" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.7"/>
+    <circle cx="55" cy="45" r="4" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.5"/>
+    <circle cx="80" cy="25" r="5" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="100" cy="50" r="3" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.4"/>
+    <text x="65" y="72" text-anchor="middle" font-size="9" fill="#c0392b">氣泡示意</text>
+  </g>
+  <g transform="translate(720,435)">
+    <rect x="0" y="0" width="130" height="55" rx="8" fill="#d5f5e3" stroke="#27ae60" stroke-width="1.5"/>
+    <rect x="10" y="8" width="110" height="25" rx="4" fill="#27ae60" opacity="0.3"/>
+    <text x="65" y="26" text-anchor="middle" font-size="10" fill="#27ae60">滿版圖案</text>
+    <text x="65" y="48" text-anchor="middle" font-size="9" fill="#27ae60">✓ 無氣泡</text>
+  </g>
+</svg>
