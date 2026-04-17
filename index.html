@@ -2938,7 +2938,7 @@ function renderSpecView(p) {
     const cols = hasMat && hasPrint ? '1fr 1fr' : '1fr';
     html += `<div style="display:grid;grid-template-columns:${cols};gap:10px;">`;
     if (hasMat) html += `<div class="sfc"><div class="sfc-label">材質</div><div class="sfc-value">${escHtml(s.material)}</div></div>`;
-    if (hasPrint) { var _pdUrl=getEffectivePrintDiagram(p); html += `<div class="sfc"><div class="sfc-label">印刷工藝${_pdUrl?` <span onclick="openPrintLightbox('${_pdUrl}')" style="cursor:pointer;font-size:13px;" title="查看印刷方式圖解">🔍</span>`:``}</div><div class="sfc-value">${printLines.map(t=>escHtml(t)).join('<br>')}</div></div>`;
+if (hasPrint) { var _pdUrl=getEffectivePrintDiagram(p); var _pdIcon=_pdUrl ? ' <span onclick="openPrintLightbox(\x27'+_pdUrl+'\x27)" style="cursor:pointer;font-size:13px;" title="查看印刷方式圖解">🔍</span>' : ''; html += '<div class="sfc"><div class="sfc-label">印刷工藝'+_pdIcon+'</div><div class="sfc-value">'+printLines.map(function(t){return escHtml(t)}).join('<br>')+'</div></div>'; }
     html += `</div>`;
   }
 
