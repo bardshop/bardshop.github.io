@@ -2776,6 +2776,23 @@ function autoFillPartNoCard(p, force) {
   }
 
   function refreshPartNoFromSelections(p) {
+    // specGroups partno handling
+    if (p && p._specGroups && p._pricing && p._pricing.sizes) {
+      var _pv = document.getElementById("pn-value");
+      var _pc = document.getElementById("pn-card");
+      if (!_pv || !_pc) return;
+      var _gs = p._specGroups, _ss = [];
+      _gs.forEach(function(g, gi) {
+        var c = document.getElementById("size-chip-group-" + gi);
+        if (c) { var a = c.querySelector(".active"); if (a) _ss.push(a.textContent.trim()); }
+      });
+      if (_ss.length === _gs.length) {
+        var k = _ss.join(" "), d = p._pricing.sizes[k];
+        if (d && d.partno) { _pv.textContent = d.partno; _pc.className = "pn-card has-value"; }
+        else { _pc.className = "pn-card"; }
+      } else { _pc.className = "pn-card"; }
+      return;
+    }
     if(!p) return;
     var pnValue = document.getElementById('pn-value');
     var pnCard = document.getElementById('pn-card');
@@ -3140,7 +3157,27 @@ function selectSizeChip(idx) {
   }
 
   // After size chip click, also populate partNumber if applicable
-  if (typeof activeProduct !== "undefined") { refreshPartNoFromSelections(activeProduct); }
+  if (typeof activeProduct !== "undefined") { refreshPartNoFromSelections(activeProduct);
+    // specGroups partno fallback
+    if (activeProduct._specGroups && activeProduct._pricing && activeProduct._pricing.sizes) {
+      var _pnV = document.getElementById("pn-value");
+      var _pnC = document.getElementById("pn-card");
+      var _grps = activeProduct._specGroups;
+      var _sels = [];
+      _grps.forEach(function(g, gi) {
+        var _ctr = document.getElementById("size-chip-group-" + gi);
+        if (_ctr) { var _a = _ctr.querySelector(".active"); if (_a) _sels.push(_a.textContent.trim()); }
+      });
+      if (_sels.length === _grps.length) {
+        var _pk = _sels.join(" ");
+        var _sd = activeProduct._pricing.sizes[_pk];
+        if (_sd && _sd.partno) {
+          _pnV.textContent = _sd.partno;
+          _pnC.className = "pn-card has-value";
+        }
+      }
+    }
+  }
 }
 
 
