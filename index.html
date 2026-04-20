@@ -3167,7 +3167,12 @@ function selectGroupChip(groupIdx, optIdx) {
   });
   if (selections.every(Boolean)) {
     var pricingKey = selections.join(' ');
-    var sizeOpts = activeProduct._sizeOpts || [];
+    var sizeOpts = (activeProduct._sizeOpts && activeProduct._sizeOpts.length) ? activeProduct._sizeOpts : [];
+    if (!sizeOpts.length && activeProduct._pricing && activeProduct._pricing.sizes) {
+      sizeOpts = Object.keys(activeProduct._pricing.sizes).map(function(k){
+        return { label: k, partNumber: activeProduct._pricing.sizes[k].partno || '' };
+      });
+    }
     var matchedOpt = null;
     for (var si = 0; si < sizeOpts.length; si++) {
       if (sizeOpts[si].label === pricingKey) { matchedOpt = sizeOpts[si]; break; }
