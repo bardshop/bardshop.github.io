@@ -3578,13 +3578,13 @@ function renderQAEdit(p) {
   var card = document.getElementById("qa-edit-card");
   if (!card) return;
   var html = "<div class=\"detail-card-title\"><div class=\"dct-left\"><span class=\"dct-bar\"></span>"
-    + "<span class=\"dct-label\" style=\"font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600\">\u696d\u52d9\u8a62\u554e\u5fc5\u554e\u6e05\u55ae</span></div></div>";
+    + "<span class=\"dct-label\" style=\"font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600\">\u696d\u52d9\u8a62\u554f\u5fc5\u554f\u6e05\u55ae</span></div></div>";
   html += "<div class=\"qa-accordion edit-mode\" id=\"qa-edit-list\">";
   qaList.forEach(function(item, i) {
     html += "<div class=\"qa-acc-item editable open\" data-idx=\""+i+"\" draggable=\"true\">";
     html += "<div class=\"qa-acc-q\"><span class=\"drag-handle\">\u2630</span>";
     html += "<span class=\"q-badge\">Q"+(i+1)+"</span>";
-    html += "<textarea class=\"qa-edit-input\" id=\"qa-q-"+i+"\" oninput=\"autoResize(this)\" placeholder=\"\u8f38\u5165\u554e\u984c...\">"+escHtml(item.q)+"</textarea>";
+    html += "<textarea class=\"qa-edit-input\" id=\"qa-q-"+i+"\" oninput=\"autoResize(this)\" placeholder=\"\u8f38\u5165\u554f\u984c...\">"+escHtml(item.q)+"</textarea>";
     html += "<button class=\"qa-delete-btn\" onclick=\"qaDelete("+i+")\">&times;</button></div>";
     html += "<div class=\"qa-acc-a\" style=\"max-height:400px\"><div class=\"qa-acc-a-inner\">";
     html += "<div class=\"a-label\">A \u56de\u7b54</div>";
@@ -3592,7 +3592,7 @@ function renderQAEdit(p) {
     html += "</div></div></div>";
   });
   html += "</div>";
-  html += "<button class=\"qa-add-btn\" onclick=\"qaAdd()\">\uff0b \u65b0\u589e\u554e\u984c</button>";
+  html += "<button class=\"qa-add-btn\" onclick=\"qaAdd()\">\uff0b \u65b0\u589e\u554f\u984c</button>";
   html += "<button class=\"qa-save-btn\" onclick=\"qaSave()\" style=\"margin-top:8px\">\u5132\u5b58\u6e05\u55ae</button>";
   card.innerHTML = html;
   card.querySelectorAll(".qa-edit-input").forEach(function(ta){ autoResize(ta); });
@@ -3604,11 +3604,11 @@ function renderQAView(p) {
   var card = document.getElementById("qa-edit-card");
   if (!card) return;
   var html = "<div class=\"detail-card-title\"><div class=\"dct-left\"><span class=\"dct-bar\"></span>"
-    + "<span class=\"dct-label\" style=\"font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600\">\u696d\u52d9\u8a62\u554e\u5fc5\u554e\u6e05\u55ae</span></div>"
+    + "<span class=\"dct-label\" style=\"font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600\">\u696d\u52d9\u8a62\u554f\u5fc5\u554f\u6e05\u55ae</span></div>"
     + "<div class=\"dct-right\">"
     + (typeof isEditMode!=="undefined"&&isEditMode?"<button onclick=\"renderQAEdit(activeProduct)\" style=\"background:none;border:1px solid var(--accent);color:var(--accent);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer\">\u7de8\u8f2f</button>":"")+"</div></div>";
   if (qaList.length === 0) {
-    html += "<div style=\"color:var(--text-dim);font-size:13px;padding:10px 0\">\u5c1a\u672a\u8a2d\u5b9a\u554e\u984c</div>";
+    html += "<div style=\"color:var(--text-dim);font-size:13px;padding:10px 0\">\u5c1a\u672a\u8a2d\u5b9a\u554f\u984c</div>";
   } else {
     html += "<div class=\"qa-accordion\" id=\"qa-check-list\">";
     qaList.forEach(function(item, i) {
@@ -3624,7 +3624,7 @@ function renderQAView(p) {
     });
     html += "</div>";
   }
-  html += "<div class=\"qa-acc-add\" onclick=\"qaAddFromView()\">\uff0b \u65b0\u589e\u554e\u984c</div>";
+  html += "<div class=\"qa-acc-add\" onclick=\"qaAddFromView()\">\uff0b \u65b0\u589e\u554f\u984c</div>";
   card.innerHTML = html;
 }
 function toggleQAAccordion(idx) {
@@ -3632,7 +3632,7 @@ function toggleQAAccordion(idx) {
   if (el) el.classList.toggle("open");
 }
 function qaAddFromView() {
-  var q = prompt("\u8f38\u5165\u65b0\u554e\u984c:");
+  var q = prompt("\u8f38\u5165\u65b0\u554f\u984c:");
   if (!q || !q.trim()) return;
   if (!activeProduct) return;
   var qaList = getEffectiveQA(activeProduct);
