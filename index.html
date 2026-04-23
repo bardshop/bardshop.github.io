@@ -2814,7 +2814,7 @@ function autoFillPartNoCard(p, force) {
     var sizeOpts = (typeof getEffectiveSizeOpts === 'function') ? getEffectiveSizeOpts(p) : (p._sizeOpts || []);
     var optsWithPn = sizeOpts.filter(function(o){ return o && o.partNumber; });
     var hasGroups = p._specGroups && p._specGroups.length > 0;
-    if(sizeOpts.length === 1 && optsWithPn.length === 1 && !hasGroups){
+    if(optsWithPn.length === 1){
       pnValue.innerHTML = '<span class="pn-code">' + optsWithPn[0].partNumber + '</span>';
       pnValue.classList.remove('pn-hint');
       pnCard.classList.add('has-value');
