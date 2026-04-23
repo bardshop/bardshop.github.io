@@ -1963,7 +1963,7 @@
     <div class="spec-edit-row">
       <div class="spec-edit-label" style="text-align:left;">起訂量（MOQ）</div>
       
-      <textarea class="qa-edit-input" id="se-moq" oninput="autoResize(this)" style="width: 100%; min-height: 42px; resize: none; box-sizing: border-box; height: 64px;" placeholder="例：100件起，可不同圖（超過5款圖則酌收費用）">5件起訂</textarea>
+      <textarea class="qa-edit-input" id="se-moq" oninput="autoResize(this)" style="width: 100%; min-height: 42px; resize: both; box-sizing: border-box; height: 64px;" placeholder="例：100件起，可不同圖（超過5款圖則酌收費用）">5件起訂</textarea>
     </div>
       <div class="spec-edit-row">
         <div class="spec-edit-label" style="text-align:left;">尺寸規格選項 ＆ 料號</div>
@@ -1992,7 +1992,7 @@
     <div class="spec-edit-row">
       <div class="spec-edit-label" style="text-align:left;">材質</div>
       
-      <textarea class="qa-edit-input" id="se-material" oninput="autoResize(this)" style="width: 100%; min-height: 42px; resize: none; box-sizing: border-box; height: 241px;" placeholder="例：透明壓克力 厚度3mm">塑膠+電子元件                                                                       產品型號：CG10000CA-LC
+      <textarea class="qa-edit-input" id="se-material" oninput="autoResize(this)" style="width: 100%; min-height: 42px; resize: both; box-sizing: border-box; height: 241px;" placeholder="例：透明壓克力 厚度3mm">塑膠+電子元件                                                                       產品型號：CG10000CA-LC
 129(L)*70(W)*14(H)mm 重量約181g                            BSMI證號：R3A680
 額定容量：6500mAh
 
@@ -2007,7 +2007,7 @@ Lightning埠:DC 5V/2A                                                         Ty
     <div class="spec-edit-row">
       <div class="spec-edit-label" style="text-align:left;">印刷工藝 &amp; 加購選項</div>
       <div class="spec-edit-hint" style="text-align:left;">💡 每行一項，第一行為「印刷工藝」，第二行起為「加購選項」</div>
-      <textarea class="qa-edit-input" id="se-print" oninput="autoResize(this)" style="width: 100%; min-height: 126px; resize: none; box-sizing: border-box; height: 124px;" placeholder="第一行：主印刷工藝
+      <textarea class="qa-edit-input" id="se-print" oninput="autoResize(this)" style="width: 100%; min-height: 126px; resize: both; box-sizing: border-box; height: 124px;" placeholder="第一行：主印刷工藝
 第二行起：每行一個加購選項">全彩印刷+白墨</textarea>
     </div>
     </div>
@@ -2039,7 +2039,7 @@ Lightning埠:DC 5V/2A                                                         Ty
     <div class="spec-edit-row">
       <div class="spec-edit-label" style="text-align:left;">起訂量（MOQ）</div>
       
-      <textarea class="qa-edit-input" id="se-moq" oninput="autoResize(this)" style="width: 100%; min-height: 42px; resize: none; box-sizing: border-box; height: 64px;" placeholder="例：100件起，可不同圖（超過5款圖則酌收費用）">25件起訂，可不同圖（超過5款圖則酌收費用）</textarea>
+      <textarea class="qa-edit-input" id="se-moq" oninput="autoResize(this)" style="width: 100%; min-height: 42px; resize: both; box-sizing: border-box; height: 64px;" placeholder="例：100件起，可不同圖（超過5款圖則酌收費用）">25件起訂，可不同圖（超過5款圖則酌收費用）</textarea>
     </div>
       <div class="spec-edit-row">
         <div class="spec-edit-label" style="text-align:left;">尺寸規格選項 ＆ 料號</div>
@@ -2091,14 +2091,14 @@ Lightning埠:DC 5V/2A                                                         Ty
     <div class="spec-edit-row">
       <div class="spec-edit-label" style="text-align:left;">材質</div>
       
-      <textarea class="qa-edit-input" id="se-material" oninput="autoResize(this)" style="width: 100%; min-height: 42px; resize: none; box-sizing: border-box; height: 64px;" placeholder="例：透明壓克力 厚度3mm">透明壓克力 厚度3mm
+      <textarea class="qa-edit-input" id="se-material" oninput="autoResize(this)" style="width: 100%; min-height: 42px; resize: both; box-sizing: border-box; height: 64px;" placeholder="例：透明壓克力 厚度3mm">透明壓克力 厚度3mm
 立牌本身預設有4個磁鐵，配件預設2個磁鐵</textarea>
     </div>
       
     <div class="spec-edit-row">
       <div class="spec-edit-label" style="text-align:left;">印刷工藝 &amp; 加購選項</div>
       <div class="spec-edit-hint" style="text-align:left;">💡 每行一項，第一行為「印刷工藝」，第二行起為「加購選項」</div>
-      <textarea class="qa-edit-input" id="se-print" oninput="autoResize(this)" style="width: 100%; min-height: 126px; resize: none; box-sizing: border-box; height: 126px;" placeholder="第一行：主印刷工藝
+      <textarea class="qa-edit-input" id="se-print" oninput="autoResize(this)" style="width: 100%; min-height: 126px; resize: both; box-sizing: border-box; height: 126px;" placeholder="第一行：主印刷工藝
 第二行起：每行一個加購選項">PET全彩印刷+白墨
 大量可採柯式印刷(仿柯)</textarea>
     </div>
@@ -3022,7 +3022,7 @@ function renderSpecEdit(p) {
       ${hint ? `<div class="spec-edit-hint" style="text-align:left;">${hint}</div>` : ''}
       <textarea class="qa-edit-input" id="se-${key}"
         oninput="autoResize(this)"
-        style="width:100%;min-height:${minRows * 42}px;resize:none;box-sizing:border-box;"
+        style="width:100%;min-height:${minRows * 42}px;resize:both;box-sizing:border-box;"
         placeholder="${placeholder}">${escHtml(s[key] || '')}</textarea>
     </div>`;
 
