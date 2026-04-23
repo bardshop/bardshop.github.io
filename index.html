@@ -4481,6 +4481,9 @@ function openPanel(id) {
     renderQAView(p);
   }
 
+  // 自動填入料號（單一規格時直接顯示）
+  autoFillPartNoCard(p);
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
