@@ -995,7 +995,7 @@
   /* Spec field cards */
   .sfc { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
   .sfc-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; text-align: left; }
-  .sfc-value { font-size: 13px; font-weight: 500; color: var(--text); text-align: left; line-height: 1.6; }
+  .sfc-value { font-size: 13px; font-weight: 500; color: var(--text); text-align: left; line-height: 1.6; white-space: pre-line; }
   .sfc-value.green { color: var(--green); }
   /* Size opt edit rows */
   .size-opt-row {
@@ -3521,7 +3521,7 @@ function renderNotesView(p) {
       </div>
     </div>
     <div style="font-size:13px;color:var(--text);line-height:1.9;">
-      ${notes.split('；').filter(Boolean).map(n=>`<div style="margin-bottom:4px;">• ${escHtml(n.trim())}</div>`).join('')}
+      ${notes.split(/；|\n/).filter(Boolean).map(n=>`<div style="margin-bottom:4px;">• ${escHtml(n.trim())}</div>`).join('')}
     </div>`;
 }
 
