@@ -1139,46 +1139,22 @@
 #print-lightbox{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
 #print-lightbox img{max-width:92%;max-height:92%;border-radius:8px;box-shadow:0 0 40px rgba(0,0,0,.6);}
 
-.sku-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:300;opacity:0;pointer-events:none;transition:opacity .3s}
-.sku-overlay.active{opacity:1;pointer-events:auto}
-.sku-panel{position:fixed;top:0;right:0;bottom:0;width:min(900px,90vw);background:var(--surface);z-index:301;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.15)}
-.sku-panel.active{transform:translateX(0)}
-.sku-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0}
-.sku-header h2{margin:0;font-size:18px;font-weight:700;color:var(--text)}
-.sku-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-light);padding:4px 8px;border-radius:6px}
-.sku-close:hover{background:var(--hover)}
-.sku-toolbar{padding:12px 24px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-shrink:0}
-.sku-search{flex:1;padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface);color:var(--text);outline:none}
-.sku-search:focus{border-color:var(--accent)}
-.sku-badge{font-size:12px;padding:3px 10px;border-radius:12px;font-weight:600;white-space:nowrap}
-.sku-badge-set{background:#e8f5e9;color:#2e7d32}
-.sku-badge-unset{background:#fce4ec;color:#c62828}
-.sku-filter-btn{padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;background:var(--surface);color:var(--text)}
-.sku-filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.sku-body{flex:1;overflow-y:auto;padding:0}
-.sku-table{width:100%;border-collapse:collapse;font-size:13px}
-.sku-table thead{position:sticky;top:0;background:var(--surface);z-index:1}
-.sku-table th{text-align:left;padding:10px 14px;font-weight:600;color:var(--text-light);border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
-.sku-table td{padding:8px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
-.sku-table tr:hover td{background:var(--hover)}
-.sku-table .pn-cell{font-family:'Courier New',monospace;font-size:12px;font-weight:600}
-.sku-table .no-pn{color:#bbb;font-style:italic;font-weight:400}
-.sku-table .row-nopn{background:rgba(255,0,0,0.03)}
-</style>
-
-
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-<!-- ===== PASSWORD OVERLAY ===== -->
-<div id="bs-pw-overlay" class="" style="">
-  <div class="pw-box">
-    <div class="pw-logo">BardShop</div>
-    <div class="pw-sub">內部商品資訊庫</div>
-    <div class="pw-label">請輸入密碼</div>
-    <input id="pw-input" type="password" class="pw-input" maxlength="20" autocomplete="off" placeholder="••••" onkeydown="if(event.key==='Enter')window._checkPW()">
-    <button class="pw-btn" onclick="window._checkPW()">進入</button>
-    <div id="pw-error" class="pw-error"></div>
-  </div>
+.sku-page{padding:20px 30px;max-width:1200px;margin:0 auto;}
+.sku-page-header{margin-bottom:16px;}
+.sku-page-body{overflow-x:auto;}
+.sku-badge{padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold;}
+.sku-filter-btn{padding:6px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;background:#fff;font-size:13px;}
+.sku-filter-btn.active{background:#5a4a3a;color:#fff;border-color:#5a4a3a;}
+.sku-table{width:100%;border-collapse:collapse;font-size:13px;}
+.sku-table th{background:#5a4a3a;color:#fff;padding:10px 12px;text-align:left;position:sticky;top:0;z-index:1;}
+.sku-table td{padding:8px 12px;border-bottom:1px solid #e8e0d8;vertical-align:middle;}
+.sku-table tr:hover{background:#faf6f1;}
+.sku-name-cell{color:#5a4a3a;font-weight:500;}
+.sku-name-cell:hover{text-decoration:underline;}
+.sku-unset{color:#ccc;font-style:italic;}
+.sku-edit-cell{cursor:pointer;min-width:120px;}
+.sku-edit-cell:hover{background:#fef9e7;outline:1px dashed #d4a574;}
+.sku-edited{background:#e8f8e8 !important;}
 </div>
 <!-- ===== CHANGE PASSWORD MODAL ===== -->
 <div class="pwchg-bg" id="pwchg-bg">
@@ -5118,99 +5094,130 @@ function updateToggleStyle(chk) {
 
 
 // ── 料號總覽 ──
-var _skuFilter = 'all';
-function openSkuOverview() {
-  var overlay = document.getElementById('sku-overlay');
-  var panel = document.getElementById('sku-panel');
-  if (!overlay || !panel) return;
-  buildSkuTable();
-  overlay.classList.add('active');
-  panel.classList.add('active');
-  document.body.style.overflow = 'hidden';
-  document.getElementById('sku-search').value = '';
-  _skuFilter = 'all';
-  updateSkuFilterBtns();
+var _skuFilter='all';var _skuRows=[];var _skuEdits={};
+function openSkuOverview(){
+  var main=document.querySelector('.main');
+  if(!main)return;
+  main.setAttribute('data-prev-html',main.innerHTML);
+  var rows=buildSkuTable();
+  _skuRows=rows;
+  var setCount=rows.filter(function(r){return r.pn&&r.pn!=='';}).length;
+  var unsetCount=rows.length-setCount;
+  var h='<div class="sku-page"><div class="sku-page-header">';
+  h+='<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">';
+  h+='<h2 style="margin:0">📋 料號總覽</h2>';
+  h+='<span class="sku-badge" style="background:#27ae60;color:#fff">已設定 '+setCount+'</span>';
+  h+='<span class="sku-badge" style="background:#e74c3c;color:#fff">未設定 '+unsetCount+'</span>';
+  h+='<button onclick="closeSkuOverview()" style="margin-left:auto;padding:6px 16px;border-radius:6px;border:1px solid #ccc;cursor:pointer">← 返回</button></div>';
+  h+='<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">';
+  h+='<input class="sku-search" id="sku-search-input" placeholder="搜尋料號、商品名稱或規格..." oninput="filterSkuTable()" style="flex:1;min-width:200px;padding:8px 12px;border:1px solid #ccc;border-radius:6px">';
+  h+='<button class="sku-filter-btn active" onclick="setSkuFilter('all')">全部</button>';
+  h+='<button class="sku-filter-btn" onclick="setSkuFilter('set')">已設定</button>';
+  h+='<button class="sku-filter-btn" onclick="setSkuFilter('unset')">未設定</button>';
+  h+='</div></div>';
+  h+='<div class="sku-page-body"><table class="sku-table"><thead><tr>';
+  h+='<th>商品名稱</th><th>規格</th><th>料號</th><th>ERP 名稱</th>';
+  h+='</tr></thead><tbody id="sku-tbody"></tbody></table></div></div>';
+  main.innerHTML=h;
+  renderSkuRows(rows);
+  window.scrollTo({top:0});
+  history.pushState({sku:true},'',location.pathname+location.search+'#sku-overview');
 }
-function closeSkuOverview() {
-  var overlay = document.getElementById('sku-overlay');
-  var panel = document.getElementById('sku-panel');
-  if (overlay) overlay.classList.remove('active');
-  if (panel) panel.classList.remove('active');
-  document.body.style.overflow = '';
+function closeSkuOverview(){
+  var main=document.querySelector('.main');
+  if(!main)return;
+  var prev=main.getAttribute('data-prev-html');
+  if(prev){main.innerHTML=prev;main.removeAttribute('data-prev-html');}
+  else{location.hash='';location.reload();}
 }
-function buildSkuTable() {
-  var tbody = document.getElementById('sku-table-body');
-  if (!tbody) return;
-  var rows = [];
-  var setCount = 0, unsetCount = 0;
-  PRODUCTS.forEach(function(p) {
-    var sizeOpts = (typeof getEffectiveSizeOpts === 'function') ? getEffectiveSizeOpts(p) : (p._sizeOpts || []);
-    if (!sizeOpts || sizeOpts.length === 0) {
-      unsetCount++;
-      rows.push({name: p.name, spec: '—', pn: '', erp: p._erpName || '', id: p.id, hasPn: false});
-      return;
-    }
-    sizeOpts.forEach(function(opt) {
-      if (!opt || !opt.label) return;
-      if (opt.label.indexOf('加購') !== -1) return;
-      var hasPn = !!(opt.partNumber);
-      if (hasPn) setCount++; else unsetCount++;
-      rows.push({name: p.name, spec: opt.label, pn: opt.partNumber || '', erp: p._erpName || '', id: p.id, hasPn: hasPn});
+function buildSkuTable(){
+  var rows=[];
+  PRODUCTS.forEach(function(p){
+    var opts=getEffectiveSizeOpts(p);
+    if(!opts||!opts.length){rows.push({id:p.id,name:p.name||p.id,size:'—',pn:'',erp:'',optIdx:0});return;}
+    opts.forEach(function(o,i){
+      rows.push({id:p.id,name:p.name||p.id,size:o.name||o.label||'—',pn:o.partNumber||'',erp:o.erpName||'',optIdx:i});
     });
   });
-  window._skuRows = rows;
-  document.getElementById('sku-count-set').textContent = '已設定 ' + setCount;
-  document.getElementById('sku-count-unset').textContent = '未設定 ' + unsetCount;
+  return rows;
+}
+function renderSkuRows(rows){
+  var tb=document.getElementById('sku-tbody');
+  if(!tb)return;
+  var h='';
+  rows.forEach(function(r,i){
+    var pnClass=r.pn?'':'sku-unset';
+    var pnKey=r.id+'__'+r.optIdx+'__pn';
+    var erpKey=r.id+'__'+r.optIdx+'__erp';
+    var pnEdited=_skuEdits[pnKey]?' sku-edited':'';
+    var erpEdited=_skuEdits[erpKey]?' sku-edited':'';
+    h+='<tr data-idx="'+i+'" data-id="'+r.id+'">';
+    h+='<td class="sku-name-cell" onclick="closeSkuOverview();openPanel(\''+r.id+'\')" style="cursor:pointer">'+escHtml(r.name)+'</td>';
+    h+='<td>'+escHtml(r.size)+'</td>';
+    h+='<td class="sku-edit-cell'+pnEdited+'" onclick="skuCellEdit(this,\''+r.id+'\','+r.optIdx+',\'partNumber\')">'+(r.pn?escHtml(r.pn):'<span class="'+pnClass+'">(未設定)</span>')+'</td>';
+    h+='<td class="sku-edit-cell'+erpEdited+'" onclick="skuCellEdit(this,\''+r.id+'\','+r.optIdx+',\'erpName\')">'+(r.erp?escHtml(r.erp):'—')+'</td>';
+    h+='</tr>';
+  });
+  tb.innerHTML=h;
+}
+function skuCellEdit(td,pid,optIdx,field){
+  if(td.querySelector('input'))return;
+  var cur=field==='partNumber'?_skuRows.find(function(r){return r.id===pid&&r.optIdx===optIdx;}):{};
+  var val=field==='partNumber'?(cur?cur.pn:''):(cur?cur.erp:'');
+  if(!cur)cur=_skuRows.find(function(r){return r.id===pid&&r.optIdx===optIdx;});
+  val=field==='partNumber'?(cur.pn||''):(cur.erp||'');
+  var inp=document.createElement('input');
+  inp.type='text';inp.value=val;
+  inp.style.cssText='width:100%;padding:4px 6px;border:1px solid #d4a574;border-radius:4px;font-size:13px;';
+  inp.onblur=function(){saveSkuEdit(pid,optIdx,field,inp.value,td);};
+  inp.onkeydown=function(e){if(e.key==='Enter')inp.blur();if(e.key==='Escape'){td.innerHTML=val?escHtml(val):(field==='partNumber'?'<span class="sku-unset">(未設定)</span>':'—');}};
+  td.innerHTML='';td.appendChild(inp);inp.focus();inp.select();
+}
+function saveSkuEdit(pid,optIdx,field,newVal,td){
+  var opts=getEffectiveSizeOpts({id:pid,_sizeOpts:null});
+  var customKey='bardshop_sizeopts_'+pid;
+  var stored=localStorage.getItem(customKey);
+  var custom=stored?JSON.parse(stored):null;
+  if(!custom){
+    var p=PRODUCTS.find(function(x){return x.id===pid;});
+    custom=getEffectiveSizeOpts(p).map(function(o){return{name:o.name||o.label||'',partNumber:o.partNumber||'',erpName:o.erpName||''};});
+  }
+  if(custom[optIdx]){custom[optIdx][field]=newVal.trim();}
+  localStorage.setItem(customKey,JSON.stringify(custom));
+  var editKey=pid+'__'+optIdx+'__'+(field==='partNumber'?'pn':'erp');
+  _skuEdits[editKey]=true;
+  var row=_skuRows.find(function(r){return r.id===pid&&r.optIdx===optIdx;});
+  if(row){if(field==='partNumber')row.pn=newVal.trim();else row.erp=newVal.trim();}
+  td.className='sku-edit-cell sku-edited';
+  td.innerHTML=newVal.trim()?escHtml(newVal.trim()):(field==='partNumber'?'<span class="sku-unset">(未設定)</span>':'—');
+}
+function filterSkuTable(){
+  var q=(document.getElementById('sku-search-input')||{}).value||'';
+  q=q.toLowerCase();
+  var rows=_skuRows.filter(function(r){
+    if(_skuFilter==='set'&&!r.pn)return false;
+    if(_skuFilter==='unset'&&r.pn)return false;
+    if(q&&r.name.toLowerCase().indexOf(q)===-1&&r.size.toLowerCase().indexOf(q)===-1&&r.pn.toLowerCase().indexOf(q)===-1)return false;
+    return true;
+  });
   renderSkuRows(rows);
 }
-function renderSkuRows(rows) {
-  var tbody = document.getElementById('sku-table-body');
-  var html = '';
-  rows.forEach(function(r) {
-    var cls = r.hasPn ? '' : ' class="row-nopn"';
-    var pnHtml = r.pn ? '<span class="pn-cell">' + escHtml(r.pn) + '</span>' : '<span class="no-pn">（未設定）</span>';
-    html += '<tr' + cls + ' style="cursor:pointer" onclick="closeSkuOverview();openPanel(\'' + r.id + '\')">'
-      + '<td>' + escHtml(r.name) + '</td>'
-      + '<td>' + escHtml(r.spec) + '</td>'
-      + '<td>' + pnHtml + '</td>'
-      + '<td style="color:var(--text-light);font-size:12px">' + escHtml(r.erp || '—') + '</td>'
-      + '</tr>';
-  });
-  tbody.innerHTML = html;
-}
-function filterSkuTable() {
-  var q = (document.getElementById('sku-search').value || '').toLowerCase().trim();
-  var rows = window._skuRows || [];
-  var filtered = rows.filter(function(r) {
-    if (_skuFilter === 'set' && !r.hasPn) return false;
-    if (_skuFilter === 'unset' && r.hasPn) return false;
-    if (!q) return true;
-    return (r.name.toLowerCase().indexOf(q) !== -1 || r.spec.toLowerCase().indexOf(q) !== -1 || r.pn.toLowerCase().indexOf(q) !== -1 || (r.erp || '').toLowerCase().indexOf(q) !== -1);
-  });
-  renderSkuRows(filtered);
-}
-function setSkuFilter(f) {
-  _skuFilter = f;
-  updateSkuFilterBtns();
-  filterSkuTable();
-}
-function updateSkuFilterBtns() {
-  ['all','set','unset'].forEach(function(f) {
-    var btn = document.getElementById('sku-filter-' + f);
-    if (btn) btn.classList.toggle('active', _skuFilter === f);
+function setSkuFilter(f){_skuFilter=f;updateSkuFilterBtns();filterSkuTable();}
+function updateSkuFilterBtns(){
+  var btns=document.querySelectorAll('.sku-filter-btn');
+  btns.forEach(function(b){b.classList.remove('active');
+    if((_skuFilter==='all'&&b.textContent.indexOf('全')>-1)||(_skuFilter==='set'&&b.textContent.indexOf('已')>-1)||(_skuFilter==='unset'&&b.textContent.indexOf('未')>-1))b.classList.add('active');
   });
 }
 
 
-// SKU overview button injection
-new MutationObserver(function(m,o){var bar=document.getElementById("edit-mode-bar");if(bar&&!bar.querySelector("[data-sku]")){var pb=document.getElementById("github-push-btn");if(pb){var b=document.createElement("button");b.className="edit-mode-action-btn";b.setAttribute("data-sku","1");b.onclick=function(){openSkuOverview()};b.textContent="\u{1F4CB} \u6599\u865F\u7E3D\u89BD";pb.parentNode.insertBefore(b,pb.nextSibling);}}}).observe(document.body,{childList:true,subtree:true});
 </script>
 
 
 <div id="github-pat-modal" style="display: none; position: fixed; inset: 0px; background: rgba(0, 0, 0, 0.65); z-index: 99998; align-items: center; justify-content: center;"><div style="background:#fff;border-radius:14px;width:520px;padding:36px;box-shadow:0 8px 40px rgba(0,0,0,0.35);position:relative;"><button onclick="document.getElementById('github-pat-modal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#999;">×</button><h2 style="margin:0 0 6px;font-size:19px;color:#1565C0;">🔑 設定 GitHub Token</h2><p style="color:#666;font-size:13px;margin:0 0 20px;line-height:1.6;">Token 儲存在本地瀏覽器，不會上傳到任何伺服器。</p><div style="background:#E3F2FD;border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#1565C0;line-height:1.8;"><strong>📋 取得 Token 步驟：</strong><br>1. 開啟 <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#1976D2;">github.com/settings/tokens/new</a><br>2. Note 填：<code style="background:#fff;padding:2px 6px;border-radius:4px;">BardShop DB</code><br>3. 勾選權限：<code style="background:#fff;padding:2px 6px;border-radius:4px;">repo</code><br>4. 點『Generate token』→ 複製</div><label style="font-size:13px;font-weight:bold;color:#333;display:block;margin-bottom:6px;">貼上 Token：</label><input id="github-pat-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:10px 12px;border:1.5px solid #90CAF9;border-radius:8px;font-size:14px;box-sizing:border-box;font-family:monospace;"><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;"><button onclick="document.getElementById('github-pat-modal').style.display='none'" style="padding:10px 20px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;cursor:pointer;font-size:14px;">取消</button><button onclick="var t=document.getElementById('github-pat-input').value.trim();if(!t){alert('請先貼上 Token');return;}localStorage.setItem('bardshop_github_pat',t);document.getElementById('github-pat-modal').style.display='none';document.getElementById('github-pat-input').value='';window.pushToGitHub();" style="padding:10px 24px;background:#1976D2;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:bold;">儲存並立即推送</button></div><p style="margin:14px 0 0;font-size:12px;color:#999;text-align:center;">删除 Token：<code>localStorage.removeItem('bardshop_github_pat')</code></p></div></div>
 <div id="print-lightbox" onclick="this.style.display='none'"><img id="print-lightbox-img" src=""></div>
 
-<div class="sku-overlay" id="sku-overlay" onclick="closeSkuOverview()"></div>
+
 <div class="sku-panel" id="sku-panel">
   <div class="sku-header">
     <h2>📋 料號總覽</h2>
