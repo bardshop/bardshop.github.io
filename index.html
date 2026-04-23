@@ -2011,7 +2011,7 @@ Type-C埠:DC 5V/2.1A
     <div id="notes-preview" style="margin-top:6px;padding:10px 14px;background:var(--surface2);border-radius:7px;font-size:13px;line-height:1.9;min-height:40px;color:var(--text);">
       <div>• BSMI認證(R3A680)</div><div>• 行動電源商品無法寄送國外</div><div>• 紙盒+充電線(Type-C to USB)包裝</div>
     </div>
-    <button class="qa-save-btn" style="margin-top:10px;" onclick="notesSave()">💾 儲存備註</button></div><div class="detail-card" id="qa-edit-card"><div class="detail-card-title"><div class="dct-left"><span class="dct-bar"></span><span class="dct-label" style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600">業務詢問必問清單</span></div><div class="dct-right"></div></div><div class="qa-accordion" id="qa-check-list"><div class="qa-acc-item open" id="qac-0" onclick="toggleQAAccordion(0)"><div class="qa-acc-q"><span class="q-badge">Q1</span><span class="q-text">可以帶上飛機嗎?</span><span class="q-arrow">▼</span></div><div class="qa-acc-a"><div class="qa-acc-a-inner"><div class="a-label">A</div><div class="a-text">可以, 飛機的規定是每人限制攜帶 2 顆，且容量必須小於100Wh (約27000mAh以下)</div></div></div></div><div class="qa-acc-item open" id="qac-1" onclick="toggleQAAccordion(1)"><div class="qa-acc-q"><span class="q-badge">Q2</span><span class="q-text">有經過BSMI認證嗎?</span><span class="q-arrow">▼</span></div><div class="qa-acc-a"><div class="qa-acc-a-inner"><div class="a-label">A</div><div class="a-text">有, BSMI認證：(R3A680)</div></div></div></div></div><div class="qa-acc-add" onclick="qaAddFromView()">＋ 新增問題</div></div></div><div style="display:none;" id="spec-edit-card">
+    <button class="qa-save-btn" style="margin-top:10px;" onclick="notesSave()">💾 儲存備註</button></div><div class="detail-card" id="qa-edit-card"><div class="detail-card-title"><div class="dct-left"><span class="dct-bar"></span><span class="dct-label" style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600">業務QA</span></div><div class="dct-right"></div></div><div class="qa-accordion" id="qa-check-list"><div class="qa-acc-item open" id="qac-0" onclick="toggleQAAccordion(0)"><div class="qa-acc-q"><span class="q-badge">Q1</span><span class="q-text">可以帶上飛機嗎?</span><span class="q-arrow">▼</span></div><div class="qa-acc-a"><div class="qa-acc-a-inner"><div class="a-label">A</div><div class="a-text">可以, 飛機的規定是每人限制攜帶 2 顆，且容量必須小於100Wh (約27000mAh以下)</div></div></div></div><div class="qa-acc-item open" id="qac-1" onclick="toggleQAAccordion(1)"><div class="qa-acc-q"><span class="q-badge">Q2</span><span class="q-text">有經過BSMI認證嗎?</span><span class="q-arrow">▼</span></div><div class="qa-acc-a"><div class="qa-acc-a-inner"><div class="a-label">A</div><div class="a-text">有, BSMI認證：(R3A680)</div></div></div></div></div><div class="qa-acc-add" onclick="qaAddFromView()">＋ 新增問題</div></div></div><div style="display:none;" id="spec-edit-card">
     <div class="detail-card-title">
       <div class="dct-left"><div class="dct-bar"></div><span class="dct-label" style="font-size:10px;letter-spacing:2px;text-transform:uppercase;">商品規格</span></div>
       <div class="dct-right">
@@ -2104,7 +2104,7 @@ Type-C埠:DC 5V/2.1A
       <div>• 含強力釹磁鐵，請勿近心臟起搏器、信用卡等磁性敏感物品</div><div>• 避免邊框或同心圓設計，有位移可能性</div>
     </div>
     <button class="qa-save-btn" style="margin-top:10px;" onclick="notesSave()">💾 儲存備註</button></div><div class="detail-card" id="qa-edit-card" style="display:none;"><div class="detail-card-title">
-    <div class="dct-left"><div class="dct-bar"></div><span class="dct-label" style="font-size:10px;letter-spacing:2px;text-transform:uppercase;">業務詢問必問清單</span></div>
+    <div class="dct-left"><div class="dct-bar"></div><span class="dct-label" style="font-size:10px;letter-spacing:2px;text-transform:uppercase;">業務QA</span></div>
     <span style="font-size:11px;color:var(--accent);font-weight:400;">✏️ 編輯模式</span>
   </div>
   <div class="qa-list" id="qa-edit-list"><div class="qa-item editable" data-idx="0" style="padding:10px 12px;gap:10px;align-items:center;transition:border-color .15s;">
@@ -3605,7 +3605,7 @@ function renderQAEdit(p) {
   var card = document.getElementById("qa-edit-card");
   if (!card) return;
   var html = "<div class=\"detail-card-title\"><div class=\"dct-left\"><span class=\"dct-bar\"></span>"
-    + "<span class=\"dct-label\" style=\"font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600\">\u696d\u52d9\u8a62\u554f\u5fc5\u554f\u6e05\u55ae</span></div></div>";
+    + "<span class=\"dct-label\" style=\"font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600\">\u696d\u52d9QA</span></div></div>";
   html += "<div class=\"qa-accordion edit-mode\" id=\"qa-edit-list\">";
   qaList.forEach(function(item, i) {
     html += "<div class=\"qa-acc-item editable open\" data-idx=\""+i+"\" draggable=\"true\">";
@@ -3631,7 +3631,7 @@ function renderQAView(p) {
   var card = document.getElementById("qa-edit-card");
   if (!card) return;
   var html = "<div class=\"detail-card-title\"><div class=\"dct-left\"><span class=\"dct-bar\"></span>"
-    + "<span class=\"dct-label\" style=\"font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600\">\u696d\u52d9\u8a62\u554f\u5fc5\u554f\u6e05\u55ae</span></div>"
+    + "<span class=\"dct-label\" style=\"font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600\">\u696d\u52d9QA</span></div>"
     + "<div class=\"dct-right\">"
     + (typeof isEditMode!=="undefined"&&isEditMode?"<button onclick=\"renderQAEdit(activeProduct)\" style=\"background:none;border:1px solid var(--accent);color:var(--accent);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer\">\u7de8\u8f2f</button>":"")+"</div></div>";
   if (qaList.length === 0) {
