@@ -1296,7 +1296,7 @@
       <span>資料區域</span>
       <button id="data-area-edit-btn" onclick="openDataAreaManager()" title="管理資料區域" style="display: inline-flex; background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer; font-size: 13px; padding: 2px 6px; border-radius: 4px; color: rgb(102, 102, 102);">✏️ 管理</button>
     </div>
-    <div id="data-area-list"><button class="cat-btn" onclick="_daAction(0)">✔ 商品知識</button><button class="cat-btn" onclick="_daAction(1)">⚠ 過往公告</button><button class="cat-btn" onclick="_daAction(2)">🔍 全部顯示</button></div>
+    <div id="data-area-list"><button class="cat-btn" onclick="_daAction(0)">✔ 商品知識</button><button class="cat-btn" onclick="_daAction(1)">⚠ 過往公告</button><button class="cat-btn" onclick="_daAction(2)">🔍 全部顯示</button><button class="cat-btn" onclick="openSkuOverview()">📋 料號總覽</button></div>
   </aside>
 
   <main class="main">
@@ -2541,7 +2541,6 @@ const NOTES_PREFIX = 'bardshop_notes_';
       daHtml += '<button class="cat-btn" onclick="_daAction(' + idx + ')">' + (item.icon ? item.icon + ' ' : '') + item.label + '</button>';
     });
     daList.innerHTML = daHtml;
-    daList.innerHTML += '<button class="cat-btn" onclick="openSkuOverview()" style="margin-top:8px;border-top:1px solid #ddd;padding-top:10px;width:100%;background:#5a4a3a;color:#fff;border-radius:6px;font-weight:bold;padding:8px 12px;letter-spacing:1px;">📋 料號總覽</button>';
     var daEditBtn = document.getElementById('data-area-edit-btn');
     if (daEditBtn) daEditBtn.style.display = (typeof editUnlocked !== 'undefined' && editUnlocked) ? 'inline-flex' : 'none';
   }
