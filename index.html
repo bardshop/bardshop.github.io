@@ -1164,6 +1164,8 @@
 .sku-table .pn-cell{font-family:'Courier New',monospace;font-size:12px;font-weight:600}
 .sku-table .no-pn{color:#bbb;font-style:italic;font-weight:400}
 .sku-table .row-nopn{background:rgba(255,0,0,0.03)}
+
+.sku-overlay,.sku-panel{display:none !important;}
 </style>
 
 
@@ -5204,6 +5206,89 @@ function updateSkuFilterBtns() {
 
 // SKU overview button injection
 new MutationObserver(function(m,o){var bar=document.getElementById("edit-mode-bar");if(bar&&!bar.querySelector("[data-sku]")){var pb=document.getElementById("github-push-btn");if(pb){var b=document.createElement("button");b.className="edit-mode-action-btn";b.setAttribute("data-sku","1");b.onclick=function(){openSkuOverview()};b.textContent="\u{1F4CB} \u6599\u865F\u7E3D\u89BD";pb.parentNode.insertBefore(b,pb.nextSibling);}}}).observe(document.body,{childList:true,subtree:true});
+
+// === SKU FULL PAGE OVERRIDE (v2) ===
+(function(){
+var _sf="all",_sr=[],_se={};
+window.openSkuOverview=function(){
+var m=document.querySelector(".main");if(!m)return;
+m.setAttribute("data-prev",m.innerHTML);
+var rows=buildSkuTable();_sr=rows;
+var sc=rows.filter(function(r){return r.pn&&r.pn!=="";}).length;
+var uc=rows.length-sc;
+var h='<div style="padding:20px 30px;max-width:1200px;margin:0 auto">';
+h+='<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px">';
+h+='<h2 style="margin:0">\u{1F4CB} \u6599\u865F\u7E3D\u89BD</h2>';
+h+='<span style="padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold;background:#27ae60;color:#fff">\u5DF2\u8A2D\u5B9A '+sc+'</span>';
+h+='<span style="padding:3px 10px;border-radius:12px;font-size:13px;font-weight:bold;background:#e74c3c;color:#fff">\u672A\u8A2D\u5B9A '+uc+'</span>';
+h+='<button onclick="closeSkuOverview()" style="margin-left:auto;padding:6px 16px;border-radius:6px;border:1px solid #ccc;cursor:pointer">\u2190 \u8FD4\u56DE</button></div>';
+h+='<div style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap">';
+h+='<input id="sku-si" placeholder="\u641C\u5C0B\u6599\u865F\u3001\u5546\u54C1\u540D\u7A31\u6216\u898F\u683C..." oninput="filterSkuTable()" style="flex:1;min-width:200px;padding:8px 12px;border:1px solid #ccc;border-radius:6px">';
+h+='<button class="skf active" onclick="setSkuFilter(\x27all\x27)" style="padding:6px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;background:#5a4a3a;color:#fff">\u5168\u90E8</button>';
+h+='<button class="skf" onclick="setSkuFilter(\x27set\x27)" style="padding:6px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer">\u5DF2\u8A2D\u5B9A</button>';
+h+='<button class="skf" onclick="setSkuFilter(\x27unset\x27)" style="padding:6px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer">\u672A\u8A2D\u5B9A</button>';
+h+='</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">';
+h+='<thead><tr style="background:#5a4a3a;color:#fff"><th style="padding:10px 12px;text-align:left">\u5546\u54C1\u540D\u7A31</th><th style="padding:10px 12px;text-align:left">\u898F\u683C</th><th style="padding:10px 12px;text-align:left">\u6599\u865F</th><th style="padding:10px 12px;text-align:left">ERP \u540D\u7A31</th></tr></thead>';
+h+='<tbody id="sku-tb2"></tbody></table></div></div>';
+m.innerHTML=h;_renderSR(_sr);window.scrollTo({top:0});
+};
+window.closeSkuOverview=function(){
+var m=document.querySelector(".main");if(!m)return;
+var p=m.getAttribute("data-prev");
+if(p){m.innerHTML=p;m.removeAttribute("data-prev");}
+document.querySelector(".sku-overlay")&&(document.querySelector(".sku-overlay").style.display="none");
+document.querySelector(".sku-panel")&&(document.querySelector(".sku-panel").style.display="none");
+};
+function _renderSR(rows){
+var tb=document.getElementById("sku-tb2");if(!tb)return;
+var h="";rows.forEach(function(r,i){
+var pk=r.id+"__"+r.optIdx+"__pn",ek=r.id+"__"+r.optIdx+"__erp";
+var ps=_se[pk]?"background:#e8f8e8;":"",es=_se[ek]?"background:#e8f8e8;":"";
+h+="<tr style=\"border-bottom:1px solid #e8e0d8\">";
+h+="<td style=\"padding:8px 12px;color:#5a4a3a;font-weight:500;cursor:pointer\" onclick=\"closeSkuOverview();openPanel(\x27"+r.id+"\x27)\">"+escHtml(r.name)+"</td>";
+h+="<td style=\"padding:8px 12px\">"+escHtml(r.size)+"</td>";
+h+="<td style=\"padding:8px 12px;cursor:pointer;min-width:120px;"+ps+"\" onclick=\"_skuEdit(this,\x27"+r.id+"\x27,"+r.optIdx+",\x27partNumber\x27)\">"+(r.pn?escHtml(r.pn):"<span style=\"color:#ccc;font-style:italic\">(\u672A\u8A2D\u5B9A)</span>")+"</td>";
+h+="<td style=\"padding:8px 12px;cursor:pointer;min-width:120px;"+es+"\" onclick=\"_skuEdit(this,\x27"+r.id+"\x27,"+r.optIdx+",\x27erpName\x27)\">"+(r.erp?escHtml(r.erp):"\u2014")+"</td>";
+h+="</tr>";});tb.innerHTML=h;}
+window._skuEdit=function(td,pid,oi,f){
+if(td.querySelector("input"))return;
+var row=_sr.find(function(r){return r.id===pid&&r.optIdx===oi;});
+var v=f==="partNumber"?(row?row.pn:""):(row?row.erp:"");
+var inp=document.createElement("input");inp.type="text";inp.value=v;
+inp.style.cssText="width:100%;padding:4px 6px;border:1px solid #d4a574;border-radius:4px;font-size:13px;";
+inp.onblur=function(){_skuSave(pid,oi,f,inp.value,td);};
+inp.onkeydown=function(e){if(e.key==="Enter")inp.blur();};
+td.innerHTML="";td.appendChild(inp);inp.focus();inp.select();
+};
+window._skuSave=function(pid,oi,f,nv,td){
+var ck="bardshop_sizeopts_"+pid;
+var st=localStorage.getItem(ck);
+var c=st?JSON.parse(st):null;
+if(!c){var p=PRODUCTS.find(function(x){return x.id===pid;});
+if(p)c=getEffectiveSizeOpts(p).map(function(o){return{name:o.name||o.label||"",partNumber:o.partNumber||"",erpName:o.erpName||""};});}
+if(c&&c[oi])c[oi][f]=nv.trim();
+if(c)localStorage.setItem(ck,JSON.stringify(c));
+var ek=pid+"__"+oi+"__"+(f==="partNumber"?"pn":"erp");_se[ek]=true;
+var row=_sr.find(function(r){return r.id===pid&&r.optIdx===oi;});
+if(row){if(f==="partNumber")row.pn=nv.trim();else row.erp=nv.trim();}
+td.style.background="#e8f8e8";
+td.innerHTML=nv.trim()?escHtml(nv.trim()):(f==="partNumber"?"<span style=\"color:#ccc;font-style:italic\">(\u672A\u8A2D\u5B9A)</span>":"\u2014");
+};
+window.filterSkuTable=function(){
+var q=(document.getElementById("sku-si")||{}).value||"";
+q=q.toLowerCase();
+var rows=_sr.filter(function(r){
+if(_sf==="set"&&!r.pn)return false;
+if(_sf==="unset"&&r.pn)return false;
+if(q&&r.name.toLowerCase().indexOf(q)===-1&&r.size.toLowerCase().indexOf(q)===-1&&(r.pn||"").toLowerCase().indexOf(q)===-1)return false;
+return true;});
+_renderSR(rows);};
+window.setSkuFilter=function(f){
+_sf=f;document.querySelectorAll(".skf").forEach(function(b){
+b.style.background="";b.style.color="";
+if((f==="all"&&b.textContent.indexOf("\u5168")>-1)||(f==="set"&&b.textContent.indexOf("\u5DF2")>-1)||(f==="unset"&&b.textContent.indexOf("\u672A")>-1)){b.style.background="#5a4a3a";b.style.color="#fff";}
+});filterSkuTable();};
+})();
 </script>
 
 
