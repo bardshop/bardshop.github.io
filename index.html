@@ -164,7 +164,7 @@
       modal.id = 'github-pat-modal';
       modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99998;align-items:center;justify-content:center;';
       modal.innerHTML = '<div style="background:#fff;border-radius:14px;width:520px;padding:36px;box-shadow:0 8px 40px rgba(0,0,0,0.35);position:relative;">'
-        + '<button onclick="document.getElementById(\'github-pat-modal\').style.display=\'none\'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#999;">\u00D7</button><button class="edit-mode-action-btn" onclick="openSkuOverview()">📋 料號總覽</button>'
+        + '<button onclick="document.getElementById(\'github-pat-modal\').style.display=\'none\'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#999;">\u00D7</button>'
         + '<h2 style="margin:0 0 6px;font-size:19px;color:#1565C0;">\uD83D\uDD11 \u8A2D\u5B9A GitHub Token</h2>'
         + '<p style="color:#666;font-size:13px;margin:0 0 20px;line-height:1.6;">Token \u5132\u5B58\u5728\u672C\u5730\u700F\u89BD\u5668\uFF0C\u4E0D\u6703\u4E0A\u50B3\u5230\u4EFB\u4F55\u4F3A\u670D\u5668\u3002</p>'
         + '<div style="background:#E3F2FD;border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#1565C0;line-height:1.8;">'
@@ -5201,6 +5201,9 @@ function updateSkuFilterBtns() {
   });
 }
 
+
+// SKU overview button injection
+new MutationObserver(function(m,o){var bar=document.getElementById("edit-mode-bar");if(bar&&!bar.querySelector("[data-sku]")){var pb=document.getElementById("github-push-btn");if(pb){var b=document.createElement("button");b.className="edit-mode-action-btn";b.setAttribute("data-sku","1");b.onclick=function(){openSkuOverview()};b.textContent="\u{1F4CB} \u6599\u865F\u7E3D\u89BD";pb.parentNode.insertBefore(b,pb.nextSibling);}}}).observe(document.body,{childList:true,subtree:true});
 </script>
 
 
