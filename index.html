@@ -5298,6 +5298,30 @@ if(_sidebarEl){_sidebarEl.addEventListener("click",function(){
   if(m&&m.getAttribute("data-prev")){m.innerHTML=m.getAttribute("data-prev");m.removeAttribute("data-prev");}
 },true);}
 })();
+
+// === DEFAULT PAGE FIX ===
+(function(){
+function _fixDefaultView(){
+var dp=document.getElementById("detail-page");
+var pc=document.getElementById("product-container");
+var ri=document.getElementById("results-info");
+if(dp)dp.classList.remove("open");
+if(pc)pc.style.display="";
+if(ri)ri.style.display="";
+activeProduct=null;
+}
+if(document.readyState!=="loading"){_fixDefaultView();}else{document.addEventListener("DOMContentLoaded",_fixDefaultView);}
+var _origCP=window.checkPin;
+if(typeof _origCP==="function"){
+window.checkPin=function(){
+_origCP.apply(this,arguments);
+setTimeout(function(){
+var dp=document.getElementById("detail-page");
+if(dp&&dp.classList.contains("open")){_fixDefaultView();}
+},100);
+};
+}
+})();
 </script>
 
 
