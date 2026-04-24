@@ -5449,6 +5449,39 @@ if(dp&&dp.classList.contains("open")){_fixDefaultView();}
     headerFlex.appendChild(d);
   };
 })();
+
+// === SKU CLICKABLE PRODUCT NAME ===
+(function(){
+  // Navigate from SKU overview to product detail
+  window._skuGoProduct = function(id) {
+    closeSkuOverview();
+    setTimeout(function() { openPanel(id); }, 100);
+  };
+  // Override _skuRR to add clickable names after rendering
+  var _origRR = window._skuRR;
+  window._skuRR = function(rows) {
+    _origRR(rows);
+    var tb = document.getElementById('sku-tb3');
+    if (!tb) return;
+    var trs = tb.querySelectorAll('tr');
+    for (var i = 0; i < trs.length; i++) {
+      var cells = trs[i].querySelectorAll('td');
+      if (cells.length < 2) continue;
+      var nameCell = cells[1];
+      if (i < rows.length) {
+        var rid = rows[i].id;
+        nameCell.style.cursor = 'pointer';
+        nameCell.style.color = '#2980b9';
+        nameCell.setAttribute('title', '\u9EDE\u64CA\u67E5\u770B\u5546\u54c1\u8a73\u60c5');
+        nameCell.onclick = (function(pid) {
+          return function(e) { e.stopPropagation(); _skuGoProduct(pid); };
+        })(rid);
+        nameCell.onmouseover = function() { this.style.textDecoration = 'underline'; };
+        nameCell.onmouseout = function() { this.style.textDecoration = 'none'; };
+      }
+    }
+  };
+})();
 </script>
 
 
