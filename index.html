@@ -5325,7 +5325,6 @@ if(dp&&dp.classList.contains("open")){_fixDefaultView();}
 
 // === SKU EXCEL EXPORT/IMPORT ===
 (function(){
-  // Load SheetJS
   function loadXLSX(cb) {
     if (window.XLSX) return cb();
     var s = document.createElement('script');
@@ -5333,8 +5332,6 @@ if(dp&&dp.classList.contains("open")){_fixDefaultView();}
     s.onload = cb;
     document.head.appendChild(s);
   }
-
-  // Export SKU to Excel
   window._skuExport = function() {
     loadXLSX(function() {
       var cap = null;
@@ -5349,111 +5346,107 @@ if(dp&&dp.classList.contains("open")){_fixDefaultView();}
         data.push([i + 1, r.name, r.spec, r.pn || '', r.erp || '', r.hasPn ? '\u2714' : '\u2014', r.id]);
       }
       var ws = XLSX.utils.aoa_to_sheet(data);
-      ws['!cols'] = [{wch:5}, {wch:35}, {wch:25}, {wch:22}, {wch:22}, {wch:6}, {wch:20}];
+      ws['!cols'] = [{wch:5},{wch:35},{wch:25},{wch:22},{wch:22},{wch:6},{wch:20}];
       var wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '\u6599\u865f\u7e3d\u89bd');
       XLSX.writeFile(wb, 'BardShop_SKU_' + new Date().toISOString().slice(0,10) + '.xlsx');
     });
   };
-
-  // Import SKU from Excel
   window._skuImport = function() {
     var inp = document.createElement('input');
-    inp.type = 'file';
-    inp.accept = '.xlsx,.xls';
+    inp.type = 'file'; inp.accept = '.xlsx,.xls';
     inp.onchange = function(e) {
-      var file = e.target.files[0];
-      if (!file) return;
+      var file = e.target.files[0]; if (!file) return;
       loadXLSX(function() {
         var reader = new FileReader();
         reader.onload = function(ev) {
           try {
-            var wb = XLSX.read(ev.target.result, {type: 'array'});
+            var wb = XLSX.read(ev.target.result, {type:'array'});
             var ws = wb.Sheets[wb.SheetNames[0]];
-            var rows = XLSX.utils.sheet_to_json(ws, {header: 1});
+            var rows = XLSX.utils.sheet_to_json(ws, {header:1});
             if (rows.length < 2) { alert('\u6A94\u6848\u7121\u8CC7\u6599'); return; }
             var header = rows[0];
-            var pnCol = -1, erpCol = -1, nameCol = -1, specCol = -1, idCol = -1;
-            for (var c = 0; c < header.length; c++) {
+            var pnCol=-1,erpCol=-1,nameCol=-1,specCol=-1,idCol=-1;
+            for (var c=0;c<header.length;c++) {
               var h = String(header[c]).trim();
-              if (h === '\u6599\u865f') pnCol = c;
-              else if (h.indexOf('ERP') > -1) erpCol = c;
-              else if (h === '\u5546\u54c1\u540d\u7a31') nameCol = c;
-              else if (h === '\u898f\u683c') specCol = c;
-              else if (h === '\u5546\u54c1ID') idCol = c;
+              if (h==='\u6599\u865f') pnCol=c;
+              else if (h.indexOf('ERP')>-1) erpCol=c;
+              else if (h==='\u5546\u54c1\u540d\u7a31') nameCol=c;
+              else if (h==='\u898f\u683c') specCol=c;
+              else if (h==='\u5546\u54c1ID') idCol=c;
             }
-            if (pnCol === -1 && erpCol === -1) { alert('\u627E\u4E0D\u5230\u6599\u865F\u6216ERP\u540D\u7A31\u6B04\u4F4D'); return; }
-            var updated = 0, errors = [];
-            for (var i = 1; i < rows.length; i++) {
-              var row = rows[i];
-              if (!row || row.length === 0) continue;
-              var rName = nameCol >= 0 ? String(row[nameCol] || '') : '';
-              var rSpec = specCol >= 0 ? String(row[specCol] || '') : '';
-              var rPn = pnCol >= 0 ? String(row[pnCol] || '').trim() : null;
-              var rErp = erpCol >= 0 ? String(row[erpCol] || '').trim() : null;
-              var rId = idCol >= 0 ? String(row[idCol] || '').trim() : '';
-              if (rPn === '-' || rPn === '\u2014') rPn = '';
-              if (rErp === '-' || rErp === '\u2014') rErp = '';
-              var found = false;
-              for (var pi = 0; pi < PRODUCTS.length; pi++) {
-                var p = PRODUCTS[pi];
-                if (rId && p.id !== rId) continue;
-                if (!rId && p.name !== rName) continue;
-                if (p._pricing && p._pricing.sizes) {
-                  var sizes = Object.keys(p._pricing.sizes);
-                  for (var si = 0; si < sizes.length; si++) {
-                    if (sizes[si] === rSpec || (rSpec === '' && sizes.length === 1) || rSpec === '\u2014') {
-                      var sd = p._pricing.sizes[sizes[si]];
-                      if (rPn !== null) sd.partno = rPn;
-                      if (rErp !== null) sd.erp = rErp;
-                      found = true; updated++; break;
+            if (pnCol===-1 && erpCol===-1) { alert('\u627E\u4E0D\u5230\u6599\u865F\u6216ERP\u540D\u7A31\u6B04\u4F4D'); return; }
+            var updated=0, errors=[];
+            for (var i=1;i<rows.length;i++) {
+              var row=rows[i]; if(!row||row.length===0)continue;
+              var rName=nameCol>=0?String(row[nameCol]||''):'';
+              var rSpec=specCol>=0?String(row[specCol]||''):'';
+              var rPn=pnCol>=0?String(row[pnCol]||'').trim():null;
+              var rErp=erpCol>=0?String(row[erpCol]||'').trim():null;
+              var rId=idCol>=0?String(row[idCol]||'').trim():'';
+              if(rPn==='-'||rPn==='\u2014')rPn='';
+              if(rErp==='-'||rErp==='\u2014')rErp='';
+              var found=false;
+              for(var pi=0;pi<PRODUCTS.length;pi++){
+                var p=PRODUCTS[pi];
+                if(rId&&p.id!==rId)continue;
+                if(!rId&&p.name!==rName)continue;
+                if(p._pricing&&p._pricing.sizes){
+                  var sizes=Object.keys(p._pricing.sizes);
+                  for(var si=0;si<sizes.length;si++){
+                    if(sizes[si]===rSpec||(rSpec===''&&sizes.length===1)||rSpec==='\u2014'){
+                      var sd=p._pricing.sizes[sizes[si]];
+                      if(rPn!==null)sd.partno=rPn;
+                      if(rErp!==null)sd.erp=rErp;
+                      found=true;updated++;break;
                     }
                   }
                 }
-                if (!found && p._sizeOpts) {
-                  for (var oi = 0; oi < p._sizeOpts.length; oi++) {
-                    var opt = p._sizeOpts[oi];
-                    if (opt.label === rSpec || opt.name === rSpec) {
-                      if (rPn !== null) opt.partno = rPn;
-                      if (rErp !== null) opt.erp = rErp;
-                      found = true; updated++; break;
+                if(!found&&p._sizeOpts){
+                  for(var oi=0;oi<p._sizeOpts.length;oi++){
+                    var opt=p._sizeOpts[oi];
+                    if(opt.label===rSpec||opt.name===rSpec){
+                      if(rPn!==null)opt.partno=rPn;
+                      if(rErp!==null)opt.erp=rErp;
+                      found=true;updated++;break;
                     }
                   }
                 }
-                if (found) break;
+                if(found)break;
               }
-              if (!found && ((rPn !== null && rPn !== '') || (rErp !== null && rErp !== ''))) {
-                errors.push('Row ' + (i+1) + ': ' + rName + ' / ' + rSpec);
-              }
+              if(!found&&((rPn!==null&&rPn!=='')||(rErp!==null&&rErp!=='')))
+                errors.push('Row '+(i+1)+': '+rName+' / '+rSpec);
             }
-            var msg = '\u2705 \u5DF2\u66F4\u65B0 ' + updated + ' \u7B46\u8CC7\u6599';
-            if (errors.length > 0) {
-              msg += '\n\n\u26A0\uFE0F ' + errors.length + ' \u7B46\u7121\u6CD5\u5339\u914D\uFF1A\n' + errors.slice(0,10).join('\n');
-              if (errors.length > 10) msg += '\n...(\u9084\u6709 ' + (errors.length-10) + ' \u7B46)';
+            var msg='\u2705 \u5DF2\u66F4\u65B0 '+updated+' \u7B46\u8CC7\u6599';
+            if(errors.length>0){
+              msg+='\n\n\u26A0\uFE0F '+errors.length+' \u7B46\u7121\u6CD5\u5339\u914D\uFF1A\n'+errors.slice(0,10).join('\n');
+              if(errors.length>10)msg+='\n...(\u9084\u6709 '+(errors.length-10)+' \u7B46)';
             }
-            msg += '\n\n\u8ACB\u9EDE\u64CA\u300C\u63A8\u9001 GitHub\u300D\u4FDD\u5B58\u8B8A\u66F4';
+            msg+='\n\n\u8ACB\u9EDE\u64CA\u300C\u63A8\u9001 GitHub\u300D\u4FDD\u5B58\u8B8A\u66F4';
             alert(msg);
-            if (typeof openSkuOverview === 'function') openSkuOverview();
-          } catch(err) { alert('\u8B80\u53D6\u5931\u6557\uFF1A' + err.message); }
+            if(typeof openSkuOverview==='function')openSkuOverview();
+          }catch(err){alert('\u8B80\u53D6\u5931\u6557\uFF1A'+err.message);}
         };
         reader.readAsArrayBuffer(file);
       });
     };
     inp.click();
   };
-
-  // Override openSkuOverview to inject buttons
-  var _origOpen = window.openSkuOverview;
-  window.openSkuOverview = function() {
+  var _origOpen=window.openSkuOverview;
+  window.openSkuOverview=function(){
     _origOpen();
-    var tb = document.getElementById('sku-tb3');
-    if (tb && !document.getElementById('sku-excel-btns')) {
-      var d = document.createElement('div');
-      d.id = 'sku-excel-btns';
-      d.style.cssText = 'display:flex;gap:8px;margin:0 0 12px 0';
-      d.innerHTML = '<button id="sku-export-btn" style="padding:8px 16px;background:#27ae60;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500" onclick="_skuExport()">\uD83D\uDCE5 \u532F\u51FA Excel</button><button id="sku-import-btn" style="padding:8px 16px;background:#2980b9;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500" onclick="_skuImport()">\uD83D\uDCE4 \u532F\u5165 Excel</button>';
-      tb.parentNode.insertBefore(d, tb);
-    }
+    if(document.getElementById('sku-excel-btns'))return;
+    var m=document.querySelector('.main');
+    if(!m)return;
+    var container=m.firstElementChild;
+    if(!container)return;
+    var headerFlex=container.firstElementChild;
+    if(!headerFlex)return;
+    var d=document.createElement('div');
+    d.id='sku-excel-btns';
+    d.style.cssText='display:flex;gap:8px;margin-left:auto;';
+    d.innerHTML='<button id="sku-export-btn" style="padding:7px 20px;background:#27ae60;color:#fff;border:none;border-radius:20px;cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap;letter-spacing:0.5px" onclick="_skuExport()">\uD83D\uDCE5 \u532F\u51FA Excel</button><button id="sku-import-btn" style="padding:7px 20px;background:#2980b9;color:#fff;border:none;border-radius:20px;cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap;letter-spacing:0.5px" onclick="_skuImport()">\uD83D\uDCE4 \u532F\u5165 Excel</button>';
+    headerFlex.appendChild(d);
   };
 })();
 </script>
