@@ -5482,6 +5482,19 @@ if(dp&&dp.classList.contains("open")){_fixDefaultView();}
     }
   };
 })();
+
+// === SEARCH AUTO-CLOSE DETAIL ===
+(function(){
+  var _origRP = window.renderProducts;
+  window.renderProducts = function() {
+    var si = document.getElementById('search-input');
+    var dp = document.getElementById('detail-page');
+    if (si && si.value.trim() && dp && dp.classList.contains('open')) {
+      closePanel();
+    }
+    return _origRP.apply(this, arguments);
+  };
+})();
 </script>
 
 
