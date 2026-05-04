@@ -2430,6 +2430,7 @@ function checkPin() {
   if (pinBuffer === atob(EDIT_PIN_B64)) {
     editUnlocked = true;
     closeLockModal();
+    var _savedId = activeProduct ? activeProduct.id : null;
     renderProducts();
     document.getElementById('edit-mode-bar').classList.add('visible');
     document.getElementById('edit-mode-toggle').textContent = '🔓 已解鎖';
@@ -2445,7 +2446,7 @@ function checkPin() {
     if (bi && window.innerWidth > 780) bi.style.display = 'inline-block';
     renderSidebar();
     showToast('✅ 編輯模式已開啟');
-    if (activeProduct) openPanel(activeProduct.id);
+    if(_savedId) openPanel(_savedId);
   } else {
     document.getElementById('lock-error').textContent = '密碼錯誤，請再試一次';
     pinBuffer = '';
@@ -2465,9 +2466,10 @@ function lockEditMode() {
   const bi = document.getElementById('btn-import-img');
   if (be) be.style.display = 'none';
   if (bi) bi.style.display = 'none';
+  var _savedId = activeProduct ? activeProduct.id : null;
   renderProducts();
   renderSidebar();
-  if (activeProduct) openPanel(activeProduct.id);
+  if(_savedId) openPanel(_savedId);
   showToast('🔒 已鎖定');
 }
 
@@ -4503,12 +4505,12 @@ function openPanel(id) {
     renderSpecEdit(p);
     renderPrintDiagram(p);
     renderNotesEdit(p);
-    renderQAView(p);
+    (editUnlocked ? renderQAEdit(p) : renderQAView(p));
   } else {
     renderSpecView(p);
     renderPrintDiagram(p);
     renderNotesView(p);
-    renderQAView(p);
+    (editUnlocked ? renderQAEdit(p) : renderQAView(p));
   }
 
   // 自動填入料號（單一規格時直接顯示）
