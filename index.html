@@ -5315,16 +5315,6 @@ if(ri)ri.style.display="";
 activeProduct=null;
 }
 if(document.readyState!=="loading"){_fixDefaultView();}else{document.addEventListener("DOMContentLoaded",_fixDefaultView);}
-var _origCP=window.checkPin;
-if(typeof _origCP==="function"){
-window.checkPin=function(){
-_origCP.apply(this,arguments);
-setTimeout(function(){
-var dp=document.getElementById("detail-page");
-if(dp&&dp.classList.contains("open")){_fixDefaultView();}
-},100);
-};
-}
 })();
 
 // === SKU EXCEL EXPORT/IMPORT ===
