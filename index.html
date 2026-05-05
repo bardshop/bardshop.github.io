@@ -697,10 +697,10 @@
   .qa-acc-q .q-arrow { transition:transform .2s; color:var(--text-dim); font-size:12px; flex-shrink:0; }
   .qa-acc-item.open .qa-acc-q .q-arrow { transform:rotate(180deg); }
   .qa-acc-a { max-height:0; overflow:hidden; transition:max-height .3s ease; }
-  .qa-acc-item.open .qa-acc-a { max-height:400px; }
-  .qa-acc-a-inner { padding:2px 16px 14px 50px; }
-  .qa-acc-a-inner .a-label { font-size:11px; color:var(--accent); font-weight:600; margin-bottom:4px; }
-  .qa-acc-a-inner .a-text { font-size:13px; color:var(--text-secondary,#aaa); line-height:1.6; background:var(--surface2); padding:8px 12px; border-radius:6px; border-left:3px solid var(--accent); }
+  .qa-acc-item.open .qa-acc-a { max-height:800px; }
+  .qa-acc-a-inner { padding:4px 16px 16px 50px; }
+  .qa-acc-a-inner .a-label { font-size:12px; color:var(--accent); font-weight:600; margin-bottom:6px; }
+  .qa-acc-a-inner .a-text { font-size:14px; color:var(--text); line-height:1.8; background:var(--surface2); padding:12px 16px; border-radius:6px; border-left:3px solid var(--accent); }
   .qa-acc-a-inner .a-empty { font-size:13px; color:var(--text-dim); font-style:italic; }
   .qa-acc-add { display:flex; align-items:center; justify-content:center; padding:10px; cursor:pointer; color:var(--accent); font-size:13px; font-weight:600; gap:6px; border-top:1px dashed var(--border); transition:background .15s; }
   .qa-acc-add:hover { background:rgba(232,197,71,.08); }
@@ -751,6 +751,14 @@
   .qa-acc-item.dragging { opacity:.4; }
   .qa-acc-q .drag-handle { color:var(--text-dim); font-size:16px; cursor:grab; flex-shrink:0; user-select:none; display:none; }
   .qa-accordion.edit-mode .drag-handle { display:block; }
+  @media(max-width:600px){
+    .qa-acc-q { padding:10px 12px; gap:8px; }
+    .qa-acc-q .q-text { font-size:13px; }
+    .qa-acc-a-inner { padding:4px 12px 14px 12px; }
+    .qa-acc-a-inner .a-text { font-size:13px; padding:10px 12px; line-height:1.7; }
+    .qa-acc-item.open .qa-acc-a { max-height:1200px; }
+  }
+
   .qa-edit-input {
     flex:1; width:100%; box-sizing:border-box;
     background:var(--surface); border:1px solid var(--border);
@@ -3686,8 +3694,8 @@ function renderQAView(p) {
   } else {
     html += "<div class=\"qa-accordion\" id=\"qa-check-list\">";
     qaList.forEach(function(item, i) {
-      html += "<div class=\"qa-acc-item\" id=\"qac-"+i+"\" onclick=\"toggleQAAccordion("+i+")\">";
-      html += "<div class=\"qa-acc-q\"><span class=\"q-badge\">Q"+(i+1)+"</span>";
+      html += "<div class=\"qa-acc-item\" id=\"qac-"+i+"\">";
+      html += "<div class=\"qa-acc-q\" onclick=\"toggleQAAccordion("+i+")\"><span class=\"q-badge\">Q"+(i+1)+"</span>";
       html += "<span class=\"q-text\">"+escHtml(item.q)+"</span>";
       html += "<span class=\"q-arrow\">\u25BC</span></div>";
       html += "<div class=\"qa-acc-a\"><div class=\"qa-acc-a-inner\">";
