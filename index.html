@@ -5666,43 +5666,51 @@ if(document.readyState!=="loading"){_fixDefaultView();}else{document.addEventLis
 </script>
 
 <script>
-/* === Safe pushToGitHub override (v3.1) ===
- * - Push button in header-right (replaces export/import)
- * - Shows only in edit mode via MutationObserver
- * - Fetches current HTML from GitHub, only replaces PRODUCTS array
+/* === Safe pushToGitHub override (v4) ===
+ * Runs IMMEDIATELY on load to:
+ * 1. Move push button from bottom bar to header-right
+ * 2. Override pushToGitHub with safe GitHub-fetch version
+ * 3. Watch edit mode via MutationObserver to show/hide button
  */
 (function() {
-  var _origInit = window.initGitHubPush;
-  window.initGitHubPush = function() {
-    if (_origInit) _origInit();
+  // --- 1. Move push button to header-right ---
+  function movePushButton() {
     var pushBtn = document.getElementById('github-push-btn');
     var headerRight = document.querySelector('.header-right');
-    if (pushBtn && headerRight) {
-      if (pushBtn.parentElement && pushBtn.parentElement.id === 'edit-mode-bar') {
-        pushBtn.parentElement.removeChild(pushBtn);
-      }
-      pushBtn.style.cssText = 'display:none;background:rgba(25,118,210,0.15);color:#64b5f6;border:1px solid rgba(25,118,210,0.4);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;white-space:nowrap;transition:background 0.3s;';
-      var editToggle = document.getElementById('edit-mode-toggle');
-      if (editToggle && editToggle.parentElement === headerRight) {
-        headerRight.insertBefore(pushBtn, editToggle);
-      } else {
-        headerRight.appendChild(pushBtn);
-      }
-      // Watch edit-mode-bar visibility to show/hide push button
-      var editBar = document.getElementById('edit-mode-bar');
-      if (editBar) {
-        var obs = new MutationObserver(function() {
-          var isEdit = editBar.classList.contains('visible');
-          pushBtn.style.display = isEdit ? 'inline-block' : 'none';
-        });
-        obs.observe(editBar, { attributes: true, attributeFilter: ['class'] });
-        // Initial state check
-        if (editBar.classList.contains('visible')) {
-          pushBtn.style.display = 'inline-block';
-        }
-      }
+    if (!pushBtn || !headerRight) return false;
+    // Remove from current parent (edit-mode-bar)
+    if (pushBtn.parentElement) pushBtn.parentElement.removeChild(pushBtn);
+    // Restyle for header position
+    pushBtn.style.cssText = 'display:none;background:rgba(25,118,210,0.15);color:#64b5f6;border:1px solid rgba(25,118,210,0.4);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;white-space:nowrap;transition:background 0.3s;';
+    // Insert before the edit-mode-toggle button
+    var editToggle = document.getElementById('edit-mode-toggle');
+    if (editToggle && editToggle.parentElement === headerRight) {
+      headerRight.insertBefore(pushBtn, editToggle);
+    } else {
+      headerRight.appendChild(pushBtn);
     }
-    window.pushToGitHub = async function() {
+    return true;
+  }
+
+  // --- 2. Set up edit-mode visibility observer ---
+  function setupObserver() {
+    var pushBtn = document.getElementById('github-push-btn');
+    var editBar = document.getElementById('edit-mode-bar');
+    if (!pushBtn || !editBar) return;
+    var obs = new MutationObserver(function() {
+      var isEdit = editBar.classList.contains('visible');
+      pushBtn.style.display = isEdit ? 'inline-block' : 'none';
+    });
+    obs.observe(editBar, { attributes: true, attributeFilter: ['class'] });
+    // Check initial state
+    if (editBar.classList.contains('visible')) {
+      pushBtn.style.display = 'inline-block';
+    }
+  }
+
+  // --- 3. Safe pushToGitHub function ---
+  function safePushToGitHub() {
+    return async function() {
       var repo = 'bardshop/bardshop.github.io';
       var path = 'index.html';
       var pat = localStorage.getItem('bardshop_github_pat');
@@ -5758,7 +5766,7 @@ if(document.readyState!=="loading"){_fixDefaultView();}else{document.addEventLis
         if (putRes.ok) {
           if (btn) { btn.textContent = '\u2705 \u63A8\u9001\u6210\u529F\uFF01'; btn.style.background = '#388E3C'; btn.style.color = '#fff';
             setTimeout(function() { btn.textContent = '\uD83D\uDE80 \u63A8\u9001 GitHub'; btn.style.background = 'rgba(25,118,210,0.15)'; btn.style.color = '#64b5f6'; btn.disabled = false; }, 4000); }
-          alert('\u2705 \u6210\u529F\u63A8\u9001\u5230 GitHub\uFF01\n\n\u4F7F\u7528\u5B89\u5168\u6A21\u5F0F\u3002\nGitHub Pages \u7D041-2\u5206\u9418\u5F8C\u66F4\u65B0\u3002');
+          alert('\u2705 \u6210\u529F\u63A8\u9001\uFF01\n\u4F7F\u7528\u5B89\u5168\u6A21\u5F0F\u3002\nGitHub Pages \u7D041-2\u5206\u9418\u5F8C\u66F4\u65B0\u3002');
         } else { var e2 = await putRes.json(); throw new Error('\u63A8\u9001\u5931\u6557: ' + (e2.message || putRes.status)); }
       } catch(err) {
         if (btn) { btn.textContent = '\u274C \u63A8\u9001\u5931\u6557'; btn.style.background = '#c62828'; btn.style.color = '#fff'; btn.disabled = false;
@@ -5766,6 +5774,18 @@ if(document.readyState!=="loading"){_fixDefaultView();}else{document.addEventLis
         alert('\u274C \u63A8\u9001\u5931\u6557\uFF1A' + err.message);
       }
     };
+  }
+
+  // --- Execute immediately ---
+  movePushButton();
+  setupObserver();
+  window.pushToGitHub = safePushToGitHub();
+
+  // Also override initGitHubPush for any future calls
+  window.initGitHubPush = function() {
+    movePushButton();
+    setupObserver();
+    window.pushToGitHub = safePushToGitHub();
   };
 })();
 </script>
