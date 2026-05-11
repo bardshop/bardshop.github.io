@@ -197,7 +197,7 @@
 <title>BardShop 商品查詢系統</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet">
 <style>
-#btn-export-full { display: none !important; }
+#btn-export-full, #btn-export-img, #btn-import-img { display: none !important; }
 
   /* ===== WHITE (暖色，預設) ===== */
   :root, body.theme-white {
@@ -5666,29 +5666,50 @@ if(document.readyState!=="loading"){_fixDefaultView();}else{document.addEventLis
 </script>
 
 <script>
-/* === Safe pushToGitHub override (v2) ===
- * Instead of using document.documentElement.outerHTML (which loses functions),
- * this fetches the CURRENT HTML from GitHub, only replaces the PRODUCTS array,
- * and pushes back. All 190+ functions are preserved.
+/* === Safe pushToGitHub override (v3.1) ===
+ * - Push button in header-right (replaces export/import)
+ * - Shows only in edit mode via MutationObserver
+ * - Fetches current HTML from GitHub, only replaces PRODUCTS array
  */
 (function() {
   var _origInit = window.initGitHubPush;
   window.initGitHubPush = function() {
-    // Call original to set up the push button and PAT modal
     if (_origInit) _origInit();
-    // Now override pushToGitHub with our safe version
+    var pushBtn = document.getElementById('github-push-btn');
+    var headerRight = document.querySelector('.header-right');
+    if (pushBtn && headerRight) {
+      if (pushBtn.parentElement && pushBtn.parentElement.id === 'edit-mode-bar') {
+        pushBtn.parentElement.removeChild(pushBtn);
+      }
+      pushBtn.style.cssText = 'display:none;background:rgba(25,118,210,0.15);color:#64b5f6;border:1px solid rgba(25,118,210,0.4);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;white-space:nowrap;transition:background 0.3s;';
+      var editToggle = document.getElementById('edit-mode-toggle');
+      if (editToggle && editToggle.parentElement === headerRight) {
+        headerRight.insertBefore(pushBtn, editToggle);
+      } else {
+        headerRight.appendChild(pushBtn);
+      }
+      // Watch edit-mode-bar visibility to show/hide push button
+      var editBar = document.getElementById('edit-mode-bar');
+      if (editBar) {
+        var obs = new MutationObserver(function() {
+          var isEdit = editBar.classList.contains('visible');
+          pushBtn.style.display = isEdit ? 'inline-block' : 'none';
+        });
+        obs.observe(editBar, { attributes: true, attributeFilter: ['class'] });
+        // Initial state check
+        if (editBar.classList.contains('visible')) {
+          pushBtn.style.display = 'inline-block';
+        }
+      }
+    }
     window.pushToGitHub = async function() {
       var repo = 'bardshop/bardshop.github.io';
       var path = 'index.html';
       var pat = localStorage.getItem('bardshop_github_pat');
-      var pushBtn = document.getElementById('github-push-btn');
-      if (!pat) {
-        document.getElementById('github-pat-modal').style.display = 'flex';
-        return;
-      }
-      if (pushBtn) { pushBtn.disabled = true; pushBtn.textContent = '⏳ 合併資料…'; }
+      var btn = document.getElementById('github-push-btn');
+      if (!pat) { document.getElementById('github-pat-modal').style.display = 'flex'; return; }
+      if (btn) { btn.disabled = true; btn.textContent = '\u23F3 \u5408\u4F75\u8CC7\u6599\u2026'; }
       try {
-        // Step 1: Merge all current edits into updatedProducts
         var updatedProducts = PRODUCTS.map(function(p) {
           var c = Object.assign({}, p);
           if (window._imageEdits && window._imageEdits[p.name]) Object.assign(c, window._imageEdits[p.name]);
@@ -5700,30 +5721,22 @@ if(document.readyState!=="loading"){_fixDefaultView();}else{document.addEventLis
           return c;
         });
         var newProdJSON = JSON.stringify(updatedProducts, null, 1);
-
-        // Step 2: Fetch current HTML from GitHub
-        if (pushBtn) pushBtn.textContent = '⏳ 取得原始碼…';
+        if (btn) btn.textContent = '\u23F3 \u53D6\u5F97\u539F\u59CB\u78BC\u2026';
         var apiUrl = 'https://api.github.com/repos/' + repo + '/contents/' + path;
-        var getRes = await fetch(apiUrl, {
-          headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json' }
-        });
-        if (!getRes.ok) throw new Error('取得檔案失敗: ' + getRes.status);
+        var getRes = await fetch(apiUrl, { headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json' } });
+        if (!getRes.ok) throw new Error('\u53D6\u5F97\u6A94\u6848\u5931\u6557: ' + getRes.status);
         var fileData = await getRes.json();
         var sha = fileData.sha;
-
-        // Decode base64 content (UTF-8 safe)
-        if (pushBtn) pushBtn.textContent = '⏳ 解碼中…';
-        var raw = atob(fileData.content.replace(/\n/g, ''));
+        if (btn) btn.textContent = '\u23F3 \u89E3\u78BC\u4E2D\u2026';
+        var raw = atob(fileData.content.replace(/\\n/g, ''));
         var bytes = new Uint8Array(raw.length);
         for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
         var githubHTML = new TextDecoder('utf-8').decode(bytes);
-
-        // Step 3: Replace only the PRODUCTS array using bracket counting
-        if (pushBtn) pushBtn.textContent = '⏳ 替換商品資料…';
+        if (btn) btn.textContent = '\u23F3 \u66FF\u63DB\u5546\u54C1\u8CC7\u6599\u2026';
         var marker = 'const PRODUCTS = [';
         var mIdx = githubHTML.indexOf(marker);
-        if (mIdx === -1) throw new Error('找不到 PRODUCTS 陣列');
-        var arrStart = mIdx + marker.length - 1; // points to [
+        if (mIdx === -1) throw new Error('\u627E\u4E0D\u5230 PRODUCTS');
+        var arrStart = mIdx + marker.length - 1;
         var depth = 0, arrEnd = arrStart;
         for (var j = arrStart; j < githubHTML.length; j++) {
           if (githubHTML[j] === '[') depth++;
@@ -5731,9 +5744,7 @@ if(document.readyState!=="loading"){_fixDefaultView();}else{document.addEventLis
           if (depth === 0) { arrEnd = j + 1; break; }
         }
         var merged = githubHTML.substring(0, mIdx + marker.length) + newProdJSON.substring(1, newProdJSON.length - 1) + githubHTML.substring(arrEnd - 1);
-
-        // Step 4: Encode UTF-8 and push
-        if (pushBtn) pushBtn.textContent = '⏳ 編碼推送…';
+        if (btn) btn.textContent = '\u23F3 \u7DE8\u78BC\u63A8\u9001\u2026';
         var encBytes = new TextEncoder().encode(merged);
         var binStr = '';
         var CHUNK = 32768;
@@ -5741,36 +5752,18 @@ if(document.readyState!=="loading"){_fixDefaultView();}else{document.addEventLis
           binStr += String.fromCharCode.apply(null, encBytes.subarray(k, k + CHUNK));
         }
         var b64 = btoa(binStr);
-
         var now = new Date().toLocaleString('zh-TW', {timeZone:'Asia/Taipei'});
-        var putRes = await fetch(apiUrl, {
-          method: 'PUT',
-          headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: '🔄 安全更新商品資料庫 ' + now + '（共 ' + updatedProducts.length + ' 件）',
-            content: b64,
-            sha: sha
-          })
-        });
+        var putRes = await fetch(apiUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: '\uD83D\uDD04 \u5B89\u5168\u66F4\u65B0\u5546\u54C1\u8CC7\u6599\u5EAB ' + now + '\uFF08\u5171 ' + updatedProducts.length + ' \u4EF6\uFF09', content: b64, sha: sha }) });
         if (putRes.ok) {
-          if (pushBtn) {
-            pushBtn.textContent = '✅ 推送成功！';
-            pushBtn.style.background = '#388E3C';
-            setTimeout(function() { pushBtn.textContent = '🚀 推送 GitHub'; pushBtn.style.background = 'rgba(25,118,210,0.15)'; pushBtn.disabled = false; }, 4000);
-          }
-          alert('✅ 成功推送到 GitHub！\n\n使用安全模式（僅替換商品資料，保留所有功能）。\nGitHub Pages 約1-2分鐘後自動更新。');
-        } else {
-          var e2 = await putRes.json();
-          throw new Error('推送失敗: ' + (e2.message || putRes.status));
-        }
+          if (btn) { btn.textContent = '\u2705 \u63A8\u9001\u6210\u529F\uFF01'; btn.style.background = '#388E3C'; btn.style.color = '#fff';
+            setTimeout(function() { btn.textContent = '\uD83D\uDE80 \u63A8\u9001 GitHub'; btn.style.background = 'rgba(25,118,210,0.15)'; btn.style.color = '#64b5f6'; btn.disabled = false; }, 4000); }
+          alert('\u2705 \u6210\u529F\u63A8\u9001\u5230 GitHub\uFF01\n\n\u4F7F\u7528\u5B89\u5168\u6A21\u5F0F\u3002\nGitHub Pages \u7D041-2\u5206\u9418\u5F8C\u66F4\u65B0\u3002');
+        } else { var e2 = await putRes.json(); throw new Error('\u63A8\u9001\u5931\u6557: ' + (e2.message || putRes.status)); }
       } catch(err) {
-        if (pushBtn) {
-          pushBtn.textContent = '❌ 推送失敗';
-          pushBtn.style.background = '#c62828';
-          pushBtn.disabled = false;
-          setTimeout(function() { pushBtn.textContent = '🚀 推送 GitHub'; pushBtn.style.background = 'rgba(25,118,210,0.15)'; }, 5000);
-        }
-        alert('❌ 推送失敗：' + err.message + '\n\n請確認 Token 是否有效。');
+        if (btn) { btn.textContent = '\u274C \u63A8\u9001\u5931\u6557'; btn.style.background = '#c62828'; btn.style.color = '#fff'; btn.disabled = false;
+          setTimeout(function() { btn.textContent = '\uD83D\uDE80 \u63A8\u9001 GitHub'; btn.style.background = 'rgba(25,118,210,0.15)'; btn.style.color = '#64b5f6'; }, 5000); }
+        alert('\u274C \u63A8\u9001\u5931\u6557\uFF1A' + err.message);
       }
     };
   };
