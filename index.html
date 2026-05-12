@@ -22345,7 +22345,7 @@ function autoFillPartNoCard(p, force) {
       });
       if (_ss.length === _gs.length) {
         var k = _ss.join(" "), d = p._pricing.sizes[k];
-        if (d && d.partno) { _pv.textContent = d.partno; _pc.className = "pn-card has-value"; }
+        if (d && d.partno) { _pv.innerHTML = '<span class="pn-code">' + d.partno + '</span>'; _pv.classList.remove('pn-hint'); _pc.className = "pn-card has-value"; }
         else { _pc.className = "pn-card"; }
       } else { _pc.className = "pn-card"; }
       return;
