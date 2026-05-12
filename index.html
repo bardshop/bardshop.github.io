@@ -22395,7 +22395,7 @@ function autoFillPartNoCard(p, force) {
     }
     var activeSizeChip = document.querySelector('.size-chip.active[data-idx]');
     if(!activeSizeChip){
-      if(sizeOpts.length === 1 && sizeOpts[0].partNumber){ showPN(sizeOpts[0].partNumber); return; }
+      /* removed: auto-show single SKU */ showHint(); return;
       showHint(); return;
     }
     var idx = parseInt(activeSizeChip.getAttribute('data-idx'), 10);
