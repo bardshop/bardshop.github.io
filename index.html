@@ -23992,8 +23992,8 @@ function openPanel(id) {
     (editUnlocked ? renderQAEdit(p) : renderQAView(p));
   }
 
-  // 自動填入料號（單一規格時直接顯示）
-  autoFillPartNoCard(p);
+  // 自動填入料號（已停用：改為點選規格後才顯示料號）
+  // autoFillPartNoCard(p);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
