@@ -1273,6 +1273,7 @@
     <button id="edit-mode-toggle" onclick="openLockModal()" title="進入編輯模式" style="border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; color: rgb(232, 197, 71); border-color: rgba(232, 197, 71, 0.4);">✏️ 編輯模式</button>
     <button id="btn-export-img" onclick="exportImages()" title="匯出所有已儲存的圖片網址" style="display: inline-block; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap;">⬇ 匯出</button>
     <button id="btn-import-img" onclick="importImages()" title="從匯出的 JSON 檔匯入圖片" style="display: inline-block; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; white-space: nowrap;">⬆ 匯入</button>
+    <button id="btn-bug-report" onclick="openBugReportModal()" title="\u554f\u984c\u56de\u5831" style="display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;white-space:nowrap;">\u26a0\ufe0f \u554f\u984c\u56de\u5831</button>
     
   </div>
 </header>
@@ -23188,13 +23189,177 @@ function toggleQAAccordion(idx) {
   if (el) el.classList.toggle("open");
 }
 function qaAddFromView() {
-  var q = prompt("\u8f38\u5165\u65b0\u554f\u984c:");
-  if (!q || !q.trim()) return;
   if (!activeProduct) return;
-  var qaList = getEffectiveQA(activeProduct);
-  qaList.push({q: q.trim(), a: ""});
-  saveCustomQA(activeProduct.id, qaList);
-  renderQAView(activeProduct);
+  var overlay = document.createElement('div');
+  overlay.id = 'qa-submit-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
+  var modal = document.createElement('div');
+  modal.style.cssText = 'background:var(--surface,#fff);border-radius:12px;padding:24px;width:90%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,0.3);';
+  var savedName = localStorage.getItem('bardshop_qa_submitter') || '';
+  modal.innerHTML = '<h3 style="margin:0 0 16px;color:var(--text,#333);">\u2795 \u65b0\u589e QA \u554f\u984c</h3>'
+    + '<label style="display:block;margin-bottom:4px;font-size:13px;color:var(--text2,#666);">\u59d3\u540d / \u66b1\u7a31</label>'
+    + '<input id="qa-modal-name" value="' + savedName.replace(/"/g,'&quot;') + '" placeholder="\u8acb\u8f38\u5165\u60a8\u7684\u540d\u5b57" style="width:100%;padding:8px;border:1px solid var(--border,#ddd);border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;background:var(--surface2,#f9f9f9);color:var(--text,#333);" />'
+    + '<label style="display:block;margin-bottom:4px;font-size:13px;color:var(--text2,#666);">\u554f\u984c\u5167\u5bb9</label>'
+    + '<textarea id="qa-modal-q" rows="3" placeholder="\u8acb\u8f38\u5165\u60a8\u7684\u554f\u984c" style="width:100%;padding:8px;border:1px solid var(--border,#ddd);border-radius:6px;margin-bottom:16px;box-sizing:border-box;font-size:14px;resize:vertical;background:var(--surface2,#f9f9f9);color:var(--text,#333);"></textarea>'
+    + '<div style="display:flex;gap:8px;justify-content:flex-end;">'
+    + '<button onclick="document.getElementById(\'qa-submit-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border,#ddd);border-radius:6px;background:var(--surface2,#f5f5f5);cursor:pointer;color:var(--text,#333);">\u53d6\u6d88</button>'
+    + '<button onclick="submitQAFromModal()" style="padding:8px 16px;border:none;border-radius:6px;background:#ff6b00;color:#fff;cursor:pointer;font-weight:bold;">\u63d0\u4ea4</button>'
+    + '</div>';
+  overlay.appendChild(modal);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  setTimeout(function() { document.getElementById('qa-modal-q').focus(); }, 100);
+}
+function submitQAFromModal() {
+  var nameEl = document.getElementById('qa-modal-name');
+  var qEl = document.getElementById('qa-modal-q');
+  var name = (nameEl.value || '').trim();
+  var question = (qEl.value || '').trim();
+  if (!question) { alert('\u8acb\u8f38\u5165\u554f\u984c\u5167\u5bb9'); return; }
+  if (!name) { alert('\u8acb\u8f38\u5165\u60a8\u7684\u540d\u5b57'); return; }
+  localStorage.setItem('bardshop_qa_submitter', name);
+  var btn = qEl.parentElement.querySelector('button:last-child');
+  btn.textContent = '\u63d0\u4ea4\u4e2d...';
+  btn.disabled = true;
+  submitQAIssue(activeProduct.name, activeProduct.id, question, name).then(function(issue) {
+    var qaList = getEffectiveQA(activeProduct);
+    qaList.push({q: question, a: ''});
+    saveCustomQA(activeProduct.id, qaList);
+    renderQAView(activeProduct);
+    document.getElementById('qa-submit-overlay').remove();
+    alert('\u2705 \u554f\u984c\u5df2\u63d0\u4ea4\uff01\u7de8\u865f: #' + issue.number);
+  }).catch(function(err) {
+    alert('\u63d0\u4ea4\u5931\u6557: ' + err.message + '\n\u5c07\u5148\u5132\u5b58\u5728\u672c\u5730');
+    var qaList = getEffectiveQA(activeProduct);
+    qaList.push({q: question, a: ''});
+    saveCustomQA(activeProduct.id, qaList);
+    renderQAView(activeProduct);
+    document.getElementById('qa-submit-overlay').remove();
+  });
+}
+function submitQAIssue(productName, productId, question, submitter) {
+  var pat = localStorage.getItem('bardshop_github_pat');
+  if (!pat) return Promise.reject(new Error('No GitHub token'));
+  var repo = 'bardshop/bardshop.github.io';
+  var title = '[QA] ' + productName + ' - ' + question.substring(0, 50);
+  var body = '## QA Question Submission\n\n'
+    + '| Field | Value |\n|-------|-------|\n'
+    + '| Product | ' + productName + ' |\n'
+    + '| Product ID | \x60' + productId + '\x60 |\n'
+    + '| Question | ' + question + ' |\n'
+    + '| Submitter | ' + submitter + ' |\n'
+    + '| Time | ' + new Date().toLocaleString('zh-TW') + ' |\n\n'
+    + '---\nAuto-submitted from BardShop QA system';
+  return fetch('https://api.github.com/repos/' + repo + '/issues', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: title, body: body, labels: ['qa-submission'] })
+  }).then(function(res) {
+    if (!res.ok) return res.json().then(function(e) { throw new Error(e.message); });
+    return res.json();
+  });
+}
+function openBugReportModal() {
+  var overlay = document.createElement('div');
+  overlay.id = 'bug-report-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
+  var modal = document.createElement('div');
+  modal.style.cssText = 'background:var(--surface,#fff);border-radius:12px;padding:24px;width:90%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto;';
+  var savedName = localStorage.getItem('bardshop_qa_submitter') || '';
+  var prodInfo = activeProduct ? activeProduct.name : '(\u7121\u7279\u5b9a\u5546\u54c1)';
+  modal.innerHTML = '<h3 style="margin:0 0 16px;color:var(--text,#333);">\u26a0\ufe0f \u554f\u984c\u56de\u5831</h3>'
+    + '<div style="margin-bottom:12px;padding:8px 12px;background:var(--surface2,#f5f5f5);border-radius:6px;font-size:13px;color:var(--text2,#666);">\u76ee\u524d\u5546\u54c1: <strong>' + prodInfo + '</strong></div>'
+    + '<label style="display:block;margin-bottom:4px;font-size:13px;color:var(--text2,#666);">\u56de\u5831\u4eba</label>'
+    + '<input id="bug-modal-name" value="' + savedName.replace(/"/g,'&quot;') + '" placeholder="\u8acb\u8f38\u5165\u60a8\u7684\u540d\u5b57" style="width:100%;padding:8px;border:1px solid var(--border,#ddd);border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;background:var(--surface2,#f9f9f9);color:var(--text,#333);" />'
+    + '<label style="display:block;margin-bottom:4px;font-size:13px;color:var(--text2,#666);">\u554f\u984c\u63cf\u8ff0</label>'
+    + '<textarea id="bug-modal-desc" rows="4" placeholder="\u8acb\u8a73\u7d30\u63cf\u8ff0\u60a8\u767c\u73fe\u7684\u554f\u984c..." style="width:100%;padding:8px;border:1px solid var(--border,#ddd);border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;resize:vertical;background:var(--surface2,#f9f9f9);color:var(--text,#333);"></textarea>'
+    + '<label style="display:block;margin-bottom:4px;font-size:13px;color:var(--text2,#666);">\u9644\u52a0\u622a\u5716 (\u53ef\u9078)</label>'
+    + '<input type="file" id="bug-modal-files" accept="image/*" multiple style="width:100%;padding:8px;border:1px solid var(--border,#ddd);border-radius:6px;margin-bottom:16px;box-sizing:border-box;font-size:13px;background:var(--surface2,#f9f9f9);color:var(--text,#333);" />'
+    + '<div id="bug-modal-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;"></div>'
+    + '<div style="display:flex;gap:8px;justify-content:flex-end;">'
+    + '<button onclick="document.getElementById(\'bug-report-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border,#ddd);border-radius:6px;background:var(--surface2,#f5f5f5);cursor:pointer;color:var(--text,#333);">\u53d6\u6d88</button>'
+    + '<button id="bug-submit-btn" onclick="submitBugReport()" style="padding:8px 16px;border:none;border-radius:6px;background:#e53e3e;color:#fff;cursor:pointer;font-weight:bold;">\u63d0\u4ea4\u56de\u5831</button>'
+    + '</div>';
+  overlay.appendChild(modal);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  // File preview
+  setTimeout(function() {
+    var fileInput = document.getElementById('bug-modal-files');
+    if (fileInput) {
+      fileInput.addEventListener('change', function() {
+        var preview = document.getElementById('bug-modal-preview');
+        preview.innerHTML = '';
+        Array.from(this.files).forEach(function(f) {
+          if (!f.type.startsWith('image/')) return;
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.cssText = 'max-width:100px;max-height:80px;border-radius:6px;border:1px solid var(--border,#ddd);';
+            preview.appendChild(img);
+          };
+          reader.readAsDataURL(f);
+        });
+      });
+    }
+  }, 100);
+}
+function submitBugReport() {
+  var nameEl = document.getElementById('bug-modal-name');
+  var descEl = document.getElementById('bug-modal-desc');
+  var filesEl = document.getElementById('bug-modal-files');
+  var name = (nameEl.value || '').trim();
+  var desc = (descEl.value || '').trim();
+  if (!desc) { alert('\u8acb\u8f38\u5165\u554f\u984c\u63cf\u8ff0'); return; }
+  if (!name) { alert('\u8acb\u8f38\u5165\u60a8\u7684\u540d\u5b57'); return; }
+  localStorage.setItem('bardshop_qa_submitter', name);
+  var btn = document.getElementById('bug-submit-btn');
+  btn.textContent = '\u63d0\u4ea4\u4e2d...';
+  btn.disabled = true;
+  var files = filesEl.files;
+  var imagePromises = [];
+  Array.from(files).forEach(function(f) {
+    if (!f.type.startsWith('image/')) return;
+    imagePromises.push(new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function(e) { resolve({ name: f.name, data: e.target.result }); };
+      reader.readAsDataURL(f);
+    }));
+  });
+  Promise.all(imagePromises).then(function(images) {
+    var prodInfo = activeProduct ? activeProduct.name + ' (' + activeProduct.id + ')' : 'N/A';
+    var title = '[Bug] ' + desc.substring(0, 60);
+    var body = '## \u554f\u984c\u56de\u5831\n\n'
+      + '| Field | Value |\n|-------|-------|\n'
+      + '| Reporter | ' + name + ' |\n'
+      + '| Product | ' + prodInfo + ' |\n'
+      + '| Time | ' + new Date().toLocaleString('zh-TW') + ' |\n\n'
+      + '### Description\n' + desc + '\n\n';
+    if (images.length > 0) {
+      body += '### Screenshots\n';
+      images.forEach(function(img, i) {
+        body += '![screenshot-' + (i+1) + '](' + img.data + ')\n\n';
+      });
+    }
+    var pat = localStorage.getItem('bardshop_github_pat');
+    if (!pat) { alert('No GitHub token'); btn.textContent = '\u63d0\u4ea4\u56de\u5831'; btn.disabled = false; return; }
+    return fetch('https://api.github.com/repos/bardshop/bardshop.github.io/issues', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title, body: body, labels: ['bug-report'] })
+    });
+  }).then(function(res) {
+    if (!res.ok) return res.json().then(function(e) { throw new Error(e.message); });
+    return res.json();
+  }).then(function(issue) {
+    document.getElementById('bug-report-overlay').remove();
+    alert('\u2705 \u56de\u5831\u5df2\u63d0\u4ea4\uff01\u7de8\u865f: #' + issue.number);
+  }).catch(function(err) {
+    alert('\u63d0\u4ea4\u5931\u6557: ' + err.message);
+    btn.textContent = '\u63d0\u4ea4\u56de\u5831';
+    btn.disabled = false;
+  });
 }
 function qaAdd() {
   if (!activeProduct) return;
