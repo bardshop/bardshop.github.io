@@ -61,6 +61,36 @@ CATEGORY_MAP = {
     '代工': '客製化代工/服務',
 }
 
+# --- Blacklist: Shopline slugs/titles that are NOT real products ---
+SLUG_BLACKLIST = {
+    '每滿50件現折100元',
+    '商品總覽圖',
+}
+
+# Title patterns that indicate non-product entries (promotions, catalog pages, etc.)
+NON_PRODUCT_PATTERNS = [
+    r'^每滿\d+件',       # 每滿50件現折100元 (volume discount promo)
+    r'總覽圖$',          # 商品總覽圖 (catalog overview)
+    r'^滿\d+件',         # 滿XX件... promotions
+    r'免運',             # 免運 promotions
+]
+
+def is_real_product(shopline_product):
+    """Check if a Shopline product is a real product (not a promo/catalog page)."""
+    slug = get_shopline_slug(shopline_product)
+    title = get_shopline_title(shopline_product)
+
+    # Check slug blacklist
+    if slug in SLUG_BLACKLIST:
+        return False
+
+    # Check title patterns
+    for pattern in NON_PRODUCT_PATTERNS:
+        if re.search(pattern, title):
+            return False
+
+    return True
+
 def api_get(url, headers):
     req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req) as r:
@@ -507,8 +537,17 @@ def main():
 
     auto_added = []
     still_unmatched = []
+    skipped_non_products = []
     for sp in unmatched_sl:
         slug = get_shopline_slug(sp)
+        title = get_shopline_title(sp)
+
+        # Skip non-product entries (promotions, catalog pages, etc.)
+        if not is_real_product(sp):
+            skipped_non_products.append(title)
+            print(f'    [SKIP] Non-product: {title} ({slug})')
+            continue
+
         # Skip if slug already exists (edge case)
         if slug in existing_urls or slug in existing_ids:
             still_unmatched.append(sp)
@@ -529,6 +568,9 @@ def main():
         existing_ids.add(new_product['id'])
         existing_urls.add(slug)
         auto_added.append(new_product)
+
+    if skipped_non_products:
+        print(f'  Skipped {len(skipped_non_products)} non-product entries: {", ".join(skipped_non_products)}')
 
     if auto_added:
         print(f'  Auto-added {len(auto_added)} new products:')
