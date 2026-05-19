@@ -2,7 +2,7 @@ name: Sync Shopline Products
 
 on:
   schedule:
-    - cron: '0 1 * * *'  # 每天台灣時間早上 9 點 (UTC+8)
+    - cron: '0 2 * * *'  # 每天台灣時間早上 10 點 (UTC+8)
   workflow_dispatch:
     inputs:
       mode:
