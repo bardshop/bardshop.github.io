@@ -91,8 +91,36 @@ def extract_shopline_specs(product):
             specs.add(' / '.join(parts))
     return specs
 
+def get_shopline_slug(product):
+    """Extract slug from Shopline product using multiple field fallbacks."""
+    # Try handle first
+    handle = product.get('handle', '')
+    if handle:
+        return handle
+    # Try permalink (e.g. "/products/mini-charm" or full URL)
+    permalink = product.get('permalink', '')
+    if permalink:
+        return permalink.rstrip('/').split('/')[-1]
+    # Try slug field
+    slug = product.get('slug', '')
+    if slug:
+        return slug
+    # Try extracting from link/url
+    for field in ('link', 'url', 'product_url'):
+        val = product.get(field, '')
+        if val and '/products/' in val:
+            return val.rstrip('/').split('/')[-1]
+    return ''
+
 def match_products(shopline_list, internal_list):
-    """Match products by Shopline handle <-> internal URL slug."""
+    """Match products by Shopline slug <-> internal URL slug."""
+    # Debug: print first product's keys to help diagnose matching issues
+    if shopline_list:
+        p0 = shopline_list[0]
+        print(f'  [DEBUG] Shopline product keys: {sorted(p0.keys())}')
+        print(f'  [DEBUG] Sample handle={p0.get("handle","")!r} permalink={p0.get("permalink","")!r} slug={p0.get("slug","")!r}')
+        print(f'  [DEBUG] Resolved slug: {get_shopline_slug(p0)!r}')
+
     internal_by_slug = {}
     for p in internal_list:
         url = p.get('url', '')
@@ -103,9 +131,9 @@ def match_products(shopline_list, internal_list):
     matches = []
     unmatched_sl = []
     for sp in shopline_list:
-        handle = sp.get('handle', '')
-        if handle in internal_by_slug:
-            matches.append((sp, internal_by_slug.pop(handle)))
+        sl_slug = get_shopline_slug(sp)
+        if sl_slug and sl_slug in internal_by_slug:
+            matches.append((sp, internal_by_slug.pop(sl_slug)))
         else:
             unmatched_sl.append(sp)
 
