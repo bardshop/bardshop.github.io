@@ -1,6 +1,8 @@
 name: Sync Shopline Products
 
 on:
+  schedule:
+    - cron: '0 1 * * *'  # 每天台灣時間早上 9 點 (UTC+8)
   workflow_dispatch:
     inputs:
       mode:
@@ -32,5 +34,5 @@ jobs:
           SHOPLINE_TOKEN: ${{ secrets.SHOPLINE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
-          SYNC_MODE: ${{ github.event.inputs.mode }}
+          SYNC_MODE: ${{ github.event.inputs.mode || 'report' }}
         run: python scripts/sync_shopline.py
