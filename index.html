@@ -23317,17 +23317,36 @@ function submitBugReport() {
   var btn = document.getElementById('bug-submit-btn');
   btn.textContent = '提交中...';
   btn.disabled = true;
+  var pat = localStorage.getItem('bardshop_github_pat');
+  if (!pat) { alert('No GitHub token'); btn.textContent = '提交回報'; btn.disabled = false; return; }
+  var repo = 'bardshop/bardshop.github.io';
   var files = filesEl.files;
-  var imagePromises = [];
-  Array.from(files).forEach(function(f) {
-    if (!f.type.startsWith('image/')) return;
-    imagePromises.push(new Promise(function(resolve) {
+  var imageFiles = Array.from(files).filter(function(f) { return f.type.startsWith('image/'); });
+  var uploadPromises = imageFiles.map(function(f) {
+    return new Promise(function(resolve) {
       var reader = new FileReader();
-      reader.onload = function(e) { resolve({ name: f.name, data: e.target.result }); };
+      reader.onload = function(e) {
+        var base64 = e.target.result.split(',')[1];
+        var ts = Date.now();
+        var safeName = f.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        var path = 'issue-attachments/' + ts + '-' + safeName;
+        fetch('https://api.github.com/repos/' + repo + '/contents/' + path, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'Upload bug report image: ' + f.name, content: base64 })
+        }).then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.content && data.content.download_url) {
+            resolve({ name: f.name, url: data.content.download_url });
+          } else {
+            resolve({ name: f.name, url: null, error: data.message });
+          }
+        }).catch(function(err) { resolve({ name: f.name, url: null, error: err.message }); });
+      };
       reader.readAsDataURL(f);
-    }));
+    });
   });
-  Promise.all(imagePromises).then(function(images) {
+  Promise.all(uploadPromises).then(function(images) {
     var prodInfo = activeProduct ? activeProduct.name + ' (' + activeProduct.id + ')' : 'N/A';
     var title = '[Bug] ' + desc.substring(0, 60);
     var body = '## 問題回報\n\n'
@@ -23336,15 +23355,18 @@ function submitBugReport() {
       + '| Product | ' + prodInfo + ' |\n'
       + '| Time | ' + new Date().toLocaleString('zh-TW') + ' |\n\n'
       + '### Description\n' + desc + '\n\n';
-    if (images.length > 0) {
+    var uploaded = images.filter(function(img) { return img.url; });
+    if (uploaded.length > 0) {
       body += '### Screenshots\n';
-      images.forEach(function(img, i) {
-        body += '![screenshot-' + (i+1) + '](' + img.data + ')\n\n';
+      uploaded.forEach(function(img, i) {
+        body += '![' + img.name + '](' + img.url + ')\n\n';
       });
     }
-    var pat = localStorage.getItem('bardshop_github_pat');
-    if (!pat) { alert('No GitHub token'); btn.textContent = '提交回報'; btn.disabled = false; return; }
-    return fetch('https://api.github.com/repos/bardshop/bardshop.github.io/issues', {
+    var failed = images.filter(function(img) { return !img.url; });
+    if (failed.length > 0) {
+      body += '\n> Note: ' + failed.length + ' image(s) failed to upload\n';
+    }
+    return fetch('https://api.github.com/repos/' + repo + '/issues', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + pat, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: title, body: body, labels: ['bug-report'] })
