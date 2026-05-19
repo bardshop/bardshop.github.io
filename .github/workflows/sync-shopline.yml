@@ -1,0 +1,36 @@
+name: Sync Shopline Products
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: true
+        default: 'report'
+        type: choice
+        options:
+          - report
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Sync
+        env:
+          SHOPLINE_TOKEN: ${{ secrets.SHOPLINE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
+          SYNC_MODE: ${{ github.event.inputs.mode }}
+        run: python scripts/sync_shopline.py
