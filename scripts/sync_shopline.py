@@ -1,18 +1,335 @@
-{
-  "name": "sync_shopline.py",
-  "path": "scripts/sync_shopline.py",
-  "sha": "d024137c96488d25e213a3b7bf6693f98f062935",
-  "size": 11520,
-  "url": "https://api.github.com/repos/bardshop/bardshop.github.io/contents/scripts/sync_shopline.py?ref=main",
-  "html_url": "https://github.com/bardshop/bardshop.github.io/blob/main/scripts/sync_shopline.py",
-  "git_url": "https://api.github.com/repos/bardshop/bardshop.github.io/git/blobs/d024137c96488d25e213a3b7bf6693f98f062935",
-  "download_url": "https://raw.githubusercontent.com/bardshop/bardshop.github.io/main/scripts/sync_shopline.py",
-  "type": "file",
-  "content": "IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwoiIiIKQmFyZFNob3AgeCBTaG9wbGlu\nZSBTeW5jIFRvb2wKQ29tcGFyZXMgU2hvcGxpbmUgcHJvZHVjdHMgd2l0aCBp\nbnRlcm5hbCBkYXRhYmFzZSwgZ2VuZXJhdGVzIGRpZmYgcmVwb3J0LAphbmQg\nb3B0aW9uYWxseSBhcHBsaWVzIHNwZWMgbmFtZSBjaGFuZ2VzLgoiIiIKaW1w\nb3J0IGpzb24sIG9zLCByZSwgc3lzLCB1cmxsaWIucmVxdWVzdCwgdXJsbGli\nLmVycm9yLCBiYXNlNjQKClNIT1BMSU5FX0FQSSA9ICdodHRwczovL29wZW4u\nc2hvcGxpbmUuaW8vdjEnClNIT1BMSU5FX1RPS0VOID0gb3MuZW52aXJvbi5n\nZXQoJ1NIT1BMSU5FX1RPS0VOJywgJycpCkdJVEhVQl9UT0tFTiA9IG9zLmVu\ndmlyb24uZ2V0KCdHSVRIVUJfVE9LRU4nLCAnJykKUkVQTyA9ICdiYXJkc2hv\ncC9iYXJkc2hvcC5naXRodWIuaW8nCk1PREUgPSBvcy5lbnZpcm9uLmdldCgn\nU1lOQ19NT0RFJywgJ3JlcG9ydCcpICAjICdyZXBvcnQnIG9yICdhcHBseScK\nTElORV9UT0tFTiA9IG9zLmVudmlyb24uZ2V0KCdMSU5FX05PVElGWV9UT0tF\nTicsICcnKQoKZGVmIGFwaV9nZXQodXJsLCBoZWFkZXJzKToKICAgIHJlcSA9\nIHVybGxpYi5yZXF1ZXN0LlJlcXVlc3QodXJsLCBoZWFkZXJzPWhlYWRlcnMp\nCiAgICB3aXRoIHVybGxpYi5yZXF1ZXN0LnVybG9wZW4ocmVxKSBhcyByOgog\nICAgICAgIHJldHVybiBqc29uLmxvYWRzKHIucmVhZCgpLmRlY29kZSgndXRm\nLTgnKSkKCmRlZiBhcGlfZ2V0X3RleHQodXJsLCBoZWFkZXJzKToKICAgIHJl\ncSA9IHVybGxpYi5yZXF1ZXN0LlJlcXVlc3QodXJsLCBoZWFkZXJzPWhlYWRl\ncnMpCiAgICB3aXRoIHVybGxpYi5yZXF1ZXN0LnVybG9wZW4ocmVxKSBhcyBy\nOgogICAgICAgIHJldHVybiByLnJlYWQoKS5kZWNvZGUoJ3V0Zi04JykKCmRl\nZiBmZXRjaF9zaG9wbGluZV9wcm9kdWN0cygpOgogICAgcHJvZHVjdHMgPSBb\nXQogICAgcGFnZSA9IDEKICAgIHdoaWxlIFRydWU6CiAgICAgICAgdXJsID0g\nZid7U0hPUExJTkVfQVBJfS9wcm9kdWN0cz9wZXJfcGFnZT0yNTAmcGFnZT17\ncGFnZX0nCiAgICAgICAgcHJpbnQoZicgIEZldGNoaW5nOiB7dXJsfScpCiAg\nICAgICAgdHJ5OgogICAgICAgICAgICBkYXRhID0gYXBpX2dldCh1cmwsIHsK\nICAgICAgICAgICAgICAgICdBdXRob3JpemF0aW9uJzogZidCZWFyZXIge1NI\nT1BMSU5FX1RPS0VOfScsCiAgICAgICAgICAgICAgICAnQWNjZXB0JzogJ2Fw\ncGxpY2F0aW9uL2pzb24nLAogICAgICAgICAgICAgICAgJ1VzZXItQWdlbnQn\nOiAnQmFyZFNob3AgU3luYycKICAgICAgICAgICAgfSkKICAgICAgICBleGNl\ncHQgdXJsbGliLmVycm9yLkhUVFBFcnJvciBhcyBlOgogICAgICAgICAgICBi\nb2R5ID0gJycKICAgICAgICAgICAgdHJ5OgogICAgICAgICAgICAgICAgYm9k\neSA9IGUucmVhZCgpLmRlY29kZSgndXRmLTgnKVs6NTAwXQogICAgICAgICAg\nICBleGNlcHQ6CiAgICAgICAgICAgICAgICBwYXNzCiAgICAgICAgICAgIHBy\naW50KGYnW0VSUk9SXSBTaG9wbGluZSBBUEkgZXJyb3I6IHtlLmNvZGV9IHtl\nLnJlYXNvbn0nKQogICAgICAgICAgICBwcmludChmJyAgUmVzcG9uc2U6IHti\nb2R5fScpCiAgICAgICAgICAgIHByaW50KGYnICBUb2tlbiBwcmVzZW50OiB7\nYm9vbChTSE9QTElORV9UT0tFTil9IChsZW49e2xlbihTSE9QTElORV9UT0tF\nTil9KScpCiAgICAgICAgICAgIHN5cy5leGl0KDEpCiAgICAgICAgaXRlbXMg\nPSBkYXRhLmdldCgnaXRlbXMnLCBkYXRhLmdldCgnZGF0YScsIFtdKSkKICAg\nICAgICBpZiBub3QgaXRlbXM6CiAgICAgICAgICAgIGJyZWFrCiAgICAgICAg\ncHJvZHVjdHMuZXh0ZW5kKGl0ZW1zKQogICAgICAgIGlmIGxlbihpdGVtcykg\nPCAyNTA6CiAgICAgICAgICAgIGJyZWFrCiAgICAgICAgcGFnZSArPSAxCiAg\nICByZXR1cm4gcHJvZHVjdHMKCmRlZiBmZXRjaF9pbmRleF9odG1sKCk6CiAg\nICBodG1sID0gYXBpX2dldF90ZXh0KAogICAgICAgIGYnaHR0cHM6Ly9hcGku\nZ2l0aHViLmNvbS9yZXBvcy97UkVQT30vY29udGVudHMvaW5kZXguaHRtbCcs\nCiAgICAgICAgeydBdXRob3JpemF0aW9uJzogZid0b2tlbiB7R0lUSFVCX1RP\nS0VOfScsICdBY2NlcHQnOiAnYXBwbGljYXRpb24vdm5kLmdpdGh1Yi52My5y\nYXcnfQogICAgKQogICAgcmV0dXJuIGh0bWwKCmRlZiBmZXRjaF9pbmRleF9z\naGEoKToKICAgIGRhdGEgPSBhcGlfZ2V0KAogICAgICAgIGYnaHR0cHM6Ly9h\ncGkuZ2l0aHViLmNvbS9yZXBvcy97UkVQT30vY29udGVudHMvaW5kZXguaHRt\nbCcsCiAgICAgICAgeydBdXRob3JpemF0aW9uJzogZid0b2tlbiB7R0lUSFVC\nX1RPS0VOfSd9CiAgICApCiAgICByZXR1cm4gZGF0YVsnc2hhJ10KCmRlZiBw\nYXJzZV9wcm9kdWN0cyhodG1sKToKICAgIGlkeCA9IGh0bWwuaW5kZXgoJ2Nv\nbnN0IFBST0RVQ1RTJykKICAgIG9iID0gaHRtbC5pbmRleCgnWycsIGlkeCkK\nICAgIGRlcHRoID0gMAogICAgY2IgPSAtMQogICAgZm9yIGkgaW4gcmFuZ2Uo\nb2IsIGxlbihodG1sKSk6CiAgICAgICAgaWYgaHRtbFtpXSA9PSAnWyc6CiAg\nICAgICAgICAgIGRlcHRoICs9IDEKICAgICAgICBlbGlmIGh0bWxbaV0gPT0g\nJ10nOgogICAgICAgICAgICBkZXB0aCAtPSAxCiAgICAgICAgICAgIGlmIGRl\ncHRoID09IDA6CiAgICAgICAgICAgICAgICBjYiA9IGkKICAgICAgICAgICAg\nICAgIGJyZWFrCiAgICByZXR1cm4ganNvbi5sb2FkcyhodG1sW29iOmNiKzFd\nKSwgb2IsIGNiCgpkZWYgcmVidWlsZF9odG1sKGh0bWwsIG9iLCBjYiwgcHJv\nZHVjdHMpOgogICAgbmV3X2FycmF5ID0ganNvbi5kdW1wcyhwcm9kdWN0cywg\nZW5zdXJlX2FzY2lpPUZhbHNlLCBpbmRlbnQ9MikKICAgIG5ld19hcnJheSA9\nIG5ld19hcnJheS5yZXBsYWNlKCdcbicsICdcbiAnKQogICAgcmV0dXJuIGh0\nbWxbOm9iXSArIG5ld19hcnJheSArIGh0bWxbY2IrMTpdCgpkZWYgZXh0cmFj\ndF9zaG9wbGluZV9zcGVjcyhwcm9kdWN0KToKICAgIHNwZWNzID0gc2V0KCkK\nICAgIGZvciB2IGluIHByb2R1Y3QuZ2V0KCd2YXJpYW50cycsIFtdKToKICAg\nICAgICBwYXJ0cyA9IFtdCiAgICAgICAgZm9yIG92IGluIHYuZ2V0KCdvcHRp\nb25fdmFsdWVzJywgW10pOgogICAgICAgICAgICB2YWwgPSBvdi5nZXQoJ3Zh\nbHVlJywgJycpCiAgICAgICAgICAgIGlmIHZhbDoKICAgICAgICAgICAgICAg\nIHBhcnRzLmFwcGVuZCh2YWwpCiAgICAgICAgaWYgcGFydHM6CiAgICAgICAg\nICAgIHNwZWNzLmFkZCgnIC8gJy5qb2luKHBhcnRzKSkKICAgIHJldHVybiBz\ncGVjcwoKZGVmIG1hdGNoX3Byb2R1Y3RzKHNob3BsaW5lX2xpc3QsIGludGVy\nbmFsX2xpc3QpOgogICAgaW50ZXJuYWxfYnlfc2x1ZyA9IHt9CiAgICBmb3Ig\ncCBpbiBpbnRlcm5hbF9saXN0OgogICAgICAgIHVybCA9IHAuZ2V0KCd1cmwn\nLCAnJykKICAgICAgICBpZiB1cmw6CiAgICAgICAgICAgIHNsdWcgPSB1cmwu\ncnN0cmlwKCcvJykuc3BsaXQoJy8nKVstMV0KICAgICAgICAgICAgaW50ZXJu\nYWxfYnlfc2x1Z1tzbHVnXSA9IHAKICAgIG1hdGNoZXMgPSBbXQogICAgdW5t\nYXRjaGVkX3NsID0gW10KICAgIGZvciBzcCBpbiBzaG9wbGluZV9saXN0Ogog\nICAgICAgIGhhbmRsZSA9IHNwLmdldCgnaGFuZGxlJywgJycpCiAgICAgICAg\naWYgaGFuZGxlIGluIGludGVybmFsX2J5X3NsdWc6CiAgICAgICAgICAgIG1h\ndGNoZXMuYXBwZW5kKChzcCwgaW50ZXJuYWxfYnlfc2x1Zy5wb3AoaGFuZGxl\nKSkpCiAgICAgICAgZWxzZToKICAgICAgICAgICAgdW5tYXRjaGVkX3NsLmFw\ncGVuZChzcCkKICAgIHVubWF0Y2hlZF9pbnQgPSBsaXN0KGludGVybmFsX2J5\nX3NsdWcudmFsdWVzKCkpCiAgICByZXR1cm4gbWF0Y2hlcywgdW5tYXRjaGVk\nX3NsLCB1bm1hdGNoZWRfaW50CgpkZWYgdmFsaWRhdGVfcHJpY2UocHJpY2Up\nOgogICAgaWYgbm90IGlzaW5zdGFuY2UocHJpY2UsIChpbnQsIGZsb2F0KSk6\nCiAgICAgICAgcmV0dXJuIEZhbHNlLCAnbm90IGEgbnVtYmVyJwogICAgaWYg\ncHJpY2UgPCAwOgogICAgICAgIHJldHVybiBGYWxzZSwgJ25lZ2F0aXZlJwog\nICAgaWYgcHJpY2UgPiA1MDAwMDoKICAgICAgICByZXR1cm4gRmFsc2UsICdz\ndXNwaWNpb3VzbHkgaGlnaCcKICAgIHJldHVybiBUcnVlLCAnb2snCgpkZWYg\nY29tcGFyZV9hbGwobWF0Y2hlcyk6CiAgICBkaWZmcyA9IFtdCiAgICBmb3Ig\nc2wsIGludGVybmFsIGluIG1hdGNoZXM6CiAgICAgICAgc2xfdGl0bGUgPSAn\nJwogICAgICAgIGZvciB0IGluIHNsLmdldCgndGl0bGVfdHJhbnNsYXRpb25z\nJywge30pLnZhbHVlcygpOgogICAgICAgICAgICBzbF90aXRsZSA9IHQKICAg\nICAgICAgICAgYnJlYWsKICAgICAgICBpZiBub3Qgc2xfdGl0bGU6CiAgICAg\nICAgICAgIHNsX3RpdGxlID0gc2wuZ2V0KCd0aXRsZScsIHNsLmdldCgnaGFu\nZGxlJywgJycpKQogICAgICAgIHNsX3NwZWNzID0gZXh0cmFjdF9zaG9wbGlu\nZV9zcGVjcyhzbCkKICAgICAgICBpbnRfc3BlY3MgPSBzZXQoaW50ZXJuYWwu\nZ2V0KCdfcHJpY2luZycsIHt9KS5nZXQoJ3NpemVzJywge30pLmtleXMoKSkK\nICAgICAgICBpZiBzbF9zcGVjcyBhbmQgaW50X3NwZWNzIGFuZCBzbF9zcGVj\ncyAhPSBpbnRfc3BlY3M6CiAgICAgICAgICAgIG9ubHlfc2wgPSBzbF9zcGVj\ncyAtIGludF9zcGVjcwogICAgICAgICAgICBvbmx5X2ludCA9IGludF9zcGVj\ncyAtIHNsX3NwZWNzCiAgICAgICAgICAgIGlmIG9ubHlfc2wgb3Igb25seV9p\nbnQ6CiAgICAgICAgICAgICAgICBkaWZmcy5hcHBlbmQoewogICAgICAgICAg\nICAgICAgICAgICdwcm9kdWN0X2lkJzogaW50ZXJuYWxbJ2lkJ10sCiAgICAg\nICAgICAgICAgICAgICAgJ3Byb2R1Y3RfbmFtZSc6IGludGVybmFsWyduYW1l\nJ10sCiAgICAgICAgICAgICAgICAgICAgJ3R5cGUnOiAnc3BlY19taXNtYXRj\naCcsCiAgICAgICAgICAgICAgICAgICAgJ3Nob3BsaW5lX29ubHknOiBzb3J0\nZWQob25seV9zbCksCiAgICAgICAgICAgICAgICAgICAgJ2ludGVybmFsX29u\nbHknOiBzb3J0ZWQob25seV9pbnQpLAogICAgICAgICAgICAgICAgICAgICdz\naG9wbGluZV9hbGwnOiBzb3J0ZWQoc2xfc3BlY3MpLAogICAgICAgICAgICAg\nICAgICAgICdpbnRlcm5hbF9hbGwnOiBzb3J0ZWQoaW50X3NwZWNzKQogICAg\nICAgICAgICAgICAgfSkKICAgICAgICBzbF9pbWdzID0gW10KICAgICAgICBm\nb3IgaW1nIGluIHNsLmdldCgnaW1hZ2VzJywgW10pOgogICAgICAgICAgICBz\ncmMgPSBpbWcuZ2V0KCdvcmlnaW5hbF91cmwnLCBpbWcuZ2V0KCd1cmwnLCAn\nJykpCiAgICAgICAgICAgIGlmIHNyYzoKICAgICAgICAgICAgICAgIHNsX2lt\nZ3MuYXBwZW5kKHNyYy5zcGxpdCgnPycpWzBdKQogICAgICAgIGludF9pbWdz\nID0gW3Uuc3BsaXQoJz8nKVswXSBmb3IgdSBpbiBpbnRlcm5hbC5nZXQoJ19p\nbWdzJywgW10pXQogICAgICAgIGlmIHNsX2ltZ3MgYW5kIG5vdCBpbnRfaW1n\nczoKICAgICAgICAgICAgZGlmZnMuYXBwZW5kKHsKICAgICAgICAgICAgICAg\nICdwcm9kdWN0X2lkJzogaW50ZXJuYWxbJ2lkJ10sCiAgICAgICAgICAgICAg\nICAncHJvZHVjdF9uYW1lJzogaW50ZXJuYWxbJ25hbWUnXSwKICAgICAgICAg\nICAgICAgICd0eXBlJzogJ21pc3NpbmdfaW1hZ2UnLAogICAgICAgICAgICAg\nICAgJ3Nob3BsaW5lX2ltYWdlcyc6IHNsX2ltZ3NbOjNdCiAgICAgICAgICAg\nIH0pCiAgICByZXR1cm4gZGlmZnMKCmRlZiBnZW5lcmF0ZV9yZXBvcnQoZGlm\nZnMsIHVubWF0Y2hlZF9zbCwgdW5tYXRjaGVkX2ludCk6CiAgICBsaW5lcyA9\nIFsnIyBCYXJkU2hvcCBTaG9wbGluZSBTeW5jIFJlcG9ydFxuJ10KICAgIGxp\nbmVzLmFwcGVuZChmJ0dlbmVyYXRlZDoge29zLnBvcGVuKCJkYXRlIikucmVh\nZCgpLnN0cmlwKCl9XG4nKQogICAgaWYgbm90IGRpZmZzIGFuZCBub3QgdW5t\nYXRjaGVkX3NsOgogICAgICAgIGxpbmVzLmFwcGVuZCgnIyMgQWxsIHN5bmNl\nZCEgTm8gZGlmZmVyZW5jZXMgZm91bmQuXG4nKQogICAgICAgIHJldHVybiAn\nXG4nLmpvaW4obGluZXMpCiAgICBpZiBkaWZmczoKICAgICAgICBsaW5lcy5h\ncHBlbmQoZicjIyBGb3VuZCB7bGVuKGRpZmZzKX0gZGlmZmVyZW5jZShzKVxu\nJykKICAgICAgICBmb3IgZCBpbiBkaWZmczoKICAgICAgICAgICAgbGluZXMu\nYXBwZW5kKGYnIyMjIHtkWyJwcm9kdWN0X25hbWUiXX0gKFx4NjB7ZFsicHJv\nZHVjdF9pZCJdfVx4NjApJykKICAgICAgICAgICAgaWYgZFsndHlwZSddID09\nICdzcGVjX21pc21hdGNoJzoKICAgICAgICAgICAgICAgIGxpbmVzLmFwcGVu\nZChmJyoqVHlwZToqKiBTcGVjIG5hbWUgbWlzbWF0Y2gnKQogICAgICAgICAg\nICAgICAgaWYgZFsnc2hvcGxpbmVfb25seSddOgogICAgICAgICAgICAgICAg\nICAgIGxpbmVzLmFwcGVuZChmJy0gU2hvcGxpbmUgaGFzOiB7IiwgIi5qb2lu\nKGRbInNob3BsaW5lX29ubHkiXSl9JykKICAgICAgICAgICAgICAgIGlmIGRb\nJ2ludGVybmFsX29ubHknXToKICAgICAgICAgICAgICAgICAgICBsaW5lcy5h\ncHBlbmQoZictIEludGVybmFsIERCIGhhczogeyIsICIuam9pbihkWyJpbnRl\ncm5hbF9vbmx5Il0pfScpCiAgICAgICAgICAgICAgICBsaW5lcy5hcHBlbmQo\nZictIFNob3BsaW5lIHNwZWNzOiB7ZFsic2hvcGxpbmVfYWxsIl19JykKICAg\nICAgICAgICAgICAgIGxpbmVzLmFwcGVuZChmJy0gSW50ZXJuYWwgc3BlY3M6\nIHtkWyJpbnRlcm5hbF9hbGwiXX0nKQogICAgICAgICAgICBlbGlmIGRbJ3R5\ncGUnXSA9PSAnbWlzc2luZ19pbWFnZSc6CiAgICAgICAgICAgICAgICBsaW5l\ncy5hcHBlbmQoZicqKlR5cGU6KiogTWlzc2luZyBpbWFnZSBpbiBpbnRlcm5h\nbCBEQicpCiAgICAgICAgICAgICAgICBsaW5lcy5hcHBlbmQoZictIFNob3Bs\naW5lIGltYWdlcyBhdmFpbGFibGU6IHtsZW4oZFsic2hvcGxpbmVfaW1hZ2Vz\nIl0pfScpCiAgICAgICAgICAgIGxpbmVzLmFwcGVuZCgnJykKICAgIGlmIHVu\nbWF0Y2hlZF9zbDoKICAgICAgICBsaW5lcy5hcHBlbmQoZicjIyB7bGVuKHVu\nbWF0Y2hlZF9zbCl9IFNob3BsaW5lIHByb2R1Y3Qocykgbm90IGluIGludGVy\nbmFsIERCXG4nKQogICAgICAgIGZvciBzcCBpbiB1bm1hdGNoZWRfc2w6CiAg\nICAgICAgICAgIHRpdGxlID0gJycKICAgICAgICAgICAgZm9yIHQgaW4gc3Au\nZ2V0KCd0aXRsZV90cmFuc2xhdGlvbnMnLCB7fSkudmFsdWVzKCk6CiAgICAg\nICAgICAgICAgICB0aXRsZSA9IHQKICAgICAgICAgICAgICAgIGJyZWFrCiAg\nICAgICAgICAgIGxpbmVzLmFwcGVuZChmJy0gKip7dGl0bGUgb3Igc3AuZ2V0\nKCJoYW5kbGUiLCAiPyIpfSoqIChceDYwe3NwLmdldCgiaGFuZGxlIiwgIiIp\nfVx4NjApJykKICAgICAgICBsaW5lcy5hcHBlbmQoJycpCiAgICBpZiB1bm1h\ndGNoZWRfaW50OgogICAgICAgIGxpbmVzLmFwcGVuZChmJyMjIHtsZW4odW5t\nYXRjaGVkX2ludCl9IGludGVybmFsIHByb2R1Y3Qocykgbm90IG9uIFNob3Bs\naW5lXG4nKQogICAgICAgIGZvciBwIGluIHVubWF0Y2hlZF9pbnRbOjIwXToK\nICAgICAgICAgICAgbGluZXMuYXBwZW5kKGYnLSB7cFsibmFtZSJdfSAoXHg2\nMHtwWyJpZCJdfVx4NjApJykKICAgICAgICBpZiBsZW4odW5tYXRjaGVkX2lu\ndCkgPiAyMDoKICAgICAgICAgICAgbGluZXMuYXBwZW5kKGYnLSAuLi4gYW5k\nIHtsZW4odW5tYXRjaGVkX2ludCkgLSAyMH0gbW9yZScpCiAgICAgICAgbGlu\nZXMuYXBwZW5kKCcnKQogICAgcmV0dXJuICdcbicuam9pbihsaW5lcykKCmRl\nZiBjcmVhdGVfZ2l0aHViX2lzc3VlKHRpdGxlLCBib2R5KToKICAgIGRhdGEg\nPSBqc29uLmR1bXBzKHsndGl0bGUnOiB0aXRsZSwgJ2JvZHknOiBib2R5LCAn\nbGFiZWxzJzogWydzeW5jLXJlcG9ydCddfSkuZW5jb2RlKCkKICAgIHJlcSA9\nIHVybGxpYi5yZXF1ZXN0LlJlcXVlc3QoCiAgICAgICAgZidodHRwczovL2Fw\naS5naXRodWIuY29tL3JlcG9zL3tSRVBPfS9pc3N1ZXMnLAogICAgICAgIGRh\ndGE9ZGF0YSwKICAgICAgICBoZWFkZXJzPXsKICAgICAgICAgICAgJ0F1dGhv\ncml6YXRpb24nOiBmJ3Rva2VuIHtHSVRIVUJfVE9LRU59JywKICAgICAgICAg\nICAgJ0NvbnRlbnQtVHlwZSc6ICdhcHBsaWNhdGlvbi9qc29uJwogICAgICAg\nIH0sCiAgICAgICAgbWV0aG9kPSdQT1NUJwogICAgKQogICAgd2l0aCB1cmxs\naWIucmVxdWVzdC51cmxvcGVuKHJlcSkgYXMgcjoKICAgICAgICByZXN1bHQg\nPSBqc29uLmxvYWRzKHIucmVhZCgpKQogICAgICAgIHJldHVybiByZXN1bHQu\nZ2V0KCdodG1sX3VybCcsICcnKQoKZGVmIHNlbmRfbGluZV9ub3RpZnkobWVz\nc2FnZSk6CiAgICBpZiBub3QgTElORV9UT0tFTjoKICAgICAgICByZXR1cm4K\nICAgIHRyeToKICAgICAgICBkYXRhID0gdXJsbGliLnBhcnNlLnVybGVuY29k\nZSh7J21lc3NhZ2UnOiBtZXNzYWdlfSkuZW5jb2RlKCkKICAgICAgICByZXEg\nPSB1cmxsaWIucmVxdWVzdC5SZXF1ZXN0KAogICAgICAgICAgICAnaHR0cHM6\nLy9ub3RpZnktYXBpLmxpbmUubWUvYXBpL25vdGlmeScsCiAgICAgICAgICAg\nIGRhdGE9ZGF0YSwKICAgICAgICAgICAgaGVhZGVycz17J0F1dGhvcml6YXRp\nb24nOiBmJ0JlYXJlciB7TElORV9UT0tFTn0nfQogICAgICAgICkKICAgICAg\nICB1cmxsaWIucmVxdWVzdC51cmxvcGVuKHJlcSkKICAgIGV4Y2VwdCBFeGNl\ncHRpb24gYXMgZToKICAgICAgICBwcmludChmJ1tXQVJOXSBMSU5FIE5vdGlm\neSBmYWlsZWQ6IHtlfScpCgpkZWYgcHVzaF90b19naXRodWIoaHRtbCwgbWVz\nc2FnZSk6CiAgICBzaGEgPSBmZXRjaF9pbmRleF9zaGEoKQogICAgY29udGVu\ndF9iNjQgPSBiYXNlNjQuYjY0ZW5jb2RlKGh0bWwuZW5jb2RlKCd1dGYtOCcp\nKS5kZWNvZGUoJ2FzY2lpJykKICAgIGRhdGEgPSBqc29uLmR1bXBzKHsKICAg\nICAgICAnbWVzc2FnZSc6IG1lc3NhZ2UsCiAgICAgICAgJ2NvbnRlbnQnOiBj\nb250ZW50X2I2NCwKICAgICAgICAnc2hhJzogc2hhCiAgICB9KS5lbmNvZGUo\nKQogICAgcmVxID0gdXJsbGliLnJlcXVlc3QuUmVxdWVzdCgKICAgICAgICBm\nJ2h0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3Mve1JFUE99L2NvbnRlbnRz\nL2luZGV4Lmh0bWwnLAogICAgICAgIGRhdGE9ZGF0YSwKICAgICAgICBoZWFk\nZXJzPXsKICAgICAgICAgICAgJ0F1dGhvcml6YXRpb24nOiBmJ3Rva2VuIHtH\nSVRIVUJfVE9LRU59JywKICAgICAgICAgICAgJ0NvbnRlbnQtVHlwZSc6ICdh\ncHBsaWNhdGlvbi9qc29uJwogICAgICAgIH0sCiAgICAgICAgbWV0aG9kPSdQ\nVVQnCiAgICApCiAgICB3aXRoIHVybGxpYi5yZXF1ZXN0LnVybG9wZW4ocmVx\nKSBhcyByOgogICAgICAgIHJlc3VsdCA9IGpzb24ubG9hZHMoci5yZWFkKCkp\nCiAgICAgICAgcmV0dXJuIHJlc3VsdC5nZXQoJ2NvbnRlbnQnLCB7fSkuZ2V0\nKCdzaGEnLCAnJykKCmRlZiBtYWluKCk6CiAgICBwcmludCgnPT09IEJhcmRT\naG9wIFNob3BsaW5lIFN5bmMgPT09JykKICAgIHByaW50KGYnTW9kZToge01P\nREV9JykKICAgIHByaW50KGYnVG9rZW4gcHJlc2VudDoge2Jvb2woU0hPUExJ\nTkVfVE9LRU4pfSAobGVuPXtsZW4oU0hPUExJTkVfVE9LRU4pfSknKQogICAg\ncHJpbnQoZidHaXRIdWIgdG9rZW4gcHJlc2VudDoge2Jvb2woR0lUSFVCX1RP\nS0VOKX0gKGxlbj17bGVuKEdJVEhVQl9UT0tFTil9KScpCgogICAgcHJpbnQo\nJ1sxLzRdIEZldGNoaW5nIFNob3BsaW5lIHByb2R1Y3RzLi4uJykKICAgIHNs\nX3Byb2R1Y3RzID0gZmV0Y2hfc2hvcGxpbmVfcHJvZHVjdHMoKQogICAgcHJp\nbnQoZicgIEZvdW5kIHtsZW4oc2xfcHJvZHVjdHMpfSBTaG9wbGluZSBwcm9k\ndWN0cycpCgogICAgcHJpbnQoJ1syLzRdIEZldGNoaW5nIGludGVybmFsIGRh\ndGFiYXNlLi4uJykKICAgIGh0bWwgPSBmZXRjaF9pbmRleF9odG1sKCkKICAg\nIGludF9wcm9kdWN0cywgb2IsIGNiID0gcGFyc2VfcHJvZHVjdHMoaHRtbCkK\nICAgIHByaW50KGYnICBGb3VuZCB7bGVuKGludF9wcm9kdWN0cyl9IGludGVy\nbmFsIHByb2R1Y3RzJykKCiAgICBwcmludCgnWzMvNF0gQ29tcGFyaW5nLi4u\nJykKICAgIG1hdGNoZXMsIHVubWF0Y2hlZF9zbCwgdW5tYXRjaGVkX2ludCA9\nIG1hdGNoX3Byb2R1Y3RzKHNsX3Byb2R1Y3RzLCBpbnRfcHJvZHVjdHMpCiAg\nICBwcmludChmJyAgTWF0Y2hlZDoge2xlbihtYXRjaGVzKX0sIFNob3BsaW5l\nLW9ubHk6IHtsZW4odW5tYXRjaGVkX3NsKX0sIEludGVybmFsLW9ubHk6IHts\nZW4odW5tYXRjaGVkX2ludCl9JykKCiAgICBkaWZmcyA9IGNvbXBhcmVfYWxs\nKG1hdGNoZXMpCiAgICBwcmludChmJyAgRGlmZmVyZW5jZXMgZm91bmQ6IHts\nZW4oZGlmZnMpfScpCgogICAgcmVwb3J0ID0gZ2VuZXJhdGVfcmVwb3J0KGRp\nZmZzLCB1bm1hdGNoZWRfc2wsIHVubWF0Y2hlZF9pbnQpCiAgICBwcmludCgn\nXG4nICsgcmVwb3J0KQoKICAgIHByaW50KCdbNC80XSBDcmVhdGluZyByZXBv\ncnQuLi4nKQogICAgaWYgZGlmZnMgb3IgdW5tYXRjaGVkX3NsOgogICAgICAg\nIGlzc3VlX3VybCA9IGNyZWF0ZV9naXRodWJfaXNzdWUoJ1tTeW5jXSBTaG9w\nbGluZSBjb21wYXJpc29uIHJlcG9ydCcsIHJlcG9ydCkKICAgICAgICBwcmlu\ndChmJyAgSXNzdWUgY3JlYXRlZDoge2lzc3VlX3VybH0nKQogICAgICAgIHN1\nbW1hcnkgPSBmJ1xuQmFyZFNob3AgU3luYyBSZXBvcnRcbicKICAgICAgICBz\ndW1tYXJ5ICs9IGYnRGlmZjoge2xlbihkaWZmcyl9XG4nCiAgICAgICAgc3Vt\nbWFyeSArPSBmJ1Nob3BsaW5lIG5ldzoge2xlbih1bm1hdGNoZWRfc2wpfVxu\nJwogICAgICAgIGlmIGRpZmZzOgogICAgICAgICAgICBmb3IgZCBpbiBkaWZm\nc1s6M106CiAgICAgICAgICAgICAgICBzdW1tYXJ5ICs9IGYnLSB7ZFsicHJv\nZHVjdF9uYW1lIl19OiB7ZFsidHlwZSJdfVxuJwogICAgICAgIHN1bW1hcnkg\nKz0gZidcbkRldGFpbHM6IHtpc3N1ZV91cmx9JwogICAgICAgIHNlbmRfbGlu\nZV9ub3RpZnkoc3VtbWFyeSkKICAgIGVsc2U6CiAgICAgICAgcHJpbnQoJyAg\nTm8gZGlmZmVyZW5jZXMgLSBubyBpc3N1ZSBjcmVhdGVkLicpCiAgICAgICAg\nc2VuZF9saW5lX25vdGlmeSgnXG5CYXJkU2hvcCBTeW5jOiBBbGwgc3luY2Vk\nJykKCiAgICB3YXJuaW5ncyA9IFtdCiAgICBmb3IgcCBpbiBpbnRfcHJvZHVj\ndHM6CiAgICAgICAgc2l6ZXMgPSBwLmdldCgnX3ByaWNpbmcnLCB7fSkuZ2V0\nKCdzaXplcycsIHt9KQogICAgICAgIGZvciBzaXplX25hbWUsIHNpemVfZGF0\nYSBpbiBzaXplcy5pdGVtcygpOgogICAgICAgICAgICBmb3IgcHJpY2UgaW4g\nc2l6ZV9kYXRhLmdldCgncHJpY2VzJywgW10pOgogICAgICAgICAgICAgICAg\nb2ssIHJlYXNvbiA9IHZhbGlkYXRlX3ByaWNlKHByaWNlKQogICAgICAgICAg\nICAgICAgaWYgbm90IG9rOgogICAgICAgICAgICAgICAgICAgIHdhcm5pbmdz\nLmFwcGVuZChmJ3twWyJuYW1lIl19IC8ge3NpemVfbmFtZX06IHtwcmljZX0g\nKHtyZWFzb259KScpCiAgICBpZiB3YXJuaW5nczoKICAgICAgICBwcmludChm\nJ1xuUHJpY2UgdmFsaWRhdGlvbiB3YXJuaW5ncyAoe2xlbih3YXJuaW5ncyl9\nKTonKQogICAgICAgIGZvciB3IGluIHdhcm5pbmdzWzoxMF06CiAgICAgICAg\nICAgIHByaW50KGYnICAtIHt3fScpCgogICAgcHJpbnQoJ1xuPT09IERvbmUg\nPT09JykKCmlmIF9fbmFtZV9fID09ICdfX21haW5fXyc6CiAgICBtYWluKCkK\n",
-  "encoding": "base64",
-  "_links": {
-    "self": "https://api.github.com/repos/bardshop/bardshop.github.io/contents/scripts/sync_shopline.py?ref=main",
-    "git": "https://api.github.com/repos/bardshop/bardshop.github.io/git/blobs/d024137c96488d25e213a3b7bf6693f98f062935",
-    "html": "https://github.com/bardshop/bardshop.github.io/blob/main/scripts/sync_shopline.py"
-  }
-}
+#!/usr/bin/env python3
+"""
+BardShop x Shopline Sync Tool
+Compares Shopline products with internal database, generates diff report,
+and optionally applies spec name changes.
+"""
+import json, os, re, sys, urllib.request, urllib.error, base64
+
+SHOPLINE_API = 'https://open.shopline.io/v1'
+SHOPLINE_TOKEN = os.environ.get('SHOPLINE_TOKEN', '')
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
+REPO = 'bardshop/bardshop.github.io'
+MODE = os.environ.get('SYNC_MODE', 'report')  # 'report' or 'apply'
+LINE_TOKEN = os.environ.get('LINE_NOTIFY_TOKEN', '')
+
+def api_get(url, headers):
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req) as r:
+        return json.loads(r.read().decode('utf-8'))
+
+def api_get_text(url, headers):
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req) as r:
+        return r.read().decode('utf-8')
+
+def fetch_shopline_products():
+    products = []
+    page = 1
+    while True:
+        try:
+            data = api_get(
+                f'{SHOPLINE_API}/products?per_page=100&page={page}',
+                {'Authorization': f'Bearer {SHOPLINE_TOKEN}', 'Accept': 'application/json', 'User-Agent': 'BardShop Sync'}
+            )
+        except urllib.error.HTTPError as e:
+            print(f'[ERROR] Shopline API error: {e.code} {e.reason}')
+            sys.exit(1)
+        items = data.get('items', data.get('data', []))
+        if not items:
+            break
+        products.extend(items)
+        if len(items) < 100:
+            break
+        page += 1
+    return products
+
+def fetch_index_html():
+    html = api_get_text(
+        f'https://api.github.com/repos/{REPO}/contents/index.html',
+        {'Authorization': f'token {GITHUB_TOKEN}', 'Accept': 'application/vnd.github.v3.raw'}
+    )
+    return html
+
+def fetch_index_sha():
+    data = api_get(
+        f'https://api.github.com/repos/{REPO}/contents/index.html',
+        {'Authorization': f'token {GITHUB_TOKEN}'}
+    )
+    return data['sha']
+
+def parse_products(html):
+    idx = html.index('const PRODUCTS')
+    ob = html.index('[', idx)
+    depth = 0
+    cb = -1
+    for i in range(ob, len(html)):
+        if html[i] == '[':
+            depth += 1
+        elif html[i] == ']':
+            depth -= 1
+            if depth == 0:
+                cb = i
+                break
+    return json.loads(html[ob:cb+1]), ob, cb
+
+def rebuild_html(html, ob, cb, products):
+    new_array = json.dumps(products, ensure_ascii=False, indent=2)
+    new_array = new_array.replace('\n', '\n ')
+    return html[:ob] + new_array + html[cb+1:]
+
+def extract_shopline_specs(product):
+    """Extract variant spec names from a Shopline product."""
+    specs = set()
+    for v in product.get('variants', []):
+        parts = []
+        for ov in v.get('option_values', []):
+            val = ov.get('value', '')
+            if val:
+                parts.append(val)
+        if parts:
+            specs.add(' / '.join(parts))
+    return specs
+
+def match_products(shopline_list, internal_list):
+    """Match products by Shopline handle <-> internal URL slug."""
+    internal_by_slug = {}
+    for p in internal_list:
+        url = p.get('url', '')
+        if url:
+            slug = url.rstrip('/').split('/')[-1]
+            internal_by_slug[slug] = p
+
+    matches = []
+    unmatched_sl = []
+    for sp in shopline_list:
+        handle = sp.get('handle', '')
+        if handle in internal_by_slug:
+            matches.append((sp, internal_by_slug.pop(handle)))
+        else:
+            unmatched_sl.append(sp)
+
+    unmatched_int = list(internal_by_slug.values())
+    return matches, unmatched_sl, unmatched_int
+
+def validate_price(price):
+    """Check if a price value is sane."""
+    if not isinstance(price, (int, float)):
+        return False, 'not a number'
+    if price < 0:
+        return False, 'negative'
+    if price > 50000:
+        return False, 'suspiciously high'
+    return True, 'ok'
+
+def compare_all(matches):
+    """Compare matched products and return diffs."""
+    diffs = []
+    for sl, internal in matches:
+        sl_title = ''
+        for t in sl.get('title_translations', {}).values():
+            sl_title = t
+            break
+        if not sl_title:
+            sl_title = sl.get('title', sl.get('handle', ''))
+
+        sl_specs = extract_shopline_specs(sl)
+        int_specs = set(internal.get('_pricing', {}).get('sizes', {}).keys())
+
+        # Spec name comparison
+        if sl_specs and int_specs and sl_specs != int_specs:
+            only_sl = sl_specs - int_specs
+            only_int = int_specs - sl_specs
+            if only_sl or only_int:
+                diffs.append({
+                    'product_id': internal['id'],
+                    'product_name': internal['name'],
+                    'type': 'spec_mismatch',
+                    'shopline_only': sorted(only_sl),
+                    'internal_only': sorted(only_int),
+                    'shopline_all': sorted(sl_specs),
+                    'internal_all': sorted(int_specs)
+                })
+
+        # Image comparison
+        sl_imgs = []
+        for img in sl.get('images', []):
+            src = img.get('original_url', img.get('url', ''))
+            if src:
+                sl_imgs.append(src.split('?')[0])
+        int_imgs = [u.split('?')[0] for u in internal.get('_imgs', [])]
+        if sl_imgs and not int_imgs:
+            diffs.append({
+                'product_id': internal['id'],
+                'product_name': internal['name'],
+                'type': 'missing_image',
+                'shopline_images': sl_imgs[:3]
+            })
+
+    return diffs
+
+def generate_report(diffs, unmatched_sl, unmatched_int):
+    """Generate markdown report."""
+    lines = ['# BardShop Shopline Sync Report\n']
+    lines.append(f'Generated: {os.popen("date").read().strip()}\n')
+
+    if not diffs and not unmatched_sl:
+        lines.append('## ✅ All synced! No differences found.\n')
+        return '\n'.join(lines)
+
+    if diffs:
+        lines.append(f'## ⚠️ Found {len(diffs)} difference(s)\n')
+        for d in diffs:
+            lines.append(f'### {d["product_name"]} (`{d["product_id"]}`)')
+            if d['type'] == 'spec_mismatch':
+                lines.append(f'**Type:** Spec name mismatch')
+                if d['shopline_only']:
+                    lines.append(f'- Shopline has: {", ".join(d["shopline_only"])}')
+                if d['internal_only']:
+                    lines.append(f'- Internal DB has: {", ".join(d["internal_only"])}')
+                lines.append(f'- Shopline specs: {d["shopline_all"]}')
+                lines.append(f'- Internal specs: {d["internal_all"]}')
+            elif d['type'] == 'missing_image':
+                lines.append(f'**Type:** Missing image in internal DB')
+                lines.append(f'- Shopline images available: {len(d["shopline_images"])}')
+            lines.append('')
+
+    if unmatched_sl:
+        lines.append(f'## 🆕 {len(unmatched_sl)} Shopline product(s) not in internal DB\n')
+        for sp in unmatched_sl:
+            title = ''
+            for t in sp.get('title_translations', {}).values():
+                title = t
+                break
+            lines.append(f'- **{title or sp.get("handle", "?")}** (`{sp.get("handle", "")}`)')
+        lines.append('')
+
+    if unmatched_int:
+        lines.append(f'## 📦 {len(unmatched_int)} internal product(s) not on Shopline\n')
+        for p in unmatched_int[:20]:
+            lines.append(f'- {p["name"]} (`{p["id"]}`)')
+        if len(unmatched_int) > 20:
+            lines.append(f'- ... and {len(unmatched_int) - 20} more')
+        lines.append('')
+
+    return '\n'.join(lines)
+
+def create_github_issue(title, body):
+    """Create a GitHub issue with the report."""
+    data = json.dumps({'title': title, 'body': body, 'labels': ['sync-report']}).encode()
+    req = urllib.request.Request(
+        f'https://api.github.com/repos/{REPO}/issues',
+        data=data,
+        headers={
+            'Authorization': f'token {GITHUB_TOKEN}',
+            'Content-Type': 'application/json'
+        },
+        method='POST'
+    )
+    with urllib.request.urlopen(req) as r:
+        result = json.loads(r.read())
+        return result.get('html_url', '')
+
+def send_line_notify(message):
+    """Send LINE Notify message."""
+    if not LINE_TOKEN:
+        return
+    try:
+        data = urllib.parse.urlencode({'message': message}).encode()
+        req = urllib.request.Request(
+            'https://notify-api.line.me/api/notify',
+            data=data,
+            headers={'Authorization': f'Bearer {LINE_TOKEN}'}
+        )
+        urllib.request.urlopen(req)
+    except Exception as e:
+        print(f'[WARN] LINE Notify failed: {e}')
+
+def push_to_github(html, message):
+    """Push updated index.html to GitHub."""
+    sha = fetch_index_sha()
+    content_b64 = base64.b64encode(html.encode('utf-8')).decode('ascii')
+    data = json.dumps({
+        'message': message,
+        'content': content_b64,
+        'sha': sha
+    }).encode()
+    req = urllib.request.Request(
+        f'https://api.github.com/repos/{REPO}/contents/index.html',
+        data=data,
+        headers={
+            'Authorization': f'token {GITHUB_TOKEN}',
+            'Content-Type': 'application/json'
+        },
+        method='PUT'
+    )
+    with urllib.request.urlopen(req) as r:
+        result = json.loads(r.read())
+        return result.get('content', {}).get('sha', '')
+
+def main():
+    print('=== BardShop Shopline Sync ===')
+    print(f'Mode: {MODE}')
+
+    # 1. Fetch data
+    print('[1/4] Fetching Shopline products...')
+    sl_products = fetch_shopline_products()
+    print(f'  Found {len(sl_products)} Shopline products')
+
+    print('[2/4] Fetching internal database...')
+    html = fetch_index_html()
+    int_products, ob, cb = parse_products(html)
+    print(f'  Found {len(int_products)} internal products')
+
+    # 2. Match & Compare
+    print('[3/4] Comparing...')
+    matches, unmatched_sl, unmatched_int = match_products(sl_products, int_products)
+    print(f'  Matched: {len(matches)}, Shopline-only: {len(unmatched_sl)}, Internal-only: {len(unmatched_int)}')
+
+    diffs = compare_all(matches)
+    print(f'  Differences found: {len(diffs)}')
+
+    # 3. Generate report
+    report = generate_report(diffs, unmatched_sl, unmatched_int)
+    print('\n' + report)
+
+    # 4. Create GitHub Issue
+    print('[4/4] Creating report...')
+    if diffs or unmatched_sl:
+        issue_url = create_github_issue(
+            f'[Sync] Shopline comparison report',
+            report
+        )
+        print(f'  Issue created: {issue_url}')
+
+        # LINE notification
+        summary = f'\n🔄 BardShop Sync Report\n'
+        summary += f'差異: {len(diffs)} 項\n'
+        summary += f'Shopline新商品: {len(unmatched_sl)} 項\n'
+        if diffs:
+            for d in diffs[:3]:
+                summary += f'- {d["product_name"]}: {d["type"]}\n'
+        summary += f'\n詳情: {issue_url}'
+        send_line_notify(summary)
+    else:
+        print('  No differences - no issue created.')
+        send_line_notify('\n✅ BardShop Sync: 全部一致，無需更新')
+
+    # Price validation for all internal products
+    warnings = []
+    for p in int_products:
+        sizes = p.get('_pricing', {}).get('sizes', {})
+        for size_name, size_data in sizes.items():
+            for price in size_data.get('prices', []):
+                ok, reason = validate_price(price)
+                if not ok:
+                    warnings.append(f'{p["name"]} / {size_name}: {price} ({reason})')
+    if warnings:
+        print(f'\n⚠️ Price validation warnings ({len(warnings)}):')
+        for w in warnings[:10]:
+            print(f'  - {w}')
+
+    print('\n=== Done ===')
+
+if __name__ == '__main__':
+    main()
