@@ -1,0 +1,52 @@
+name: Rollback to Safe Point
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to rollback to (e.g. safe-20260519)'
+        required: true
+        default: 'safe-20260519'
+        type: string
+      confirm:
+        description: 'Type CONFIRM to proceed'
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Validate confirmation
+        if: ${{ github.event.inputs.confirm != 'CONFIRM' }}
+        run: |
+          echo "You must type CONFIRM to proceed with rollback."
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rollback to tag
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          echo "Rolling back to tag: $TAG"
+          if ! git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag '$TAG' not found!"
+            echo "Available tags:"
+            git tag -l
+            exit 1
+          fi
+          git checkout "refs/tags/$TAG" -- index.html
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add index.html
+          git commit -m "Rollback index.html to tag $TAG"
+          git push
+
+      - name: Done
+        run: echo "Successfully rolled back to ${{ github.event.inputs.tag }}"
