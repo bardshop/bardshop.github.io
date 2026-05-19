@@ -81,7 +81,8 @@ def rebuild_html(html, ob, cb, products):
 def extract_shopline_specs(product):
     """Extract variant spec names from a Shopline product."""
     specs = set()
-    for v in product.get('variants', []):
+    # Shopline API uses 'variations' (not 'variants')
+    for v in product.get('variations', product.get('variants', [])):
         parts = []
         for ov in v.get('option_values', []):
             val = ov.get('value', '')
@@ -105,11 +106,22 @@ def get_shopline_slug(product):
     slug = product.get('slug', '')
     if slug:
         return slug
-    # Try extracting from link/url
-    for field in ('link', 'url', 'product_url'):
+    # Try extracting from link field (Shopline returns full URL or path)
+    link = product.get('link', '')
+    if link:
+        # Remove query params and fragments
+        link_clean = link.split('?')[0].split('#')[0]
+        last_seg = link_clean.rstrip('/').split('/')[-1]
+        if last_seg and last_seg not in ('products', ''):
+            return last_seg
+    # Try url/product_url fields
+    for field in ('url', 'product_url'):
         val = product.get(field, '')
-        if val and '/products/' in val:
-            return val.rstrip('/').split('/')[-1]
+        if val:
+            val_clean = val.split('?')[0].split('#')[0]
+            last_seg = val_clean.rstrip('/').split('/')[-1]
+            if last_seg and last_seg not in ('products', ''):
+                return last_seg
     return ''
 
 def match_products(shopline_list, internal_list):
@@ -119,7 +131,12 @@ def match_products(shopline_list, internal_list):
         p0 = shopline_list[0]
         print(f'  [DEBUG] Shopline product keys: {sorted(p0.keys())}')
         print(f'  [DEBUG] Sample handle={p0.get("handle","")!r} permalink={p0.get("permalink","")!r} slug={p0.get("slug","")!r}')
+        print(f'  [DEBUG] Sample link={p0.get("link","")!r}')
         print(f'  [DEBUG] Resolved slug: {get_shopline_slug(p0)!r}')
+        # Print first 3 internal slugs for comparison
+        if internal_list:
+            sample_urls = [p.get('url','') for p in internal_list[:3]]
+            print(f'  [DEBUG] Sample internal URLs: {sample_urls}')
 
     internal_by_slug = {}
     for p in internal_list:
