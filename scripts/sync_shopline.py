@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-BardShop x Shopline Sync Tool
+BardShop x Shopline Sync Tool v4
 Compares Shopline products with internal database, generates diff report,
-and optionally applies spec name changes.
+auto-creates new product entries, and optionally applies spec name changes.
 """
-import json, os, re, sys, urllib.request, urllib.error, base64
+import json, os, re, sys, urllib.request, urllib.error, urllib.parse, base64
 
 SHOPLINE_API = 'https://open.shopline.io/v1'
 SHOPLINE_TOKEN = os.environ.get('SHOPLINE_TOKEN', '')
@@ -12,6 +12,54 @@ GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
 REPO = 'bardshop/bardshop.github.io'
 MODE = os.environ.get('SYNC_MODE', 'report')  # 'report' or 'apply'
 LINE_TOKEN = os.environ.get('LINE_NOTIFY_TOKEN', '')
+SHOP_DOMAIN = 'https://www.bardshoptw.com'
+
+# --- Category mapping from Shopline category names to internal categories ---
+CATEGORY_MAP = {
+    '壓克力': '壓克力商品',
+    '鑰匙圈': '壓克力商品',
+    '胸章': '特殊貼紙/胸章',
+    '徽章': '特殊貼紙/胸章',
+    '貼紙': '特殊貼紙/胸章',
+    '杯墊': '杯墊/皂墊/地墊',
+    '地墊': '杯墊/皂墊/地墊',
+    '馬克杯': '馬克杯/保溫水瓶',
+    '保溫': '馬克杯/保溫水瓶',
+    '水瓶': '馬克杯/保溫水瓶',
+    '掛軸': '掛軸/海報/畫類',
+    '海報': '掛軸/海報/畫類',
+    '卡片': '電子票證/卡片',
+    '票證': '電子票證/卡片',
+    '悠遊卡': '電子票證/卡片',
+    'NFC': '電子票證/卡片',
+    '行動電源': '數位週邊',
+    '充電': '數位週邊',
+    'USB': '數位週邊',
+    '滑鼠墊': '數位週邊',
+    '手機': '數位週邊',
+    'T恤': '衣著服飾',
+    '帽': '衣著服飾',
+    '襪': '衣著服飾',
+    '圍裙': '衣著服飾',
+    '背心': '衣著服飾',
+    '提袋': '提袋/束口袋',
+    '束口袋': '提袋/束口袋',
+    '帆布袋': '提袋/束口袋',
+    '收納袋': '提袋/束口袋',
+    'PVC': '提袋/束口袋',
+    '抱枕': '抱枕/玩偶',
+    '玩偶': '抱枕/玩偶',
+    '娃': '抱枕/玩偶',
+    '毛巾': '織品布類',
+    '旗幟': '織品布類',
+    '布': '織品布類',
+    '木': '木製商品',
+    '皮革': '皮革製品',
+    '金屬': '金屬製品',
+    '包裝': '包裝/配件',
+    '紙袋': '包裝/配件',
+    '代工': '客製化代工/服務',
+}
 
 def api_get(url, headers):
     req = urllib.request.Request(url, headers=headers)
@@ -81,7 +129,6 @@ def rebuild_html(html, ob, cb, products):
 def extract_shopline_specs(product):
     """Extract variant spec names from a Shopline product."""
     specs = set()
-    # Shopline API uses 'variations' (not 'variants')
     for v in product.get('variations', product.get('variants', [])):
         parts = []
         for ov in v.get('option_values', []):
@@ -94,27 +141,21 @@ def extract_shopline_specs(product):
 
 def get_shopline_slug(product):
     """Extract slug from Shopline product using multiple field fallbacks."""
-    # Try handle first
     handle = product.get('handle', '')
     if handle:
         return handle
-    # Try permalink (e.g. "/products/mini-charm" or full URL)
     permalink = product.get('permalink', '')
     if permalink:
         return permalink.rstrip('/').split('/')[-1]
-    # Try slug field
     slug = product.get('slug', '')
     if slug:
         return slug
-    # Try extracting from link field (Shopline returns full URL or path)
     link = product.get('link', '')
     if link:
-        # Remove query params and fragments
         link_clean = link.split('?')[0].split('#')[0]
         last_seg = link_clean.rstrip('/').split('/')[-1]
         if last_seg and last_seg not in ('products', ''):
             return last_seg
-    # Try url/product_url fields
     for field in ('url', 'product_url'):
         val = product.get(field, '')
         if val:
@@ -124,20 +165,104 @@ def get_shopline_slug(product):
                 return last_seg
     return ''
 
+def get_shopline_title(product):
+    """Extract best title from Shopline product."""
+    for lang in ('zh-hant', 'zh-TW', 'zh', 'en'):
+        t = product.get('title_translations', {}).get(lang, '')
+        if t:
+            return t
+    for t in product.get('title_translations', {}).values():
+        if t:
+            return t
+    return product.get('title', product.get('handle', ''))
+
+def get_shopline_images(product):
+    """Extract image URLs from Shopline product."""
+    imgs = []
+    for img in product.get('images', product.get('medias', [])):
+        src = img.get('original_url', img.get('url', img.get('src', '')))
+        if src:
+            imgs.append(src.split('?')[0])
+    return imgs
+
+def guess_category(title):
+    """Guess internal category from product title."""
+    for keyword, cat in CATEGORY_MAP.items():
+        if keyword in title:
+            return cat
+    return '新品企劃'
+
+def extract_moq_from_description(product):
+    """Try to extract MOQ from Shopline product description."""
+    for lang_desc in product.get('description_translations', {}).values():
+        if not lang_desc:
+            continue
+        # Common patterns: "500件起訂", "100件起訂", "單圖300件起訂"
+        m = re.search(r'(\d+)\s*件起訂', lang_desc)
+        if m:
+            return f'{m.group(1)}件起訂'
+    return ''
+
+def build_new_product(shopline_product):
+    """Build an internal PRODUCTS entry from a Shopline product."""
+    slug = get_shopline_slug(shopline_product)
+    title = get_shopline_title(shopline_product)
+    images = get_shopline_images(shopline_product)
+    specs = extract_shopline_specs(shopline_product)
+    moq = extract_moq_from_description(shopline_product)
+    cat = guess_category(title)
+
+    # Build _pricing structure from specs
+    sizes = {}
+    for spec_name in sorted(specs):
+        sizes[spec_name] = {
+            'prices': [],
+            'sample': 0
+        }
+
+    # Extract print method from variations if available
+    print_methods = set()
+    for v in shopline_product.get('variations', shopline_product.get('variants', [])):
+        for ov in v.get('option_values', []):
+            val = ov.get('value', '')
+            if '印刷' in val or '印' in val:
+                print_methods.add(val)
+
+    product = {
+        'id': slug or shopline_product.get('id', ''),
+        'name': title,
+        'url': f'{SHOP_DOMAIN}/products/{slug}' if slug else '',
+        'cat': cat,
+        'hasSpec': len(specs) > 0,
+        'moq': moq,
+        'material': '',
+        'size': '',
+        'print': sorted(print_methods) if print_methods else [''],
+        'leadtime': '',
+        'notes': '',
+        'qa': [],
+        'newArrival': True,
+        'newArrivalOrder': 0,
+        '_imgs': images[:5],
+        '_pricing': {
+            'tiers': [],
+            'sizes': sizes
+        },
+        '_partNumbers': {},
+        '_autoAdded': True  # Flag for auto-added products
+    }
+    return product
+
 def match_products(shopline_list, internal_list):
-    """Match products by Shopline slug <-> internal URL slug."""
-    # Debug: print first product's keys to help diagnose matching issues
+    """Match products by Shopline slug <-> internal URL slug, with name fallback."""
     if shopline_list:
         p0 = shopline_list[0]
         print(f'  [DEBUG] Shopline product keys: {sorted(p0.keys())}')
         print(f'  [DEBUG] Sample handle={p0.get("handle","")!r} permalink={p0.get("permalink","")!r} slug={p0.get("slug","")!r}')
         print(f'  [DEBUG] Sample link={p0.get("link","")!r}')
         print(f'  [DEBUG] Resolved slug: {get_shopline_slug(p0)!r}')
-        # Print first 3 internal slugs for comparison
-        if internal_list:
-            sample_urls = [p.get('url','') for p in internal_list[:3]]
-            print(f'  [DEBUG] Sample internal URLs: {sample_urls}')
 
+    # Build slug index
     internal_by_slug = {}
     for p in internal_list:
         url = p.get('url', '')
@@ -145,16 +270,49 @@ def match_products(shopline_list, internal_list):
             slug = url.rstrip('/').split('/')[-1]
             internal_by_slug[slug] = p
 
+    # Build name index for secondary matching
+    internal_by_name = {}
+    for p in internal_list:
+        name = p.get('name', '').strip()
+        if name:
+            # Normalize: remove "客製｜" or "客製|" prefix for matching
+            clean = re.sub(r'^客製[｜|]\s*', '', name).strip()
+            internal_by_name[clean] = p
+
     matches = []
     unmatched_sl = []
+    matched_internal_ids = set()
+
     for sp in shopline_list:
         sl_slug = get_shopline_slug(sp)
+        matched = False
+
+        # Primary match: by slug
         if sl_slug and sl_slug in internal_by_slug:
-            matches.append((sp, internal_by_slug.pop(sl_slug)))
+            p = internal_by_slug.pop(sl_slug)
+            matches.append((sp, p))
+            matched_internal_ids.add(p['id'])
+            matched = True
         else:
+            # Secondary match: by title
+            sl_title = get_shopline_title(sp)
+            clean_title = re.sub(r'^客製[｜|]\s*', '', sl_title).strip()
+            if clean_title in internal_by_name:
+                p = internal_by_name[clean_title]
+                if p['id'] not in matched_internal_ids:
+                    matches.append((sp, p))
+                    matched_internal_ids.add(p['id'])
+                    # Remove from slug index too
+                    url = p.get('url', '')
+                    if url:
+                        s = url.rstrip('/').split('/')[-1]
+                        internal_by_slug.pop(s, None)
+                    matched = True
+
+        if not matched:
             unmatched_sl.append(sp)
 
-    unmatched_int = list(internal_by_slug.values())
+    unmatched_int = [p for p in internal_by_slug.values() if p['id'] not in matched_internal_ids]
     return matches, unmatched_sl, unmatched_int
 
 def validate_price(price):
@@ -171,17 +329,9 @@ def compare_all(matches):
     """Compare matched products and return diffs."""
     diffs = []
     for sl, internal in matches:
-        sl_title = ''
-        for t in sl.get('title_translations', {}).values():
-            sl_title = t
-            break
-        if not sl_title:
-            sl_title = sl.get('title', sl.get('handle', ''))
-
         sl_specs = extract_shopline_specs(sl)
         int_specs = set(internal.get('_pricing', {}).get('sizes', {}).keys())
 
-        # Spec name comparison
         if sl_specs and int_specs and sl_specs != int_specs:
             only_sl = sl_specs - int_specs
             only_int = int_specs - sl_specs
@@ -196,7 +346,6 @@ def compare_all(matches):
                     'internal_all': sorted(int_specs)
                 })
 
-        # Image comparison
         sl_imgs = []
         for img in sl.get('images', []):
             src = img.get('original_url', img.get('url', ''))
@@ -213,14 +362,26 @@ def compare_all(matches):
 
     return diffs
 
-def generate_report(diffs, unmatched_sl, unmatched_int):
+def generate_report(diffs, unmatched_sl, unmatched_int, auto_added=None):
     """Generate markdown report."""
+    auto_added = auto_added or []
     lines = ['# BardShop Shopline Sync Report\n']
     lines.append(f'Generated: {os.popen("date").read().strip()}\n')
 
-    if not diffs and not unmatched_sl:
+    if not diffs and not unmatched_sl and not auto_added:
         lines.append('## ✅ All synced! No differences found.\n')
         return '\n'.join(lines)
+
+    if auto_added:
+        lines.append(f'## 🆕 Auto-added {len(auto_added)} new product(s) to internal DB\n')
+        for p in auto_added:
+            specs = list(p.get('_pricing', {}).get('sizes', {}).keys())
+            spec_str = ', '.join(specs[:5]) if specs else '無規格'
+            lines.append(f'- **{p["name"]}** (`{p["id"]}`)')
+            lines.append(f'  - 分類: {p["cat"]}')
+            lines.append(f'  - 規格: {spec_str}')
+            lines.append(f'  - ⚠️ 需補充: 報價、料號、材質、MOQ 等')
+        lines.append('')
 
     if diffs:
         lines.append(f'## ⚠️ Found {len(diffs)} difference(s)\n')
@@ -240,13 +401,14 @@ def generate_report(diffs, unmatched_sl, unmatched_int):
             lines.append('')
 
     if unmatched_sl:
-        lines.append(f'## 🆕 {len(unmatched_sl)} Shopline product(s) not in internal DB\n')
-        for sp in unmatched_sl:
-            title = ''
-            for t in sp.get('title_translations', {}).values():
-                title = t
-                break
-            lines.append(f'- **{title or sp.get("handle", "?")}** (`{sp.get("handle", "")}`)')
+        lines.append(f'## 📋 {len(unmatched_sl)} Shopline product(s) still unmatched\n')
+        lines.append('These could not be matched by URL slug or name:\n')
+        for sp in unmatched_sl[:20]:
+            title = get_shopline_title(sp)
+            slug = get_shopline_slug(sp)
+            lines.append(f'- **{title}** (`{slug}`)')
+        if len(unmatched_sl) > 20:
+            lines.append(f'- ... and {len(unmatched_sl) - 20} more')
         lines.append('')
 
     if unmatched_int:
@@ -313,54 +475,110 @@ def push_to_github(html, message):
         return result.get('content', {}).get('sha', '')
 
 def main():
-    print('=== BardShop Shopline Sync ===')
+    print('=== BardShop Shopline Sync v4 ===')
     print(f'Mode: {MODE}')
 
     # 1. Fetch data
-    print('[1/4] Fetching Shopline products...')
+    print('[1/5] Fetching Shopline products...')
     sl_products = fetch_shopline_products()
     print(f'  Found {len(sl_products)} Shopline products')
 
-    print('[2/4] Fetching internal database...')
+    print('[2/5] Fetching internal database...')
     html = fetch_index_html()
     int_products, ob, cb = parse_products(html)
     print(f'  Found {len(int_products)} internal products')
 
     # 2. Match & Compare
-    print('[3/4] Comparing...')
+    print('[3/5] Comparing...')
     matches, unmatched_sl, unmatched_int = match_products(sl_products, int_products)
     print(f'  Matched: {len(matches)}, Shopline-only: {len(unmatched_sl)}, Internal-only: {len(unmatched_int)}')
 
     diffs = compare_all(matches)
     print(f'  Differences found: {len(diffs)}')
 
-    # 3. Generate report
-    report = generate_report(diffs, unmatched_sl, unmatched_int)
+    # 3. Auto-create new products from unmatched Shopline products
+    print('[4/5] Checking for new products to auto-add...')
+    existing_ids = {p['id'] for p in int_products}
+    existing_urls = set()
+    for p in int_products:
+        url = p.get('url', '')
+        if url:
+            existing_urls.add(url.rstrip('/').split('/')[-1])
+
+    auto_added = []
+    still_unmatched = []
+    for sp in unmatched_sl:
+        slug = get_shopline_slug(sp)
+        # Skip if slug already exists (edge case)
+        if slug in existing_urls or slug in existing_ids:
+            still_unmatched.append(sp)
+            continue
+        # Skip products without a slug (can't build proper entry)
+        if not slug:
+            still_unmatched.append(sp)
+            continue
+
+        new_product = build_new_product(sp)
+
+        # Verify we're not creating a duplicate by ID
+        if new_product['id'] in existing_ids:
+            still_unmatched.append(sp)
+            continue
+
+        int_products.append(new_product)
+        existing_ids.add(new_product['id'])
+        existing_urls.add(slug)
+        auto_added.append(new_product)
+
+    if auto_added:
+        print(f'  Auto-added {len(auto_added)} new products:')
+        for p in auto_added:
+            print(f'    + {p["name"]} ({p["id"]})')
+
+        # Assign newArrivalOrder
+        max_order = max((p.get('newArrivalOrder', 0) for p in int_products), default=0)
+        for i, p in enumerate(auto_added):
+            p['newArrivalOrder'] = max_order + 1 + i
+
+        # Push updated HTML
+        new_html = rebuild_html(html, ob, cb, int_products)
+        names = ', '.join(p['name'] for p in auto_added[:3])
+        if len(auto_added) > 3:
+            names += f' 等{len(auto_added)}個'
+        push_sha = push_to_github(new_html, f'[Sync] 自動新增 {len(auto_added)} 個商品: {names}')
+        print(f'  Pushed to GitHub (SHA: {push_sha[:8]})')
+    else:
+        print('  No new products to add.')
+
+    # 4. Generate report
+    report = generate_report(diffs, still_unmatched, unmatched_int, auto_added)
     print('\n' + report)
 
-    # 4. Create GitHub Issue
-    print('[4/4] Creating report...')
-    if diffs or unmatched_sl:
+    # 5. Create GitHub Issue
+    print('[5/5] Creating report...')
+    if diffs or still_unmatched or auto_added:
         issue_url = create_github_issue(
             f'[Sync] Shopline comparison report',
             report
         )
         print(f'  Issue created: {issue_url}')
 
-        # LINE notification
         summary = f'\n🔄 BardShop Sync Report\n'
+        if auto_added:
+            summary += f'✅ 自動新增: {len(auto_added)} 個商品\n'
         summary += f'差異: {len(diffs)} 項\n'
-        summary += f'Shopline新商品: {len(unmatched_sl)} 項\n'
-        if diffs:
-            for d in diffs[:3]:
-                summary += f'- {d["product_name"]}: {d["type"]}\n'
+        if still_unmatched:
+            summary += f'未配對: {len(still_unmatched)} 項\n'
+        if auto_added:
+            for p in auto_added[:3]:
+                summary += f'  + {p["name"]}\n'
         summary += f'\n詳情: {issue_url}'
         send_line_notify(summary)
     else:
         print('  No differences - no issue created.')
         send_line_notify('\n✅ BardShop Sync: 全部一致，無需更新')
 
-    # Price validation for all internal products
+    # Price validation
     warnings = []
     for p in int_products:
         sizes = p.get('_pricing', {}).get('sizes', {})
