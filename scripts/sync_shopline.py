@@ -1,22 +1,32 @@
 #!/usr/bin/env python3
-"""
-BardShop x Shopline Sync Tool
-Compares Shopline products with internal database, generates diff report,
-and optionally applies spec name changes.
-"""
-import json, os, re, sys, urllib.request, urllib.error, urllib.parse, base64
+"""BardShop x Shopline Sync Tool"""
+import json, os, sys, urllib.request, urllib.error, urllib.parse, base64
+from datetime import datetime, timezone, timedelta
 
 SHOPLINE_API = 'https://open.shoplineapp.com/v1'
 SHOPLINE_TOKEN = os.environ.get('SHOPLINE_TOKEN', '')
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
 REPO = 'bardshop/bardshop.github.io'
 MODE = os.environ.get('SYNC_MODE', 'report')
-LINE_TOKEN = os.environ.get('LINE_NOTIFY_TOKEN', '')
 
 def api_get(url, headers):
     req = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(req) as r:
-        return json.loads(r.read().decode('utf-8'))
+    try:
+        with urllib.request.urlopen(req) as r:
+            body = r.read().decode('utf-8')
+            if not body.strip():
+                print(f'[WARN] Empty response from {url}')
+                return {}
+            return json.loads(body)
+    except urllib.error.HTTPError as e:
+        body = e.read().decode('utf-8', errors='replace')[:500]
+        print(f'[ERROR] HTTP {e.code} from {url}')
+        print(f'  Response: {body}')
+        raise
+    except json.JSONDecodeError as e:
+        print(f'[ERROR] Invalid JSON from {url}: {e}')
+        print(f'  Body preview: {body[:200] if body else "(empty)"}')
+        raise
 
 def api_get_text(url, headers):
     req = urllib.request.Request(url, headers=headers)
@@ -27,17 +37,22 @@ def fetch_shopline_products():
     products = []
     page = 1
     while True:
+        url = f'{SHOPLINE_API}/products?per_page=250&page={page}'
+        print(f'  Fetching: {url}')
         try:
-            data = api_get(
-                f'{SHOPLINE_API}/products?per_page=250&page={page}&status=active',
-                {'Authorization': f'Bearer {SHOPLINE_TOKEN}', 'Content-Type': 'application/json'}
-            )
-        except urllib.error.HTTPError as e:
-            print(f'[ERROR] Shopline API error: {e.code} {e.reason}')
-            sys.exit(1)
+            data = api_get(url, {
+                'Authorization': f'Bearer {SHOPLINE_TOKEN}',
+                'Accept': 'application/json'
+            })
+        except Exception as e:
+            print(f'[ERROR] Failed to fetch Shopline products: {e}')
+            if not products:
+                sys.exit(1)
+            break
         items = data.get('items', data.get('data', []))
         if not items: break
         products.extend(items)
+        print(f'  Page {page}: got {len(items)} products')
         if len(items) < 250: break
         page += 1
     return products
@@ -45,12 +60,11 @@ def fetch_shopline_products():
 def fetch_index_html():
     return api_get_text(
         f'https://api.github.com/repos/{REPO}/contents/index.html',
-        {'Authorization': f'token {GITHUB_TOKEN}', 'Accept': 'application/vnd.github.v3.raw'}
-    )
+        {'Authorization': f'token {GITHUB_TOKEN}', 'Accept': 'application/vnd.github.v3.raw'})
 
 def fetch_index_sha():
     data = api_get(f'https://api.github.com/repos/{REPO}/contents/index.html',
-        {'Authorization': f'token {GITHUB_TOKEN}'})
+        {'Authorization': f'token {GITHUB_TOKEN}', 'Accept': 'application/json'})
     return data['sha']
 
 def parse_products(html):
@@ -83,12 +97,6 @@ def match_products(sl_list, int_list):
         else: unmatched_sl.append(sp)
     return matches, unmatched_sl, list(by_slug.values())
 
-def validate_price(price):
-    if not isinstance(price,(int,float)): return False,'not a number'
-    if price < 0: return False,'negative'
-    if price > 50000: return False,'suspiciously high'
-    return True,'ok'
-
 def compare_all(matches):
     diffs = []
     for sl, internal in matches:
@@ -100,39 +108,39 @@ def compare_all(matches):
             if only_sl or only_int:
                 diffs.append({'product_id':internal['id'],'product_name':internal['name'],
                     'type':'spec_mismatch','shopline_only':sorted(only_sl),
-                    'internal_only':sorted(only_int),'shopline_all':sorted(sl_specs),
-                    'internal_all':sorted(int_specs)})
+                    'internal_only':sorted(only_int)})
         sl_imgs = [img.get('original_url',img.get('url','')).split('?')[0]
                    for img in sl.get('images',[]) if img.get('original_url') or img.get('url')]
         if sl_imgs and not internal.get('_imgs',[]):
             diffs.append({'product_id':internal['id'],'product_name':internal['name'],
-                'type':'missing_image','shopline_images':sl_imgs[:3]})
+                'type':'missing_image','count':len(sl_imgs)})
     return diffs
 
-def generate_report(diffs, unmatched_sl, unmatched_int):
-    lines = ['# BardShop Shopline Sync Report\n']
-    from datetime import datetime, timezone, timedelta
+def generate_report(diffs, unmatched_sl, unmatched_int, match_count):
     tw = timezone(timedelta(hours=8))
-    lines.append(f'Generated: {datetime.now(tw).strftime("%Y-%m-%d %H:%M")} (UTC+8)\n')
+    now = datetime.now(tw).strftime('%Y-%m-%d %H:%M')
+    lines = [f'# BardShop Shopline Sync Report', f'Generated: {now} (UTC+8)', f'Matched products: {match_count}', '']
     if not diffs and not unmatched_sl:
-        lines.append('## All synced! No differences found.\n')
+        lines.append('## All synced! No differences found.')
         return '\n'.join(lines)
     if diffs:
-        lines.append(f'## Found {len(diffs)} difference(s)\n')
+        lines.append(f'## Found {len(diffs)} difference(s)')
+        lines.append('')
         for d in diffs:
-            lines.append(f'### {d["product_name"]} (\x60{d["product_id"]}\x60)')
+            lines.append(f'### {d["product_name"]} ({d["product_id"]})')
             if d['type']=='spec_mismatch':
                 lines.append('**Type:** Spec name mismatch')
-                if d['shopline_only']: lines.append(f'- Shopline has: {", ".join(d["shopline_only"])}')
-                if d['internal_only']: lines.append(f'- Internal DB has: {", ".join(d["internal_only"])}')
+                if d.get('shopline_only'): lines.append(f'- Shopline has: {", ".join(d["shopline_only"])}')
+                if d.get('internal_only'): lines.append(f'- Internal DB has: {", ".join(d["internal_only"])}')
             elif d['type']=='missing_image':
-                lines.append(f'**Type:** Missing image ({len(d["shopline_images"])} available on Shopline)')
+                lines.append(f'**Type:** Missing image ({d["count"]} available on Shopline)')
             lines.append('')
     if unmatched_sl:
-        lines.append(f'## {len(unmatched_sl)} Shopline product(s) not in internal DB\n')
+        lines.append(f'## {len(unmatched_sl)} Shopline product(s) not in internal DB')
+        lines.append('')
         for sp in unmatched_sl:
             title = next(iter(sp.get('title_translations',{}).values()),'') or sp.get('handle','?')
-            lines.append(f'- **{title}** (\x60{sp.get("handle","")}\x60)')
+            lines.append(f'- **{title}** ({sp.get("handle","")})')
         lines.append('')
     return '\n'.join(lines)
 
@@ -143,50 +151,51 @@ def create_github_issue(title, body):
     with urllib.request.urlopen(req) as r:
         return json.loads(r.read()).get('html_url','')
 
-def send_line_notify(message):
-    if not LINE_TOKEN: return
-    try:
-        data = urllib.parse.urlencode({'message':message}).encode()
-        req = urllib.request.Request('https://notify-api.line.me/api/notify',
-            data=data, headers={'Authorization':f'Bearer {LINE_TOKEN}'})
-        urllib.request.urlopen(req)
-    except Exception as e: print(f'[WARN] LINE Notify failed: {e}')
-
 def main():
     print('=== BardShop Shopline Sync ===')
     print(f'Mode: {MODE}')
+    print(f'Token present: {bool(SHOPLINE_TOKEN)} (len={len(SHOPLINE_TOKEN)})')
+    print(f'GitHub token present: {bool(GITHUB_TOKEN)} (len={len(GITHUB_TOKEN)})')
+
     print('[1/4] Fetching Shopline products...')
     sl_products = fetch_shopline_products()
-    print(f'  Found {len(sl_products)} Shopline products')
+    print(f'  Total: {len(sl_products)} Shopline products')
+
     print('[2/4] Fetching internal database...')
     html = fetch_index_html()
     int_products, ob, cb = parse_products(html)
-    print(f'  Found {len(int_products)} internal products')
+    print(f'  Total: {len(int_products)} internal products')
+
     print('[3/4] Comparing...')
     matches, unmatched_sl, unmatched_int = match_products(sl_products, int_products)
     print(f'  Matched: {len(matches)}, Shopline-only: {len(unmatched_sl)}, Internal-only: {len(unmatched_int)}')
+
     diffs = compare_all(matches)
-    print(f'  Differences found: {len(diffs)}')
-    report = generate_report(diffs, unmatched_sl, unmatched_int)
-    print('\n' + report)
-    print('[4/4] Creating report...')
+    print(f'  Differences: {len(diffs)}')
+
+    report = generate_report(diffs, unmatched_sl, unmatched_int, len(matches))
+    print('\n--- REPORT ---')
+    print(report)
+    print('--- END REPORT ---\n')
+
+    print('[4/4] Publishing...')
     if diffs or unmatched_sl:
         issue_url = create_github_issue('[Sync] Shopline comparison report', report)
-        print(f'  Issue created: {issue_url}')
-        summary = f'\n🔄 BardShop Sync\n差異: {len(diffs)}項 / 新商品: {len(unmatched_sl)}項\n詳情: {issue_url}'
-        send_line_notify(summary)
+        print(f'  Issue: {issue_url}')
     else:
-        print('  All synced!')
-        send_line_notify('\n✅ BardShop Sync: 全部一致')
+        print('  All synced, no issue needed.')
+
+    # Price validation
     warnings = []
     for p in int_products:
         for sn, sd in p.get('_pricing',{}).get('sizes',{}).items():
             for pr in sd.get('prices',[]):
-                ok, reason = validate_price(pr)
-                if not ok: warnings.append(f'{p["name"]}/{sn}: {pr} ({reason})')
+                if not isinstance(pr,(int,float)) or pr < 0 or pr > 50000:
+                    warnings.append(f'{p["name"]}/{sn}: {pr}')
     if warnings:
         print(f'\nPrice warnings ({len(warnings)}):')
         for w in warnings[:10]: print(f'  - {w}')
+
     print('\n=== Done ===')
 
 if __name__ == '__main__':
